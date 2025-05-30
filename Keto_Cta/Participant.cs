@@ -75,7 +75,7 @@
              ◦ 23 participants (smaller CAC increase)         
          */
 
-        public bool IsZeta => Visits[1].Cac < Visits[0].Cac && Visits[1].Tps < Visits[0].Tps;
+        public bool IsZeta => Visits[1].Cac < Visits[0].Cac || Visits[1].Tps < Visits[0].Tps;
 
         public double DeltaCac => Visits[1].Cac - Visits[0].Cac;
     
@@ -87,7 +87,7 @@
         
         public override string ToString()
         {
-            return $"ParticipantId: {ParticipantId}, Hash: {Hash}, Visits: [{string.Join(", ", Visits)}]";
+            return $"ParticipantId: {ParticipantId}, Hash: {Hash}, Zeta?: {IsZeta} Alpha?: {IsAlpha} Visits: [{string.Join(", ", Visits)}]";
         }
 
     }
@@ -126,7 +126,7 @@
         public override string ToString()
         {
             return
-                $"VisitId: {VisitId}, VisitDate: {VisitDate}, Tps: {Tps}, Cac: {Cac}, Ncpv: {Ncpv}, Tcpv: {Tcpv}, Pav: {Pav}";
+                $"VisitId: {VisitId}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cac: {Cac:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
         }
 
 
