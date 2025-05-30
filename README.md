@@ -1,5 +1,9 @@
 # Keto-CTA Dataset Analysis and Software Specification
 
+## Disclaimer
+Disclaimer
+Keto_Cta - independent software development project, not related to Citizen Science Foundation, Lundquist University, or any other organization. The dataset is publicly available for research purposes. This project is not affiliated with the Citizen Science Foundation or any of its studies. The analyses and software specifications are provided for educational and research purposes only.
+
 ## Overview
 
 This project involves the analysis of the "keto-cta-quant-and-semi-quant 2.txt.csv" dataset, a collection of Coronary Computed Tomography Angiography (CTA) data likely from a Citizen Science Foundation study on the ketogenic diet's impact on cardiovascular health. The dataset contains 100 rows of paired measurements (Visit 1 and Visit 2) for five metrics: Coronary Artery Calcium (CAC), Non-Calcified Plaque Volume (NCPV), Total Plaque Score (TPS), Total Calcified Plaque Volume (TCPV), and Percent Atheroma Volume (PAV). The data is ordered by V1_Total_Plaque_Score in ascending order.
