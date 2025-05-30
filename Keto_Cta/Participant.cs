@@ -49,17 +49,9 @@
 
         // isZeta(x) = tps2(x) < tps1( x ) OR cac2(x) < cac1(x) "
         // Δcac(x) = cac2(x) - cac1(x)
-
-        //  ζ : { x ∈ Ω | isZeta(x) }
-        //  11 participants(CAC or TPS decrease, “Unicorns”)
-
-        // • α : { x ∈ Ω | ¬isZeta(x) }
-        // ◦ 89 participants (CAC and TPS stable or increasing)
-
-        // 
-        //  ζ : { x ∈ Ω | isZeta(x) }
-        //  11 participants(CAC or TPS decrease, “Unicorns”)
         //
+        // Definitions based on the provided sets and conditions: 
+
         /*
          • Ω : All participants
              ◦ 100 participants
@@ -82,7 +74,7 @@
            • θ : { x ∈ β | Δcac(x) ≤ 10 }
              ◦ 23 participants (smaller CAC increase)         
          */
-      
+
         public bool IsZeta => Visits[1].Cac < Visits[0].Cac && Visits[1].Tps < Visits[0].Tps;
 
         public double DeltaCac => Visits[1].Cac - Visits[0].Cac;

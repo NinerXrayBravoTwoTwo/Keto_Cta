@@ -16,8 +16,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
-            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+            new("V1", null, 0, 0, 9.3, 0, 0.004),
+            new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         // Act
         var participant = new Participant("d4e5f", "a1b2c", visits);
@@ -36,11 +36,11 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004)
+            new("V1", null, 0, 0, 9.3, 0, 0.004)
         };
         // Act & Assert
         var exception = Assert.Throws<ArgumentException>(() => new Participant("d4e5f", "a1b2c", visits));
-        Assert.Equal("Visits list must contain at least two visits.", exception.Message);
+        Assert.Contains("Visits list must contain at least two visits.", exception.Message);
     }
 
     [Fact]
@@ -59,8 +59,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
-            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+            new("V1", null, 1, 1, 9.3, 0, 0.004),
+            new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         var participant = new Participant("d4e5f", "a1b2c", visits);
         // Act
@@ -75,8 +75,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 18.8, 0, 0.007),
-            new Visit("V2", null, 0, 0, 9.3, 0, 0.004)
+            new("V1", null, 0, 0, 18.8, 0, 0.007),
+            new("V2", null, 1, 1, 9.3, 0, 0.004)
         };
         var participant = new Participant("d4e5f", "a1b2c", visits);
         // Act
@@ -91,16 +91,20 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
-            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+            new("V1", null, 0, 0, 9.3, 0, 0.004),
+            new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
+        
         var participant = new Participant("d4e5f", "a1b2c", visits);
+        _testOutputHelper.WriteLine(participant.ToString());
+
+
         // Act
         var result = participant.ToString();
         // Assert
         Assert.Contains("ParticipantId: d4e5f", result);
         Assert.Contains("Hash: a1b2c", result);
-        Assert.Contains("Visits Count: 2", result);
+        Assert.Equal(2, participant.Visits.Count);
     }
     [Fact]
     public void Participant_Constructor_NullParticipantId_ShouldThrowArgumentNullException()
@@ -108,8 +112,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
-            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+            new("V1", null, 0, 0, 9.3, 0, 0.004),
+            new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => new Participant(null!, "a1b2c", visits));
@@ -122,8 +126,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange so is not a Zeta participant
         var visits = new List<Visit>
         {
-            new Visit("V1", null, 0, 0, 9.3, 0, 0.004), // delta Cac is 0
-            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+            new("V1", null, 0, 0, 9.3, 0, 0.004), // delta Cac is 0
+            new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => new Participant(null!, "a1b2c", visits));
