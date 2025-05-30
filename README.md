@@ -125,10 +125,17 @@ Contributions are welcome! To contribute:
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the AGPL 3.0 License. See the `LICENSE` file for details.
 
 ## Contact
 
-For questions or feedback, contact the Citizen Science Foundation or post on X with relevant tags (e.g., #KetoCTA, #CitizenScience).
+For questions or feedback about the data, contact the Citizen Science Foundation or post on X with relevant tags (e.g., #KetoCTA, #CitizenScience).
+
+The Citizen Science Foundation dataset is available for public use, and this analysis is intended to support further research into the ketogenic diet's effects on cardiovascular health.
+
+Any omissions or errors in this software specification are unintentional and should be reported for correction. 
+
+This software specification is a prototype and may evolve with further analyses and user feedback. 
+It is not guaranteed or warranted for any specific use case beyond educational and research purposes.
 
 *Generated on May 30, 2025, at 09:42 AM PDT*
