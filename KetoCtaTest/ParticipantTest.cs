@@ -1,0 +1,136 @@
+using Keto_Cta;
+using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace KetoCtaTest;
+
+public class ParticipantTest(ITestOutputHelper testOutputHelper)
+{
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+
+    [Fact]
+    public void Participant_Constructor_ValidParameters_ShouldCreateInstance()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
+            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+        };
+        // Act
+        var participant = new Participant("d4e5f", "a1b2c", visits);
+        // Assert
+        Assert.NotNull(participant);
+        Assert.Equal("d4e5f", participant.ParticipantId);
+        Assert.Equal("a1b2c", participant.Hash);
+        Assert.Equal(2, participant.Visits.Count);
+
+        _testOutputHelper.WriteLine(participant.ToString());
+    }
+
+    [Fact]
+    public void Participant_Constructor_VisitsLessThanTwo_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004)
+        };
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentException>(() => new Participant("d4e5f", "a1b2c", visits));
+        Assert.Equal("Visits list must contain at least two visits.", exception.Message);
+    }
+
+    [Fact]
+    public void Participant_Constructor_NullVisits_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        List<Visit>? visits = null;
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => new Participant("d4e5f", "a1b2c", visits!));
+        Assert.Equal("Value cannot be null. (Parameter 'visits')", exception.Message);
+    }
+
+    [Fact]
+    public void IsZeta_ValidData_ShouldReturnTrue()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
+            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+        };
+        var participant = new Participant("d4e5f", "a1b2c", visits);
+        // Act
+        var isZeta = participant.IsZeta;
+        // Assert
+        Assert.True(isZeta);
+    }
+
+    [Fact]
+    public void IsZeta_InvalidData_ShouldReturnFalse()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 18.8, 0, 0.007),
+            new Visit("V2", null, 0, 0, 9.3, 0, 0.004)
+        };
+        var participant = new Participant("d4e5f", "a1b2c", visits);
+        // Act
+        var isZeta = participant.IsZeta;
+        // Assert
+        Assert.False(isZeta);
+    }
+
+    [Fact]
+    public void ToString_ValidData_ShouldReturnExpectedString()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
+            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+        };
+        var participant = new Participant("d4e5f", "a1b2c", visits);
+        // Act
+        var result = participant.ToString();
+        // Assert
+        Assert.Contains("ParticipantId: d4e5f", result);
+        Assert.Contains("Hash: a1b2c", result);
+        Assert.Contains("Visits Count: 2", result);
+    }
+    [Fact]
+    public void Participant_Constructor_NullParticipantId_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004),
+            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+        };
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => new Participant(null!, "a1b2c", visits));
+        Assert.Equal("Value cannot be null. (Parameter 'participantId')", exception.Message);
+    }
+
+    [Fact]
+    public void IsAlpha_InvalidData_ShouldReturnFalse()  
+    {
+        // Arrange so is not a Zeta participant
+        var visits = new List<Visit>
+        {
+            new Visit("V1", null, 0, 0, 9.3, 0, 0.004), // delta Cac is 0
+            new Visit("V2", null, 0, 0, 18.8, 0, 0.007)
+        };
+        // Act & Assert
+        var exception = Assert.Throws<ArgumentNullException>(() => new Participant(null!, "a1b2c", visits));
+        Assert.Equal("Value cannot be null. (Parameter 'participantId')", exception.Message);
+
+    }
+
+
+
+}
