@@ -13,11 +13,11 @@ The analyses performed verify the logarithmic relationship of the metrics, compu
 - **Format**: CSV (with .txt suffix in some cases)
 - **Rows**: 100 data rows + 1 header
 - **Columns**:
-  - `V1_Total_Plaque_Score`, `V2_Total_Plaque_Score`: Integer, semi-quantitative plaque severity (0–14).
-  - `V1_CAC`, `V2_CAC`: Integer, Coronary Artery Calcium scores (0–400).
-  - `V1_Non_Calcified_Plaque_Volume`, `V2_Non_Calcified_Plaque_Volume`: Float, non-calcified plaque volume (0–606.5).
-  - `V1_Total_Calcified_Plaque_Volume`, `V2_Total_Calcified_Plaque_Volume`: Float, calcified plaque volume (0–215.4).
-  - `V1_Percent_Atheroma_Volume`, `V2_Percent_Atheroma_Volume`: Float, percentage of artery volume occupied by atheroma (0–0.2).
+  - `V1_Total_Plaque_Score`, `V2_Total_Plaque_Score`: Integer, semi-quantitative plaque severity (0â€“14).
+  - `V1_CAC`, `V2_CAC`: Integer, Coronary Artery Calcium scores (0â€“400).
+  - `V1_Non_Calcified_Plaque_Volume`, `V2_Non_Calcified_Plaque_Volume`: Float, non-calcified plaque volume (0â€“606.5).
+  - `V1_Total_Calcified_Plaque_Volume`, `V2_Total_Calcified_Plaque_Volume`: Float, calcified plaque volume (0â€“215.4).
+  - `V1_Percent_Atheroma_Volume`, `V2_Percent_Atheroma_Volume`: Float, percentage of artery volume occupied by atheroma (0â€“0.2).
 - **Notes**: Data is ordered by `V1_Total_Plaque_Score`. Logarithmic transformation (ln(value + 0.1)) improves linear relationships due to skewness and zero values.
 
 ## Analyses Performed
@@ -42,7 +42,7 @@ The following analyses were conducted to explore the dataset and verify its prop
    - Separate V1 vs. V2 analysis yielded identical \( R^2 \) values due to TPS ordering, which preserved sequential relationships.
 
 3. **JSON Schema**:
-   - Generated a JSON description of the dataset’s structure, including column names, data types, ranges, and metadata, without data values.
+   - Generated a JSON description of the datasetâ€™s structure, including column names, data types, ranges, and metadata, without data values.
    - Purpose: Documentation and validation for similar datasets.
 
 4. **Data Handling**:
@@ -125,7 +125,7 @@ Contributions are welcome! To contribute:
 
 ## License
 
-This project is licensed under the AGPL 3.0 License. See the `LICENSE` file for details.
+This project is licensed under the Affero General Public License (AGPL-3.0. See the `LICENSE` file for details.
 
 ## Contact
 
