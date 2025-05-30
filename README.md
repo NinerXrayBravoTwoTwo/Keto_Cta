@@ -124,7 +124,7 @@ Contributions are welcome! To contribute:
 
 ## License
 
-This project is licensed under the [Affero General Public License (AGPL-3.0)](./LICENSE). See the `LICENSE` file for full details.
+This project is licensed under the [Affero General Public License (AGPL-3.0)](../LICENSE). See the `LICENSE` file for full details.
 
 ## Contact
 
