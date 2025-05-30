@@ -1,4 +1,3 @@
-# Keto_Cta
 # Keto-CTA Dataset Analysis and Software Specification
 
 ## Overview
