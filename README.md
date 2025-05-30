@@ -124,9 +124,13 @@ Contributions are welcome! To contribute:
 
 ## License
 
-This project is licensed under the Affero General Public License (AGPL-3.0. See the `LICENSE` file for details.
+This project is licensed under the [Affero General Public License (AGPL-3.0)](./LICENSE). See the `LICENSE` file for full details.
 
 ## Contact
+
+[Your Name or Organization]  
+[Email or website]  
+[GitHub Sponsors / Ko-fi / Patreon link if applicable]
 
 For questions or feedback about the data, contact the Citizen Science Foundation or post on X with relevant tags (e.g., #KetoCTA, #CitizenScience).
 
