@@ -2,7 +2,11 @@
 
 ## Disclaimer
 Disclaimer
-Keto_Cta - independent software development project, not related to Citizen Science Foundation, Lundquist University, or any other organization. The dataset is publicly available for research purposes. This project is not affiliated with the Citizen Science Foundation or any of its studies. The analyses and software specifications are provided for educational and research purposes only.
+Keto_Cta - independent software development project, not related to Citizen Science Foundation, Lundquist University, 
+or any other organization. The dataset is publicly available for research purposes from the Citizen Science Foundation.
+This project is not affiliated with 
+the Citizen Science Foundation or any of its studies. The analyses and software specifications are provided for educational 
+and research purposes only.
 
 ## Overview
 
