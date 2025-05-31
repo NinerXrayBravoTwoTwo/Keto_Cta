@@ -1,4 +1,4 @@
-﻿namespace Keto_Cta
+namespace Keto_Cta
 {
     /* Example JSON structure for IParticipant
           * {
@@ -27,6 +27,15 @@
           */
     /// <summary>
     /// The four current leaf sets of the Keto CTA data set in this subset partition
+    ///
+    /// Conclusion, a note from our editors;
+    ///
+    /// Using “Element” is an excellent choice for your project. 
+    /// It depersonalizes the data, avoids implying transactional state, 
+    /// and aligns with the mathematical framework of your subset partition.
+    /// The updated code reflects this change while maintaining the same 
+    /// functionality, ensuring clarity and precision in your terminology.
+    /// I think this will make your project easier to reason about as it grows. 
     /// </summary>
     enum SetSetName
     {
