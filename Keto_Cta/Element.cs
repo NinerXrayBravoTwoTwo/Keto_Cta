@@ -35,22 +35,22 @@
         Eta = 4, // Larger CAC increase
     }
 
-    public record Participant
+    public record Element
     {
-        public Participant(string participantId, List<Visit> visits)
+        public Element(string Id, List<Visit> visits)
         {
             ArgumentNullException.ThrowIfNull(visits);
 
             if (visits.Count < 2)
                 throw new ArgumentException("Visits list must contain at least two visits.", nameof(visits));
 
-            ParticipantId = participantId ?? throw new ArgumentNullException(nameof(participantId));
+            ParticipantId = Id ?? throw new ArgumentNullException(nameof(Id));
 
             Visits = visits;
         }
 
-        public string ParticipantId { get; }
-        public List<Visit> Visits { get; }
+        public string ParticipantId { get; init; }
+        public List<Visit> Visits { get; init; }
 
         // set definitions
 

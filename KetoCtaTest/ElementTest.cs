@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 namespace KetoCtaTest;
 
-public class ParticipantTest(ITestOutputHelper testOutputHelper)
+public class ElementTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
@@ -18,14 +18,14 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         // Act
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
         // Assert
-        Assert.NotNull(participant);
-        Assert.Equal("d4e5f", participant.ParticipantId);
+        Assert.NotNull(element);
+        Assert.Equal("d4e5f", element.ParticipantId);
 
-        Assert.Equal(2, participant.Visits.Count);
+        Assert.Equal(2, element.Visits.Count);
 
-        _testOutputHelper.WriteLine(participant.ToString());
+        _testOutputHelper.WriteLine(element.ToString());
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 0, 9.3, 0, 0.004)
         };
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => new Participant("d4e5f", visits));
+        var exception = Assert.Throws<ArgumentException>(() => new Element("d4e5f", visits));
         Assert.Contains("Visits list must contain at least two visits.", exception.Message);
     }
 
@@ -47,7 +47,7 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         // Arrange
         List<Visit>? visits = null;
         // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => new Participant("d4e5f", visits!));
+        var exception = Assert.Throws<ArgumentNullException>(() => new Element("d4e5f", visits!));
         Assert.Equal("Value cannot be null. (Parameter 'visits')", exception.Message);
     }
 
@@ -61,16 +61,16 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
 
-        var participant = new Participant("d4e5f", visits);
-        _testOutputHelper.WriteLine(participant.ToString());
+        var element = new Element("d4e5f", visits);
+        _testOutputHelper.WriteLine(element.ToString());
 
 
         // Act
-        var result = participant.ToString();
+        var result = element.ToString();
         // Assert
         string id = "d4e5f";
         Assert.Contains($"ParticipantId: {id}", result);
-        Assert.Equal(2, participant.Visits.Count);
+        Assert.Equal(2, element.Visits.Count);
     }
 
     [Fact]
@@ -83,8 +83,8 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
         // Act & Assert
-        var exception = Assert.Throws<ArgumentNullException>(() => new Participant(null!, visits));
-        Assert.Equal("Value cannot be null. (Parameter 'participantId')", exception.Message);
+        var exception = Assert.Throws<ArgumentNullException>(() => new Element(null!, visits));
+        Assert.Equal("Value cannot be null. (Parameter 'Id')", exception.Message);
     }
 
     [Fact]
@@ -96,9 +96,9 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 1, 1, 9.3, 0, 0.004),
             new("V2", null, 0, 0, 18.8, 0, 0.007)
         };
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
         // Act
-        var isZeta = participant.IsZeta;
+        var isZeta = element.IsZeta;
         // Assert
         Assert.True(isZeta);
     }
@@ -112,9 +112,9 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 0, 18.8, 0, 0.007),
             new("V2", null, 1, 1, 9.3, 0, 0.004)
         };
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
         // Act
-        var isZeta = participant.IsZeta;
+        var isZeta = element.IsZeta;
         // Assert
         Assert.False(isZeta);
     }
@@ -122,7 +122,7 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void IsAlpha_ZetaFalse_AlphaTrue()
     {
-        // Arrange so is not a Zeta participant
+        // Arrange so is not a Zeta element
         var visits = new List<Visit>
         {
             new("V1", null, 0, 0, 0, 0, 0), // delta Cac is 0
@@ -130,10 +130,10 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
         };
 
         // Act & Assert all zeros both visits should be in Alpha not Zeta
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
 
-        _testOutputHelper.WriteLine(participant.ToString());
-        Assert.False(participant.IsZeta, "Is not supposed to be Zeta");
+        _testOutputHelper.WriteLine(element.ToString());
+        Assert.False(element.IsZeta, "Is not supposed to be Zeta");
     }
 
     [Fact]
@@ -145,12 +145,12 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
             new("V2", null, 0, 21, 0, 0, 0)
         };
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
 
-        _testOutputHelper.WriteLine(participant.ToString());
+        _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.False(participant.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, participant.DeltaCac);
+        Assert.False(element.IsGamma, "Is not supposed to be Gamma");
+        Assert.Equal(0, element.DeltaCac);
 
 
 
@@ -161,11 +161,11 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
                 new("V1", null, lowTpc, 0, 0, 0, 0), // delta Cac is 0
                 new("V2", null, RandomGen.Next(lowTpc,10), 0, 0, 0, 0)
         };
-        participant = new Participant("d4e5f", visits);
+        element = new Element("d4e5f", visits);
 
-        _testOutputHelper.WriteLine(participant.ToString());
+        _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.True(participant.IsGamma, " Expected both visits to have CAC = 0");
+        Assert.True(element.IsGamma, " Expected both visits to have CAC = 0");
     }
 
     [Fact]
@@ -177,12 +177,12 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
             new("V2", null, 0, 21, 0, 0, 0)
         };
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
 
-        _testOutputHelper.WriteLine(participant.ToString());
+        _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.False(participant.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, participant.DeltaCac);
+        Assert.False(element.IsGamma, "Is not supposed to be Gamma");
+        Assert.Equal(0, element.DeltaCac);
 
     }
 
@@ -195,12 +195,12 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
             new("V2", null, 0, 32, 0, 0, 0)
         };
-        var participant = new Participant("d4e5f", visits);
+        var element = new Element("d4e5f", visits);
 
-        _testOutputHelper.WriteLine(participant.ToString());
+        _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.True(participant.IsEta, "Expected result to belong to Eta");
-        Assert.Equal(11, participant.DeltaCac);
+        Assert.True(element.IsEta, "Expected result to belong to Eta");
+        Assert.Equal(11, element.DeltaCac);
     }
     [Fact]
     public void IsThetaLimit_ReturnTrue()
@@ -211,10 +211,10 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
             new("V2", null, 0, 31, 0, 0, 0)
         };
-        var participant = new Participant("d4e5f", visits);
-        _testOutputHelper.WriteLine(participant.ToString());
-        Assert.True(participant.IsTheta, "Expected result to belong to Theta");
-        Assert.Equal(10, participant.DeltaCac);
+        var element = new Element("d4e5f", visits);
+        _testOutputHelper.WriteLine(element.ToString());
+        Assert.True(element.IsTheta, "Expected result to belong to Theta");
+        Assert.Equal(10, element.DeltaCac);
     }
     [Fact]
     public void IsThetaLimit_ReturnFalse()
@@ -225,10 +225,10 @@ public class ParticipantTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
             new("V2", null, 0, 32, 0, 0, 0)
         };
-        var participant = new Participant("d4e5f", visits);
-        _testOutputHelper.WriteLine(participant.ToString());
-        Assert.False(participant.IsTheta, "Expected result to not belong to Theta");
-        Assert.Equal(11, participant.DeltaCac);
+        var element = new Element("d4e5f", visits);
+        _testOutputHelper.WriteLine(element.ToString());
+        Assert.False(element.IsTheta, "Expected result to not belong to Theta");
+        Assert.Equal(11, element.DeltaCac);
     }
 
 
