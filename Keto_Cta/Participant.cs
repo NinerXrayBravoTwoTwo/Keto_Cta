@@ -35,7 +35,7 @@
         Eta = 4, // Larger CAC increase
     }
 
-    public class Participant
+    public record Participant
     {
         public Participant(string participantId, List<Visit> visits)
         {
@@ -98,7 +98,7 @@
         }
     }
 
-    public class Visit
+    public record Visit
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Visit"/> class with the specified visit details.
