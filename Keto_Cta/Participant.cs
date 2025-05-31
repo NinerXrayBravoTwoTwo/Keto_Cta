@@ -27,9 +27,17 @@
               },
           */
 
+    enum SetSetName
+    {
+        Zeta = 1,// Unicorns
+        Gamma = 2, // Zero CAC
+        Theta = 3, // Smaller CAC increase  
+        Eta = 4, // Larger CAC increase
+    }
+
     public class Participant
     {
-        public Participant(string participantId, string hash, List<Visit> visits)
+        public Participant(string participantId, List<Visit> visits)
         {
             ArgumentNullException.ThrowIfNull(visits);
 
@@ -37,12 +45,11 @@
                 throw new ArgumentException("Visits list must contain at least two visits.", nameof(visits));
 
             ParticipantId = participantId ?? throw new ArgumentNullException(nameof(participantId));
-            Hash = hash ?? throw new ArgumentNullException(nameof(hash));
+
             Visits = visits;
         }
 
         public string ParticipantId { get; }
-        public string Hash { get; }
         public List<Visit> Visits { get; }
 
         // set definitions
@@ -78,18 +85,17 @@
         public bool IsZeta => Visits[1].Cac < Visits[0].Cac || Visits[1].Tps < Visits[0].Tps;
 
         public double DeltaCac => Visits[1].Cac - Visits[0].Cac;
-    
+
         public bool IsAlpha => !IsZeta;
         public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
         public bool IsGamma => IsAlpha && (Visits[0].Cac == 0 && Visits[1].Cac == 0);
         public bool IsEta => IsBeta && DeltaCac > 10;
         public bool IsTheta => IsBeta && DeltaCac <= 10;
-        
+
         public override string ToString()
         {
-            return $"ParticipantId: {ParticipantId}, Hash: {Hash}, Zeta?: {IsZeta} Alpha?: {IsAlpha} Visits: [{string.Join(", ", Visits)}]";
+            return $"ParticipantId: {ParticipantId}, Set: TBD Visits: [{string.Join(", ", Visits)}]";
         }
-
     }
 
     public class Visit
