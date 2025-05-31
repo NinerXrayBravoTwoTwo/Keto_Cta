@@ -26,7 +26,9 @@
                 ]
               },
           */
-
+    /// <summary>
+    /// The four current leaf sets of the Keto CTA data set in this subset partition
+    /// </summary>
     enum SetSetName
     {
         Zeta = 1,// Unicorns
@@ -34,7 +36,11 @@
         Theta = 3, // Smaller CAC increase  
         Eta = 4, // Larger CAC increase
     }
-
+    /// <summary>
+    /// Rename Participant to Element.  Believe it or not there is no actual personal information in the data set.
+    /// So it is better to represent the class by what it is, an element of the set of all Keto-cta samples,
+    /// an element of that set 'x' (limit( 1 -&gt; 100)
+    /// </summary>
     public record Element
     {
         public Element(string Id, List<Visit> visits)
