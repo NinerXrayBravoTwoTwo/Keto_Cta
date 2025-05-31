@@ -27,7 +27,7 @@ public static class RandomGen
 
     public static bool NextBool()
     {
-        return Next(2) == 1 ? true : false;
+        return Next(2) == 1;
     }
 
     public static double NextDouble()
