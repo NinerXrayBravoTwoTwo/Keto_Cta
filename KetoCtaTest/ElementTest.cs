@@ -1,5 +1,4 @@
 using Keto_Cta;
-using StatTest;
 using Xunit.Abstractions;
 
 namespace KetoCtaTest;
@@ -84,7 +83,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         };
         // Act & Assert
         var exception = Assert.Throws<ArgumentNullException>(() => new Element(null!, visits));
-        Assert.Equal("Value cannot be null. (Parameter 'Id')", exception.Message);
+        Assert.Equal("Value cannot be null. (Parameter 'id')", exception.Message);
     }
 
     [Fact]

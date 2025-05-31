@@ -2,7 +2,7 @@
  * Copyright (c) 2015-2025, Jillian England
  */
 
-namespace StatTest;
+namespace KetoCtaTest;
 
 public static class RandomGen
 {

@@ -2,11 +2,10 @@
 {
     /* Example JSON structure for IParticipant
           * {
-                "participant_id": "d4e5f",  // Hash of V1 data: "009.300.004"
-                "hash": "a1b2c",
+                "id": "d4e5f",  // Hash of V1 data: "009.300.004"
                 "visits": [
                   {
-                    "visit_id": "V1",
+                    "id": "V1",
                     "visit_date": null,
                     "tps": 0,
                     "cac": 0,
@@ -15,7 +14,7 @@
                     "pav": 0.004
                   },
                   {
-                    "visit_id": "V2",
+                    "id": "V2",
                     "visit_date": null,
                     "tps": 0,
                     "cac": 0,
@@ -43,14 +42,21 @@
     /// </summary>
     public record Element
     {
-        public Element(string Id, List<Visit> visits)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="visits"></param>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Element(string id, List<Visit> visits)
         {
             ArgumentNullException.ThrowIfNull(visits);
 
             if (visits.Count < 2)
                 throw new ArgumentException("Visits list must contain at least two visits.", nameof(visits));
 
-            ParticipantId = Id ?? throw new ArgumentNullException(nameof(Id));
+            ParticipantId = id ?? throw new ArgumentNullException(nameof(id));
 
             Visits = visits;
         }
@@ -109,16 +115,16 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Visit"/> class with the specified visit details.
         /// </summary>
-        /// <param name="visitId">The unique identifier for the visit.</param>
+        /// <param name="id">The unique identifier for the visit.</param>
         /// <param name="visitDate">The date and time of the visit. Can be <see langword="null"/> if the visit date is not specified.</param>
         /// <param name="tps">The total plaque score</param>
         /// <param name="cac">The Coronary Artery Calcium, in Angston units</param>
         /// <param name="ncpv">The Non Calcified Plaque Volume.</param>
         /// <param name="tcpv">The Total calcified plaque volume</param>
         /// <param name="pav">The Percent Atheroma Volume</param>
-        public Visit(string visitId, DateTime? visitDate, double tps, double cac, double ncpv, double tcpv, double pav)
+        public Visit(string id, DateTime? visitDate, double tps, double cac, double ncpv, double tcpv, double pav)
         {
-            VisitId = visitId;
+            Id = id;
             VisitDate = visitDate;
             Tps = tps;
             Cac = cac;
@@ -127,7 +133,7 @@
             Pav = pav;
         }
 
-        public string VisitId { get; }
+        public string Id { get; }
         public DateTime? VisitDate { get; }
         public double Tps { get; }
         public double Cac { get; }
@@ -138,7 +144,7 @@
         public override string ToString()
         {
             return
-                $"VisitId: {VisitId}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cac: {Cac:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
+                $"Id: {Id}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cac: {Cac:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
         }
 
 
