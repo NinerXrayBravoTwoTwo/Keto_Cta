@@ -146,13 +146,13 @@ public record Visit
         Pav = pav;
     }
 
-    public string Id { get; }
-    public DateTime? VisitDate { get; }
-    public double Tps { get; }
-    public double Cac { get; }
-    public double Ncpv { get; }
-    public double Tcpv { get; }
-    public double Pav { get; }
+    public string Id { get; init; }
+    public DateTime? VisitDate { get; init; }
+    public double Tps { get; init; }
+    public double Cac { get; init; }
+    public double Ncpv { get; init; }
+    public double Tcpv { get; init; }
+    public double Pav { get; init; }
 
     public override string ToString()
     {
