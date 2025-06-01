@@ -67,7 +67,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Act
         var result = element.ToString();
         // Assert
-        string id = "d4e5f";
+        var id = "d4e5f";
         Assert.Contains($"ParticipantId: {id}", result);
         Assert.Equal(2, element.Visits.Count);
     }
@@ -152,13 +152,12 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         Assert.Equal(0, element.DeltaCac);
 
 
-
         // Arrange so is a Gamma Participant CAC = 0 both visits and delta TPS not negative
         var lowTpc = RandomGen.Next(0, 10);
         visits = new List<Visit>
         {
-                new("V1", null, lowTpc, 0, 0, 0, 0), // delta Cac is 0
-                new("V2", null, RandomGen.Next(lowTpc,10), 0, 0, 0, 0)
+            new("V1", null, lowTpc, 0, 0, 0, 0), // delta Cac is 0
+            new("V2", null, RandomGen.Next(lowTpc, 10), 0, 0, 0, 0)
         };
         element = new Element("d4e5f", visits);
 
@@ -182,7 +181,6 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
 
         Assert.False(element.IsGamma, "Is not supposed to be Gamma");
         Assert.Equal(0, element.DeltaCac);
-
     }
 
     [Fact]
@@ -201,6 +199,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         Assert.True(element.IsEta, "Expected result to belong to Eta");
         Assert.Equal(11, element.DeltaCac);
     }
+
     [Fact]
     public void IsThetaLimit_ReturnTrue()
     {
@@ -215,6 +214,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         Assert.True(element.IsTheta, "Expected result to belong to Theta");
         Assert.Equal(10, element.DeltaCac);
     }
+
     [Fact]
     public void IsThetaLimit_ReturnFalse()
     {
@@ -229,6 +229,4 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         Assert.False(element.IsTheta, "Expected result to not belong to Theta");
         Assert.Equal(11, element.DeltaCac);
     }
-
-
 }
