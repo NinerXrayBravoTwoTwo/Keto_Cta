@@ -129,20 +129,29 @@ public record Element
     public string Id { get; init; }
     public List<Visit> Visits { get; init; }
 
-    public bool IsZeta => MemberSet == SetName.Zeta;
-
+    // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
     public double DeltaCac => Visits[1].Cac - Visits[0].Cac;
+    public double DeltaNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
+    public double DeltaTpc => Visits[1].Tcpv - Visits[0].Tcpv;
+    public double DeltaPav => Visits[1].Pav - Visits[0].Pav;
 
-    public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
+    public double LnDeltaCac => Math.Log(DeltaCac, double.E);
+    public double LnDeltaNcpv => Math.Log(DeltaNcpv, double.E);
+    public double LnDeltaTcpv => Math.Log(DeltaTpc, double.E);
+    public double LnDeltaPav => Math.Log(DeltaPav, double.E);
+
+
+
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
+    public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
+
+    public bool IsZeta => MemberSet == SetName.Zeta;
     public bool IsGamma => MemberSet == SetName.Gamma;
-
-    public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
     public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
-
-    public override string ToString()
-    {
-        return $"ParticipantId: {Id}, Set: TBD Visits: [{string.Join(", ", Visits)}]";
+    public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
+    
+    public override string ToString()    {
+        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits)}]";
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using Keto_Cta;
 using Xunit.Abstractions;
+using System.Linq;
 
 namespace KetoCtaTest;
 
@@ -12,9 +13,21 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     {
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var elements = ReadCsvFile(filePath);
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta);
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta);
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma);
+        var  thetas= elements.Where(e => e.MemberSet == SetName.Theta) ;
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta);
 
-        // Example output
-        foreach (var element in elements) _testOutputHelper.WriteLine($"Name: {element}");
+        _testOutputHelper.WriteLine($"omega count: {omegas.Count()})");
+        _testOutputHelper.WriteLine($"zeta count: {zetas.Count()}");
+        _testOutputHelper.WriteLine($"gamma count: {gammas.Count()}");
+        _testOutputHelper.WriteLine($"Theta count: {thetas.Count()}");
+        _testOutputHelper.WriteLine($"Eta count: {etas.Count()}");
+
+        Assert.Equal(elements[0].Id, "1" );
+        Assert.Equal(elements[99].Id, "100");
+
     }
 
     private static List<Element> ReadCsvFile(string path)
