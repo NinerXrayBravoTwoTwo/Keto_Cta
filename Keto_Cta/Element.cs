@@ -27,8 +27,36 @@ namespace Keto_Cta;
 
 /// <summary>
 ///     The four current leaf sets of the Keto CTA data set in this subset partition
+///
+/// set definitions
+
+/// isZeta(x) = tps2(x) &lt; tps1( x ) OR cac2(x) &lt; cac1(x) "
+/// Δcac(x) = cac2(x) - cac1(x)
+///
+/// Definitions based on the provided sets and conditions: 
+
+///  • Ω : All participants
+///      ◦ 100 participants
+
+///    • α : { x ∈ Ω | ¬isZeta(x) }
+///      ◦ 89 participants (CAC and TPS stable or increasing)
+
+///    • ζ : { x ∈ Ω | isZeta(x) }
+///      ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
+
+///    • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
+///      ◦ 40 participants (non-zero CAC in α)
+
+///    • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
+///      ◦ 49 participants (zero CAC in α)
+
+///    • η : { x ∈ β | Δcac(x) &gt; 10 }
+///      ◦ 17 participants (larger CAC increase)
+
+///    • θ : { x ∈ β | Δcac(x) ≤ 10 }
+///      ◦ 23 participants (smaller CAC increase)
 /// </summary>
-internal enum SetSetName
+public enum SetName
 {
     Zeta = 1, // Unicorns
     Gamma = 2, // Zero CAC
@@ -37,12 +65,7 @@ internal enum SetSetName
 }
 
 /// <summary>
-///     Rename Participant to Element.  Believe it or not there is no actual personal information in the data set.
-///     So it is better to represent the class by what it is, an element of the set of all Keto-cta samples,
-///     an element of that set 'x' (limit( 1 -&gt; 100)
-///     This is a mathematical set, not a database table or a collection of participants
-///     Conclusion, a note from our editors;
-///     Using “Element” is an excellent choice for your project.
+///     “Element” 
 ///     It depersonalizes the data, avoids implying transactional state,
 ///     and aligns with the mathematical framework of your subset partition.
 ///     The updated code reflects this change while maintaining the same
@@ -69,50 +92,53 @@ public record Element
         Id = id ?? throw new ArgumentNullException(nameof(id));
 
         Visits = visits;
+        MemberSet = ComputeSetState(visits[0], visits[1]);
+    }
+
+    public SetName MemberSet { get; init; }
+
+    //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
+
+    private SetName ComputeSetState(Visit v1, Visit v2)
+    {
+        var cac1 = v1.Cac;
+        var tps1 = v1.Tps;
+
+        var cac2 = v2.Cac;
+        var tps2 = v2.Tps;
+
+        if (cac2 < cac1 || tps2 < tps1)
+        {
+            return SetName.Zeta; // Unicorns
+        }
+        else
+        {
+            if (cac1 == 0 && cac2 == 0)
+            {
+                return SetName.Gamma; // Zero CAC
+            }
+
+            return (cac2 - cac1) switch // Delta CAC
+            {
+                > 10 => SetName.Eta,
+                <= 10 => SetName.Theta
+            };
+        }
     }
 
     public string Id { get; init; }
     public List<Visit> Visits { get; init; }
 
-    // set definitions
-
-    // isZeta(x) = tps2(x) < tps1( x ) OR cac2(x) < cac1(x) "
-    // Δcac(x) = cac2(x) - cac1(x)
-    //
-    // Definitions based on the provided sets and conditions: 
-
-    /*
-     • Ω : All participants
-         ◦ 100 participants
-
-       • α : { x ∈ Ω | ¬isZeta(x) }
-         ◦ 89 participants (CAC and TPS stable or increasing)
-
-       • ζ : { x ∈ Ω | isZeta(x) }
-         ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
-
-       • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
-         ◦ 40 participants (non-zero CAC in α)
-
-       • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
-         ◦ 49 participants (zero CAC in α)
-
-       • η : { x ∈ β | Δcac(x) > 10 }
-         ◦ 17 participants (larger CAC increase)
-
-       • θ : { x ∈ β | Δcac(x) ≤ 10 }
-         ◦ 23 participants (smaller CAC increase)
-     */
-
-    public bool IsZeta => Visits[1].Cac < Visits[0].Cac || Visits[1].Tps < Visits[0].Tps;
+    public bool IsZeta => MemberSet == SetName.Zeta;
 
     public double DeltaCac => Visits[1].Cac - Visits[0].Cac;
 
-    public bool IsAlpha => !IsZeta;
+    public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
-    public bool IsGamma => IsAlpha && Visits[0].Cac == 0 && Visits[1].Cac == 0;
-    public bool IsEta => IsBeta && DeltaCac > 10;
-    public bool IsTheta => IsBeta && DeltaCac <= 10;
+    public bool IsGamma => MemberSet == SetName.Gamma;
+
+    public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
+    public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
 
     public override string ToString()
     {

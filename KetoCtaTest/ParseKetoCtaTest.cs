@@ -23,7 +23,11 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 
         using var reader = new StreamReader(path);
         var index = 0;
-
+        // Skip the header line
+        if (!reader.EndOfStream)
+        {
+            reader.ReadLine();
+        }   
         while (!reader.EndOfStream)
         {
             
