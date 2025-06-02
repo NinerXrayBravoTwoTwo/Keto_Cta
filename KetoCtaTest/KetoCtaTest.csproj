@@ -31,13 +31,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="keto-cta-quant-and-semi-quant.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
-</Project>
+
+	    	<ItemGroup>
+		<Content Include="TestData\keto-cta-quant-and-semi-quant.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>TestData\keto-cta-quant-and-semi-quant.csv</Link>
+		</Content>
+	</ItemGroup>	</Project>
