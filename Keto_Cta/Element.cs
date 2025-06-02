@@ -27,34 +27,24 @@ namespace Keto_Cta;
 
 /// <summary>
 ///     The four current leaf sets of the Keto CTA data set in this subset partition
-///
-/// set definitions
-
-/// isZeta(x) = tps2(x) &lt; tps1( x ) OR cac2(x) &lt; cac1(x) "
-/// Δcac(x) = cac2(x) - cac1(x)
-///
-/// Definitions based on the provided sets and conditions: 
-
-///  • Ω : All participants
-///      ◦ 100 participants
-
-///    • α : { x ∈ Ω | ¬isZeta(x) }
-///      ◦ 89 participants (CAC and TPS stable or increasing)
-
-///    • ζ : { x ∈ Ω | isZeta(x) }
-///      ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
-
-///    • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
-///      ◦ 40 participants (non-zero CAC in α)
-
-///    • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
-///      ◦ 49 participants (zero CAC in α)
-
-///    • η : { x ∈ β | Δcac(x) &gt; 10 }
-///      ◦ 17 participants (larger CAC increase)
-
-///    • θ : { x ∈ β | Δcac(x) ≤ 10 }
-///      ◦ 23 participants (smaller CAC increase)
+///     set definitions
+///     isZeta(x) = tps2(x) &lt; tps1( x ) OR cac2(x) &lt; cac1(x) "
+///     Δcac(x) = cac2(x) - cac1(x)
+///     Definitions based on the provided sets and conditions:
+///     • Ω : All participants
+///     ◦ 100 participants
+///     • α : { x ∈ Ω | ¬isZeta(x) }
+///     ◦ 89 participants (CAC and TPS stable or increasing)
+///     • ζ : { x ∈ Ω | isZeta(x) }
+///     ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
+///     • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
+///     ◦ 40 participants (non-zero CAC in α)
+///     • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
+///     ◦ 49 participants (zero CAC in α)
+///     • η : { x ∈ β | Δcac(x) &gt; 10 }
+///     ◦ 17 participants (larger CAC increase)
+///     • θ : { x ∈ β | Δcac(x) ≤ 10 }
+///     ◦ 23 participants (smaller CAC increase)
 /// </summary>
 public enum SetName
 {
@@ -65,7 +55,7 @@ public enum SetName
 }
 
 /// <summary>
-///     “Element” 
+///     “Element”
 ///     It depersonalizes the data, avoids implying transactional state,
 ///     and aligns with the mathematical framework of your subset partition.
 ///     The updated code reflects this change while maintaining the same
@@ -97,40 +87,11 @@ public record Element
 
     public SetName MemberSet { get; init; }
 
-    //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
-
-    private SetName ComputeSetState(Visit v1, Visit v2)
-    {
-        var cac1 = v1.Cp;
-        var tps1 = v1.Tps;
-
-        var cac2 = v2.Cp;
-        var tps2 = v2.Tps;
-
-        if (cac2 < cac1 || tps2 < tps1)
-        {
-            return SetName.Zeta; // Unicorns
-        }
-        else
-        {
-            if (cac1 == 0 && cac2 == 0)
-            {
-                return SetName.Gamma; // Zero CAC
-            }
-
-            return (cac2 - cac1) switch // Delta CAC
-            {
-                > 10 => SetName.Eta,
-                <= 10 => SetName.Theta
-            };
-        }
-    }
-
     public string Id { get; init; }
     public List<Visit> Visits { get; init; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
-    public double DeltaCp=> Visits[1].Cp - Visits[0].Cp;
+    public double DeltaCp => Visits[1].Cp - Visits[0].Cp;
     public double DeltaNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
     public double DeltaTpc => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DeltaPav => Visits[1].Pav - Visits[0].Pav;
@@ -141,7 +102,6 @@ public record Element
     public double LnDeltaPav => Math.Log(DeltaPav, double.E);
 
 
-
     public bool IsBeta => IsAlpha && (Visits[0].Cp != 0 || Visits[1].Cp != 0);
     public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
 
@@ -149,9 +109,30 @@ public record Element
     public bool IsGamma => MemberSet == SetName.Gamma;
     public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
     public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
-    
-    public override string ToString()    {
-        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits)}]";
+
+    //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
+
+    private SetName ComputeSetState(Visit v1, Visit v2)
+    {
+        var cac1 = v1.Cp;
+        var tps1 = v1.Tps;
+
+        var cac2 = v2.Cp;
+        var tps2 = v2.Tps;
+
+        if (cac2 < cac1 || tps2 < tps1) return SetName.Zeta; // Unicorns
+
+        if (cac1 == 0 && cac2 == 0) return SetName.Gamma; // Zero CAC
+
+        return (cac2 - cac1) switch // Delta CAC
+        {
+            > 10 => SetName.Eta,
+            <= 10 => SetName.Theta
+        };
     }
 
+    public override string ToString()
+    {
+        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits)}]";
+    }
 }
