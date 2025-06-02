@@ -124,7 +124,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Arrange so is not a Zeta element
         var visits = new List<Visit>
         {
-            new("V1", null, 0, 0, 0, 0, 0), // delta Cac is 0
+            new("V1", null, 0, 0, 0, 0, 0), // delta Cp is 0
             new("V2", null, 0, 0, 0, 0, 0)
         };
 
@@ -149,14 +149,14 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
 
         Assert.False(element.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, element.DeltaCac);
+        Assert.Equal(0, element.DeltaCp);
 
 
         // Arrange so is a Gamma Participant CAC = 0 both visits and delta TPS not negative
         var lowTpc = RandomGen.Next(0, 10);
         visits = new List<Visit>
         {
-            new("V1", null, lowTpc, 0, 0, 0, 0), // delta Cac is 0
+            new("V1", null, lowTpc, 0, 0, 0, 0), // delta Cp is 0
             new("V2", null, RandomGen.Next(lowTpc, 10), 0, 0, 0, 0)
         };
         element = new Element("d4e5f", visits);
@@ -172,7 +172,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Arrange so is a Beta Participant delta-CAC >= 0 and TPS >= 0, should fail IsGamma
         var visits = new List<Visit>
         {
-            new("V1", null, 0, 21, 0, 0, 0), //cac is positive but the delta cac is 0
+            new("V1", null, 0, 21, 0, 0, 0), //cp is positive but the delta cac is 0
             new("V2", null, 0, 21, 0, 0, 0)
         };
         var element = new Element("d4e5f", visits);
@@ -180,7 +180,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
 
         Assert.False(element.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, element.DeltaCac);
+        Assert.Equal(0, element.DeltaCp);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
 
         Assert.True(element.IsEta, "Expected result to belong to Eta");
-        Assert.Equal(11, element.DeltaCac);
+        Assert.Equal(11, element.DeltaCp);
     }
 
     [Fact]
@@ -213,7 +213,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
         Assert.True(element.MemberSet == SetName.Theta, "Expected result to belong to Theta");
         Assert.True(element.IsTheta, "Expected result to belong to Theta");
-        Assert.Equal(10, element.DeltaCac);
+        Assert.Equal(10, element.DeltaCp);
     }
 
     [Fact]
@@ -229,6 +229,6 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
         Assert.False(element.MemberSet == SetName.Theta, "element.MemberSet == SetName.Theta");
         Assert.False(element.IsTheta, "element is supposed to be Beta");
-        Assert.Equal(11, element.DeltaCac);
+        Assert.Equal(11, element.DeltaCp);
     }
 }

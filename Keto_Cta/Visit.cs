@@ -11,16 +11,16 @@ public record Visit
     ///     specified.
     /// </param>
     /// <param name="tps">The total plaque score</param>
-    /// <param name="cac">The Coronary Artery Calcium, in Angston units</param>
+    /// <param name="cp">The Coronary Artery Calcium, in Angston units</param>
     /// <param name="ncpv">The Non Calcified Plaque Volume.</param>
     /// <param name="tcpv">The Total calcified plaque volume</param>
     /// <param name="pav">The Percent Atheroma Volume</param>
-    public Visit(string id, DateTime? visitDate, int tps, int cac, double ncpv, double tcpv, double pav)
+    public Visit(string id, DateTime? visitDate, int tps, int cp, double ncpv, double tcpv, double pav)
     {
         Id = id;
         VisitDate = visitDate;
         Tps = tps;
-        Cac = cac;
+        Cp = cp;
         Ncpv = ncpv;
         Tcpv = tcpv;
         Pav = pav;
@@ -29,7 +29,7 @@ public record Visit
     public string Id { get; init; }
     public DateTime? VisitDate { get; init; }
     public int Tps { get; init; }
-    public int Cac { get; init; }
+    public int Cp { get; init; }
     public double Ncpv { get; init; }
     public double Tcpv { get; init; }
     public double Pav { get; init; }
@@ -37,6 +37,6 @@ public record Visit
     public override string ToString()
     {
         return
-            $"Id: {Id}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cac: {Cac:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
+            $"Id: {Id}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cp: {Cp:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
     }
 }

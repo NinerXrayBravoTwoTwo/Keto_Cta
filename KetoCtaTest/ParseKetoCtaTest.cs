@@ -5,8 +5,6 @@ namespace KetoCtaTest;
 
 public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 {
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-
     [Fact]
     public void ReadCsvFile_ValidFile_ShouldReturnListOfElements()
     {
@@ -18,11 +16,11 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         var thetas = elements.Where(e => e.MemberSet == SetName.Theta);
         var etas = elements.Where(e => e.MemberSet == SetName.Eta);
 
-        _testOutputHelper.WriteLine($"omega count: {omegas.Count()})");
-        _testOutputHelper.WriteLine($"zeta count: {zetas.Count()}");
-        _testOutputHelper.WriteLine($"gamma count: {gammas.Count()}");
-        _testOutputHelper.WriteLine($"Theta count: {thetas.Count()}");
-        _testOutputHelper.WriteLine($"Eta count: {etas.Count()}");
+        testOutputHelper.WriteLine($"omega count: {omegas.Count()}");
+        testOutputHelper.WriteLine($"zeta count: {zetas.Count()}");
+        testOutputHelper.WriteLine($"gamma count: {gammas.Count()}");
+        testOutputHelper.WriteLine($"Theta count: {thetas.Count()}");
+        testOutputHelper.WriteLine($"Eta count: {etas.Count()}");
 
         Assert.Equal("1", elements[0].Id);
         Assert.Equal("100", elements[99].Id);
