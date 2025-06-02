@@ -66,12 +66,12 @@ public record Element
         if (visits.Count < 2)
             throw new ArgumentException("Visits list must contain at least two visits.", nameof(visits));
 
-        ParticipantId = id ?? throw new ArgumentNullException(nameof(id));
+        Id = id ?? throw new ArgumentNullException(nameof(id));
 
         Visits = visits;
     }
 
-    public string ParticipantId { get; init; }
+    public string Id { get; init; }
     public List<Visit> Visits { get; init; }
 
     // set definitions
@@ -116,6 +116,7 @@ public record Element
 
     public override string ToString()
     {
-        return $"ParticipantId: {ParticipantId}, Set: TBD Visits: [{string.Join(", ", Visits)}]";
+        return $"ParticipantId: {Id}, Set: TBD Visits: [{string.Join(", ", Visits)}]";
     }
+
 }

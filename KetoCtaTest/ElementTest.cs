@@ -20,7 +20,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         var element = new Element("d4e5f", visits);
         // Assert
         Assert.NotNull(element);
-        Assert.Equal("d4e5f", element.ParticipantId);
+        Assert.Equal("d4e5f", element.Id);
 
         Assert.Equal(2, element.Visits.Count);
 
