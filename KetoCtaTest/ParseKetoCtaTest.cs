@@ -1,6 +1,5 @@
 ﻿using Keto_Cta;
 using Xunit.Abstractions;
-using System.Linq;
 
 namespace KetoCtaTest;
 
@@ -16,7 +15,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta);
         var zetas = elements.Where(e => e.MemberSet == SetName.Zeta);
         var gammas = elements.Where(e => e.MemberSet == SetName.Gamma);
-        var  thetas= elements.Where(e => e.MemberSet == SetName.Theta) ;
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta);
         var etas = elements.Where(e => e.MemberSet == SetName.Eta);
 
         _testOutputHelper.WriteLine($"omega count: {omegas.Count()})");
@@ -25,9 +24,8 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine($"Theta count: {thetas.Count()}");
         _testOutputHelper.WriteLine($"Eta count: {etas.Count()}");
 
-        Assert.Equal(elements[0].Id, "1" );
-        Assert.Equal(elements[99].Id, "100");
-
+        Assert.Equal("1", elements[0].Id);
+        Assert.Equal("100", elements[99].Id);
     }
 
     private static List<Element> ReadCsvFile(string path)
@@ -37,13 +35,9 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         using var reader = new StreamReader(path);
         var index = 0;
         // Skip the header line
-        if (!reader.EndOfStream)
-        {
-            reader.ReadLine();
-        }   
+        if (!reader.EndOfStream) reader.ReadLine();
         while (!reader.EndOfStream)
         {
-            
             var line = reader.ReadLine();
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             var values = line.Split(',');
