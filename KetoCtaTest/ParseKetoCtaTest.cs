@@ -10,9 +10,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void ReadCsvFile_ValidFile_ShouldReturnListOfElements()
     {
-        //V1_Total_Plaque_Score,V2_Total_Plaque_Score,V1_CAC,V2_CAC,V1_Non_Calcified_Plaque_Volume,V2_Non_Calcified_Plaque_Volume,V1_Total_Calcified_Plaque_Volume,V2_Total_Calcified_Plaque_Volume,V1_Percent_Atheroma_Volume,V2_Percent_Atheroma_Volume
-
-        var filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var elements = ReadCsvFile(filePath);
 
         // Example output
@@ -24,7 +22,6 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         var list = new List<Element>();
 
         using var reader = new StreamReader(path);
-        var headerLine = reader.ReadLine(); // Skip header (optional)
         var index = 0;
 
         while (!reader.EndOfStream)
