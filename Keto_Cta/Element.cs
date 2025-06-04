@@ -91,18 +91,20 @@ public record Element
     public List<Visit> Visits { get; init; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
-    public double DeltaCp => Visits[1].Cp - Visits[0].Cp;
-    public double DeltaNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
-    public double DeltaTpc => Visits[1].Tcpv - Visits[0].Tcpv;
-    public double DeltaPav => Visits[1].Pav - Visits[0].Pav;
+    public double DCac => Visits[1].Cac - Visits[0].Cac;
+    public double DNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
+    public double DTcp => Visits[1].Tcpv - Visits[0].Tcpv;
+    public double DPav => Visits[1].Pav - Visits[0].Pav;
 
-    public double LnDeltaCp => Math.Log(DeltaCp, double.E);
-    public double LnDeltaNcpv => Math.Log(DeltaNcpv, double.E);
-    public double LnDeltaTcpv => Math.Log(DeltaTpc, double.E);
-    public double LnDeltaPav => Math.Log(DeltaPav, double.E);
+    public  double Ln(double value) => Math.Log(Math.Abs(value) + 1, double.E);
+
+    public double LnDCac => Ln(DCac);
+    public double LnDNcpv => Ln(DNcpv);
+    public double LnDTcpv => Ln(DTcp);
+    public double LnDPav => Ln(DPav);
 
 
-    public bool IsBeta => IsAlpha && (Visits[0].Cp != 0 || Visits[1].Cp != 0);
+    public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
     public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
 
     public bool IsZeta => MemberSet == SetName.Zeta;
@@ -114,10 +116,10 @@ public record Element
 
     private SetName ComputeSetState(Visit v1, Visit v2)
     {
-        var cac1 = v1.Cp;
+        var cac1 = v1.Cac;
         var tps1 = v1.Tps;
 
-        var cac2 = v2.Cp;
+        var cac2 = v2.Cac;
         var tps2 = v2.Tps;
 
         if (cac2 < cac1 || tps2 < tps1) return SetName.Zeta; // Unicorns

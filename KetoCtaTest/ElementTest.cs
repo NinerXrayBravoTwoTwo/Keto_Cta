@@ -149,7 +149,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
 
         Assert.False(element.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, element.DeltaCp);
+        Assert.Equal(0, element.DCac);
 
 
         // Arrange so is a Gamma Participant CAC = 0 both visits and delta TPS not negative
@@ -179,8 +179,8 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
 
         _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.False(element.IsGamma, "Is not supposed to be Gamma");
-        Assert.Equal(0, element.DeltaCp);
+        Assert.False(element.IsGamma,"Is not supposed to be Gamma");
+        Assert.Equal(0, element.DCac);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
 
         Assert.True(element.IsEta, "Expected result to belong to Eta");
-        Assert.Equal(11, element.DeltaCp);
+        Assert.Equal(11, element.DCac);
     }
 
     [Fact]
@@ -213,7 +213,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
         Assert.True(element.MemberSet == SetName.Theta, "Expected result to belong to Theta");
         Assert.True(element.IsTheta, "Expected result to belong to Theta");
-        Assert.Equal(10, element.DeltaCp);
+        Assert.Equal(10, element.DCac);
     }
 
     [Fact]
@@ -229,6 +229,6 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         _testOutputHelper.WriteLine(element.ToString());
         Assert.False(element.MemberSet == SetName.Theta, "element.MemberSet == SetName.Theta");
         Assert.False(element.IsTheta, "element is supposed to be Beta");
-        Assert.Equal(11, element.DeltaCp);
+        Assert.Equal(11, element.DCac);
     }
 }
