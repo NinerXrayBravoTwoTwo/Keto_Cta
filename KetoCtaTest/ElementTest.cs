@@ -179,7 +179,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
 
         _testOutputHelper.WriteLine(element.ToString());
 
-        Assert.False(element.IsGamma,"Is not supposed to be Gamma");
+        Assert.False(element.IsGamma, "Is not supposed to be Gamma");
         Assert.Equal(0, element.DCac);
     }
 

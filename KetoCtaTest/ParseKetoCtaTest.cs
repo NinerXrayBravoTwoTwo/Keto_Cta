@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Runtime.Intrinsics;
-using Keto_Cta;
-using Xunit.Abstractions;
+﻿using Keto_Cta;
 using LinearRegression;
+using Xunit.Abstractions;
 
 namespace KetoCtaTest;
 
@@ -37,10 +35,9 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         var r_gamma = RegressiondLnNcpvLnDcac(gammas, "Gamma");
         var r_theta = RegressiondLnNcpvLnDcac(thetas, "Theta");
         var r_eta = RegressiondLnNcpvLnDcac(etas, "Etas");
+        var s_alphas = RegressLnV1V2Ncpv(alphas, "Alpha V1 vs V2 Ncpv");
+        var s_zetas = RegressLnV1V2Ncpv(zetas, "Zeta V1 vs V2 Ncpv");
 
-        var s_alphas=RegressLnV1V2Ncpv(alphas, "Alpha V1 vs V2 Ncpv");
-        var s_zetas=RegressLnV1V2Ncpv(zetas, "Zeta V1 vs V2 Ncpv");
-        
         // Generate a .csv list for daves favorite stacked plaque graph
         // X= col 1 - id + v1.ncpv +v2.deltaNcpv 
 
@@ -49,18 +46,25 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         //foreach (var item in omegas)
         //    testOutputHelper.WriteLine($"{item.Id},{item.Ln(item.Visits[0].Ncpv):F4}, {item.LnDNcpv:F4}");
 
-        testOutputHelper.WriteLine("\n\nindex, v1.Ncpv, v2.Ncpv");
-        // Regression of Lnv1.ncpv vs Lnv2.v2.Ncpv
-        foreach (var item in alphas)
-            testOutputHelper.WriteLine($"{item.Id},{item.Ln(item.Visits[0].Ncpv):F4}, {item.Ln(item.Visits[1].Ncpv):F4}");
+        testOutputHelper.WriteLine(
+            "\n\nindex, v1.Ncpv, v2.Ncpv, DNpcv, DTcp, Cac2, Cac1, Tps2, Tps1"); // if (cac2 < cac1 || tps2 < tps1) then zeta   
 
+        // Regression of Lnv1.ncpv vs Lnv2.v2.Ncpv
+        foreach (var item in zetas)
+        {
+            var v1 = item.Visits[0];
+            var v2 = item.Visits[1];
+            testOutputHelper.WriteLine(
+                $"{item.Id},{item.Ln(item.Visits[0].Ncpv):F4}, {item.Ln(item.Visits[1].Ncpv):F4}, {item.DNcpv:F4} , {item.DTcp:F4}, {v2.Cac:F4}, {v1.Cac:F4}, {v2.Tps:F4}, {v1.Tps:F4}");
+        }
 
         RegressionPvalue RegressiondLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
             dataPoints.AddRange(targetElements.Select(item => (item.LnDNcpv, LnDCp: item.LnDCac)));
-            var regression = new LinearRegression.RegressionPvalue(dataPoints);
-            testOutputHelper.WriteLine($"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
 
             return regression;
         }
@@ -68,13 +72,14 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         RegressionPvalue RegressLnV1V2Ncpv(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
-            dataPoints.AddRange(targetElements.Select(item => (item.Ln(item.Visits[0].Ncpv), item.Ln(item.Visits[1].Ncpv) )));
-            var regression = new LinearRegression.RegressionPvalue(dataPoints);
-            testOutputHelper.WriteLine($"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+            dataPoints.AddRange(targetElements.Select(item =>
+                (item.Ln(item.Visits[0].Ncpv), item.Ln(item.Visits[1].Ncpv))));
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
 
             return regression;
         }
-
     }
 
     private static List<Element> ReadCsvFile(string path)

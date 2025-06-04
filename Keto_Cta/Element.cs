@@ -96,8 +96,6 @@ public record Element
     public double DTcp => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
 
-    public  double Ln(double value) => Math.Log(Math.Abs(value) + 1, double.E);
-
     public double LnDCac => Ln(DCac);
     public double LnDNcpv => Ln(DNcpv);
     public double LnDTcpv => Ln(DTcp);
@@ -111,6 +109,11 @@ public record Element
     public bool IsGamma => MemberSet == SetName.Gamma;
     public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
     public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
+
+    public double Ln(double value)
+    {
+        return Math.Log(Math.Abs(value) + 1, double.E);
+    }
 
     //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
 
