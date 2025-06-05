@@ -1,4 +1,5 @@
-﻿using Keto_Cta;
+﻿using System.Text;
+using Keto_Cta;
 using LinearRegression;
 using Xunit.Abstractions;
 
@@ -11,54 +12,77 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     {
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var elements = ReadCsvFile(filePath);
-        var x = new RegressionPvalue();
         Assert.Equal("1", elements[0].Id);
         Assert.Equal("100", elements[99].Id);
 
-        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta);
-        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma);
-        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta);
-        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma);
-        var thetas = elements.Where(e => e.MemberSet == SetName.Theta);
-        var etas = elements.Where(e => e.MemberSet == SetName.Eta);
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta)
+            .ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
 
-        testOutputHelper.WriteLine($"omega count: {omegas.Count()}");
-        testOutputHelper.WriteLine($"alpha count: {alphas.Count()}");
-        testOutputHelper.WriteLine($"zeta count: {zetas.Count()}");
-        testOutputHelper.WriteLine($"gamma count: {gammas.Count()}");
-        testOutputHelper.WriteLine($"Theta count: {thetas.Count()}");
-        testOutputHelper.WriteLine($"Eta count: {etas.Count()}\n");
+        testOutputHelper.WriteLine($"omega count: {omegas.Length}");
+        testOutputHelper.WriteLine($"alpha count: {alphas.Length}");
+        testOutputHelper.WriteLine($"zeta count: {zetas.Length}");
+        testOutputHelper.WriteLine($"gamma count: {gammas.Length}");
+        testOutputHelper.WriteLine($"Theta count: {thetas.Length}");
+        testOutputHelper.WriteLine($"Eta count: {etas.Length}\n");
 
-        var r_omega = RegressiondLnNcpvLnDcac(omegas, "Omega");
-        var r_alphas = RegressiondLnNcpvLnDcac(alphas, "Alpha");
-        var r_zeta = RegressiondLnNcpvLnDcac(zetas, "Zeta");
-        var r_gamma = RegressiondLnNcpvLnDcac(gammas, "Gamma");
-        var r_theta = RegressiondLnNcpvLnDcac(thetas, "Theta");
-        var r_eta = RegressiondLnNcpvLnDcac(etas, "Etas");
-        var s_alphas = RegressLnV1V2Ncpv(alphas, "Alpha V1 vs V2 Ncpv");
-        var s_zetas = RegressLnV1V2Ncpv(zetas, "Zeta V1 vs V2 Ncpv");
+        var rOmega = RegressionLnNcpvLnDcac(omegas, "Omega");
+        var rAlphas = RegressionLnNcpvLnDcac(alphas, "Alpha");
+        var rZeta = RegressionLnNcpvLnDcac(zetas, "Zeta");
+        var rGamma = RegressionLnNcpvLnDcac(gammas, "Gamma");
+        var rTheta = RegressionLnNcpvLnDcac(thetas, "Theta");
+        var rEta = RegressionLnNcpvLnDcac(etas, "Etas");
+        //
+        var sOmegas = RegressLnV1V2Ncpv(omegas, "\nOmega V1 vs V2 Ncpv");
+        var sAlphas = RegressLnV1V2Ncpv(alphas, "Alpha V1 vs V2 Ncpv");
+        var sZetas = RegressLnV1V2Ncpv(zetas, "Zeta V1 vs V2 Ncpv");
+        var sGammas = RegressLnV1V2Ncpv(gammas, "Gamma V1 vs V2 Ncpv");
+        var sThetas = RegressLnV1V2Ncpv(thetas, "Theta V1 vs V2 Ncpv");
+        var sEtas = RegressLnV1V2Ncpv(etas, "Eta V1 vs V2 Ncpv");
 
-        // Generate a .csv list for daves favorite stacked plaque graph
+        // Generate a .csv list for favorite stacked plaque graph
         // X= col 1 - id + v1.ncpv +v2.deltaNcpv 
 
         //// Stacked NCPV bar graph dumper
-        //testOutputHelper.WriteLine("\n\nindex, v1.Ncpv, v2.Ncpv");
+        //testOutputHelper.WriteLine("\n\nindex, v1.Ncpv, DNcpv,v1.LnNcpv, LnDNcpv");
         //foreach (var item in omegas)
-        //    testOutputHelper.WriteLine($"{item.Id},{item.Ln(item.Visits[0].Ncpv):F4}, {item.LnDNcpv:F4}");
+        //    testOutputHelper.WriteLine($"{item.Id},{item.Visits[0].Ncpv:F4}, {item.DNcpv:F4}, {item.Ln(item.Visits[0].Ncpv):F4}, {item.LnDNcpv:F4}");
 
         testOutputHelper.WriteLine(
-            "\n\nindex, v1.Ncpv, v2.Ncpv, DNpcv, DTcp, Cac2, Cac1, Tps2, Tps1"); // if (cac2 < cac1 || tps2 < tps1) then zeta   
+            "\nindex, "
+            + "v1.LnNcpv, v2.LnCpv, "
+            + "v1.Ncpv, v2.Ncpv, "
+            + "v1.Tps, v2.Tps, "
+            + "v1.Cac, v2.Cac, "
+            + "DTps, DCac, DNcpv, DTcpv, DPav, Why?"); // if (cac2 < cac1 || tps2 < tps1) then zeta   
 
         // Regression of Lnv1.ncpv vs Lnv2.v2.Ncpv
         foreach (var item in zetas)
         {
             var v1 = item.Visits[0];
             var v2 = item.Visits[1];
+            var sb = new StringBuilder();
+
+            if (item.DTps < 0) sb.Append("Tps ");
+            if (item.DCac < 0) sb.Append("Cac ");
+            if (item.DNcpv < 0) sb.Append("Ncpv ");
+            if (item.DTcpv < 0) sb.Append("Tcpv ");
+            if (item.DPav < 0) sb.Append("Pav ");
+
             testOutputHelper.WriteLine(
-                $"{item.Id},{item.Ln(item.Visits[0].Ncpv):F4}, {item.Ln(item.Visits[1].Ncpv):F4}, {item.DNcpv:F4} , {item.DTcp:F4}, {v2.Cac:F4}, {v1.Cac:F4}, {v2.Tps:F4}, {v1.Tps:F4}");
+                $"{item.Id},{item.Ln(v1.Ncpv):F4}, {item.Ln(v2.Ncpv):F4}, "
+                + $"{v1.Ncpv:F4}, {v2.Ncpv:F4}, "
+                + $"{v1.Tps:F4}, {v2.Tps:F4}, "
+                + $"{v1.Cac:F4}, {v2.Cac:F4}, "
+                + $"{item.DTps:F4}, {item.DCac:F4}, {item.DNcpv:F4}, {item.DTcpv:F4}, {item.DPav:F4}, {sb}"
+            );
         }
 
-        RegressionPvalue RegressiondLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
+        RegressionPvalue RegressionLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
             dataPoints.AddRange(targetElements.Select(item => (item.LnDNcpv, LnDCp: item.LnDCac)));

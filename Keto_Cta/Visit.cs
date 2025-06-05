@@ -11,7 +11,7 @@ public record Visit
     ///     specified.
     /// </param>
     /// <param name="tps">The total plaque score</param>
-    /// <param name="cp">The Coronary Artery Calcium, in Angston units</param>
+    /// <param name="cac">The Coronary Artery Calcium, in Angston units</param>
     /// <param name="ncpv">The Non Calcified Plaque Volume.</param>
     /// <param name="tcpv">The Total calcified plaque volume</param>
     /// <param name="pav">The Percent Atheroma Volume</param>

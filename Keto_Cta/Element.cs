@@ -91,14 +91,16 @@ public record Element
     public List<Visit> Visits { get; init; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
+    public double DTps => Visits[1].Tps - Visits[0].Tps;
     public double DCac => Visits[1].Cac - Visits[0].Cac;
     public double DNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
-    public double DTcp => Visits[1].Tcpv - Visits[0].Tcpv;
+    public double DTcpv => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
 
+    public double LnDTps => Ln(DTps);
     public double LnDCac => Ln(DCac);
     public double LnDNcpv => Ln(DNcpv);
-    public double LnDTcpv => Ln(DTcp);
+    public double LnDTcpv => Ln(DTcpv);
     public double LnDPav => Ln(DPav);
 
 
@@ -125,7 +127,22 @@ public record Element
         var cac2 = v2.Cac;
         var tps2 = v2.Tps;
 
-        if (cac2 < cac1 || tps2 < tps1) return SetName.Zeta; // Unicorns
+        var ncpv2 = v2.Ncpv;
+        var ncpv1 = v1.Ncpv;
+        var pav2 = v2.Pav;
+        var pav1 = v1.Pav;
+        var tcpv2 = v2.Tcpv;
+        var tcpv1 = v1.Tcpv;
+
+
+        if (
+             tps2 < tps1
+            || cac2 < cac1
+            || ncpv2 < ncpv1
+            || tcpv2 < tcpv1
+            || pav2 < pav1
+            )
+            return SetName.Zeta; // Unicorns
 
         if (cac1 == 0 && cac2 == 0) return SetName.Gamma; // Zero CAC
 
