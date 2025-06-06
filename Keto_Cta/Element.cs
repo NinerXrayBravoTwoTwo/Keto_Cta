@@ -28,9 +28,14 @@ namespace Keto_Cta;
 /// <summary>
 ///     The four current leaf sets of the Keto CTA data set in this subset partition
 ///     set definitions
-///     isZeta(x) = tps2(x) &lt; tps1( x ) OR cac2(x) &lt; cac1(x) "
+/// 
+///     isZeta(x) =
+///         tps2(x) &lt; tps1( x )
+///         OR cac2(x) &lt; cac1(x)
+///         OR 
 ///     Δcac(x) = cac2(x) - cac1(x)
-///     Definitions based on the provided sets and conditions:
+///
+/// Definitions based on the provided sets and conditions:
 ///     • Ω : All participants
 ///     ◦ 100 participants
 ///     • α : { x ∈ Ω | ¬isZeta(x) }
@@ -119,14 +124,12 @@ public record Element
 
     //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
 
-    private SetName ComputeSetState(Visit v1, Visit v2)
+    private static SetName ComputeSetState(Visit v1, Visit v2)
     {
-        var cac1 = v1.Cac;
-        var tps1 = v1.Tps;
-
-        var cac2 = v2.Cac;
         var tps2 = v2.Tps;
-
+        var tps1 = v1.Tps;
+        var cac2 = v2.Cac;
+        var cac1 = v1.Cac;
         var ncpv2 = v2.Ncpv;
         var ncpv1 = v1.Ncpv;
         var pav2 = v2.Pav;

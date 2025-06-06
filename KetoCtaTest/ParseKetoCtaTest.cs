@@ -1,6 +1,7 @@
-﻿using System.Text;
-using Keto_Cta;
+﻿using Keto_Cta;
 using LinearRegression;
+using System.Text;
+using System.Xml.Linq;
 using Xunit.Abstractions;
 
 namespace KetoCtaTest;
@@ -8,15 +9,171 @@ namespace KetoCtaTest;
 public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
-    public void ReadCsvFile_ValidFile_ShouldReturnListOfElements()
+    public void ReadCsvFile_InvalidFile_ShouldThrowFileNotFoundException()
+    {
+        const string filePath = "TestData/invalid-file.csv";
+        Assert.Throws<FileNotFoundException>(() => ReadCsvFile(filePath));
+    }
+
+    [Fact]
+    public void ReadCsvFile_ValidFile_ShouldReturnElementsList()
     {
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var elements = ReadCsvFile(filePath);
+        Assert.NotEmpty(elements);
+        Assert.Equal(100, elements.Count);
         Assert.Equal("1", elements[0].Id);
         Assert.Equal("100", elements[99].Id);
+    }
 
-        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta)
-            .ToArray();
+    [Fact]
+    public void DoRegressionDNcpvDCac()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+
+        testOutputHelper.WriteLine($"DNcpv vs DCac");
+        var rOmega = RegressionDNcpvDCac(omegas, "DNcpv vs DCac - Omega");
+        var rAlphas = RegressionDNcpvDCac(alphas, "DNcpv vs DCac - Alpha");
+        var rZeta = RegressionDNcpvDCac(zetas, "DNcpv vs DCac - Zeta");
+        var rGamma = RegressionDNcpvDCac(gammas, "DNcpv vs DCac - Gamma");
+        var rTheta = RegressionDNcpvDCac(thetas, "DNcpv vs DCac - Theta");
+        var rEta = RegressionDNcpvDCac(etas, "DNcpv vs DCac - Etas");
+        RegressionPvalue RegressionDNcpvDCac(IEnumerable<Element> targetElements, string label)
+        {
+            var dataPoints = new List<(double x, double y)>();
+            dataPoints.AddRange(targetElements.Select(item => (item.DNcpv, item.DCac)));
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+
+            return regression;
+        }
+    }
+
+    [Fact]
+    public void DoRegressionV1V2Tps()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+
+        testOutputHelper.WriteLine($"V1 vs V2, Tps");
+        var rOmega = RegressionV1V2Tps(omegas, "Omega");
+        var rAlphas = RegressionV1V2Tps(alphas, "Alpha");
+        var rZeta = RegressionV1V2Tps(zetas, "Zeta");
+        var rGamma = RegressionV1V2Tps(gammas, "Gamma");
+        var rTheta = RegressionV1V2Tps(thetas, "Theta");
+        var rEta = RegressionV1V2Tps(etas, "Etas");
+
+        return;
+
+
+        RegressionPvalue RegressionV1V2Tps(IEnumerable<Element> targetElements, string label)
+        {
+            var dataPoints = new List<(double x, double y)>();
+            dataPoints.AddRange(targetElements.Select(item =>
+                ((double)item.Visits[0].Tps, (double)item.Visits[1].Tps)));
+
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+
+            return regression;
+        }
+    }
+
+    [Fact]
+    public void DoRegressionLnDNcpvLnDCac()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+
+        testOutputHelper.WriteLine($"LnNcpv vs LnCac");
+        var rOmega = RegressionLnNcpvLnDcac(omegas, "Omega");
+        var rAlphas = RegressionLnNcpvLnDcac(alphas, "Alpha");
+        var rZeta = RegressionLnNcpvLnDcac(zetas, "Zeta");
+        var rGamma = RegressionLnNcpvLnDcac(gammas, "Gamma");
+        var rTheta = RegressionLnNcpvLnDcac(thetas, "Theta");
+        var rEta = RegressionLnNcpvLnDcac(etas, "Etas");
+
+        PrintTable(thetas, "Set Theta");
+        PrintTable(etas, "Set Eta");
+
+        return;
+
+        RegressionPvalue RegressionLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
+        {
+            var dataPoints = new List<(double x, double y)>();
+            dataPoints.AddRange(targetElements.Select(item => (item.LnDNcpv, LnDCp: item.LnDCac)));
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+
+            return regression;
+        }
+    }
+
+    private void PrintTable(Element[] setElements, string label)
+    {
+        testOutputHelper.WriteLine(
+            $"\n{label}\n"
+            +"\nindex, "
+            + "LnNcpv, LnCac, "
+
+            + "v1.Ncpv, v2.Ncpv, "
+            + "v1.Cac, v2.Cac, "
+            + "v1.Tps, v2.Tps, "
+            + "v1.Pav, v2.Pav, "
+            + "v1.Tcpv, v2.Tcpv, "
+            + "DTps, DCac, DNcpv, DTcpv, DPav"); // if (cac2 < cac1 || tps2 < tps1 || ncpv1 < ncpv2 || ... ) then zeta   
+
+
+        // Lnv1.ncpv vs Lnv2.v2.Ncpv
+        foreach (var item in setElements)
+        {
+            var v1 = item.Visits[0];
+            var v2 = item.Visits[1];
+            
+            testOutputHelper.WriteLine(
+                $"{item.Id},{item.LnDNcpv:F4}, {item.LnDCac:F4}, "
+                + $"{v1.Ncpv:F4}, {v2.Ncpv:F4}, "
+                + $"{v1.Cac:F4}, {v2.Cac:F4}, "
+                + $"{v1.Tps:F4}, {v2.Tps:F4}, "
+                + $"{v1.Pav:F4}, {v2.Pav:F4}, "
+                + $"{v1.Tcpv:F4}, {v2.Tcpv:F4}, "
+                + $"{item.DTps:F4}, {item.DCac:F4}, {item.DNcpv:F4}, {item.DTcpv:F4}, {item.DPav:F4}"
+            );
+        }
+    }
+
+    [Fact]
+    public void DoRegressLnV1V2Ncpv()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
         var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
         var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
         var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
@@ -30,13 +187,8 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         testOutputHelper.WriteLine($"Theta count: {thetas.Length}");
         testOutputHelper.WriteLine($"Eta count: {etas.Length}\n");
 
-        var rOmega = RegressionLnNcpvLnDcac(omegas, "Omega");
-        var rAlphas = RegressionLnNcpvLnDcac(alphas, "Alpha");
-        var rZeta = RegressionLnNcpvLnDcac(zetas, "Zeta");
-        var rGamma = RegressionLnNcpvLnDcac(gammas, "Gamma");
-        var rTheta = RegressionLnNcpvLnDcac(thetas, "Theta");
-        var rEta = RegressionLnNcpvLnDcac(etas, "Etas");
-        //
+        //LnNcpv1 vs LnNcpv2
+        testOutputHelper.WriteLine($"LnNcpv vs LnCac");
         var sOmegas = RegressLnV1V2Ncpv(omegas, "\nOmega V1 vs V2 Ncpv");
         var sAlphas = RegressLnV1V2Ncpv(alphas, "Alpha V1 vs V2 Ncpv");
         var sZetas = RegressLnV1V2Ncpv(zetas, "Zeta V1 vs V2 Ncpv");
@@ -52,15 +204,15 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         //foreach (var item in omegas)
         //    testOutputHelper.WriteLine($"{item.Id},{item.Visits[0].Ncpv:F4}, {item.DNcpv:F4}, {item.Ln(item.Visits[0].Ncpv):F4}, {item.LnDNcpv:F4}");
 
-        testOutputHelper.WriteLine(
+       testOutputHelper.WriteLine(
             "\nindex, "
             + "v1.LnNcpv, v2.LnCpv, "
             + "v1.Ncpv, v2.Ncpv, "
             + "v1.Tps, v2.Tps, "
             + "v1.Cac, v2.Cac, "
-            + "DTps, DCac, DNcpv, DTcpv, DPav, Why?"); // if (cac2 < cac1 || tps2 < tps1) then zeta   
+            + "DTps, DCac, DNcpv, DTcpv, DPav, Regressed Metrics"); // if (cac2 < cac1 || tps2 < tps1 || ncpv1 < ncpv2 || ... ) then zeta   
 
-        // Regression of Lnv1.ncpv vs Lnv2.v2.Ncpv
+        // Lnv1.ncpv vs Lnv2.v2.Ncpv
         foreach (var item in zetas)
         {
             var v1 = item.Visits[0];
@@ -79,25 +231,95 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
                 + $"{v1.Tps:F4}, {v2.Tps:F4}, "
                 + $"{v1.Cac:F4}, {v2.Cac:F4}, "
                 + $"{item.DTps:F4}, {item.DCac:F4}, {item.DNcpv:F4}, {item.DTcpv:F4}, {item.DPav:F4}, {sb}"
-            );
+            ); 
         }
 
-        RegressionPvalue RegressionLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
-        {
-            var dataPoints = new List<(double x, double y)>();
-            dataPoints.AddRange(targetElements.Select(item => (item.LnDNcpv, LnDCp: item.LnDCac)));
-            var regression = new RegressionPvalue(dataPoints);
-            testOutputHelper.WriteLine(
-                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+        return;
 
-            return regression;
-        }
 
         RegressionPvalue RegressLnV1V2Ncpv(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
             dataPoints.AddRange(targetElements.Select(item =>
                 (item.Ln(item.Visits[0].Ncpv), item.Ln(item.Visits[1].Ncpv))));
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5} N: {regression.NumberSamples} R2: {regression.RSquared():F5} PValue: {regression.PValue():F5}");
+
+            return regression;
+        }
+    }
+
+    [Fact]
+    public void DoRegressionV1V2Cac()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+
+        testOutputHelper.WriteLine($"V1 vs V2, Cac");
+        var rOmega = RegressionV1V2Cac(omegas, "Omega");
+        var rAlphas = RegressionV1V2Cac(alphas, "Alpha");
+        var rZeta = RegressionV1V2Cac(zetas, "Zeta");
+        var rGamma = RegressionV1V2Cac(gammas, "Gamma");
+        var rTheta = RegressionV1V2Cac(thetas, "Theta");
+        var rEta = RegressionV1V2Cac(etas, "Etas");
+
+        return;
+
+
+        RegressionPvalue RegressionV1V2Cac(IEnumerable<Element> targetElements, string label)
+        {
+            var dataPoints = new List<(double x, double y)>();
+
+            dataPoints.AddRange(targetElements.Select(item =>
+               ((double)item.Visits[0].Cac, (double)item.Visits[1].Cac)));
+
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(
+                $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
+
+            return regression;
+        }
+    }
+
+    [Fact]
+    public void DoRegressionV1V2Tcpv()
+    {
+        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(filePath);
+
+        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
+        var zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
+        var gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
+        var thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
+        var etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+
+        testOutputHelper.WriteLine($"V1 vs V2, Tcp");
+        var rOmega = RegressionV1V2Tcpv(omegas, "Omega");
+        var rAlphas = RegressionV1V2Tcpv(alphas, "Alpha");
+        var rZeta = RegressionV1V2Tcpv(zetas, "Zeta");
+        var rGamma = RegressionV1V2Tcpv(gammas, "Gamma");
+        var rTheta = RegressionV1V2Tcpv(thetas, "Theta");
+        var rEta = RegressionV1V2Tcpv(etas, "Etas");
+
+        return;
+
+
+        RegressionPvalue RegressionV1V2Tcpv(IEnumerable<Element> targetElements, string label)
+        {
+            var dataPoints = new List<(double x, double y)>();
+
+            dataPoints.AddRange(targetElements.Select(item =>
+                (item.Visits[0].Tcpv, item.Visits[1].Tcpv)));
+
             var regression = new RegressionPvalue(dataPoints);
             testOutputHelper.WriteLine(
                 $"'{label}' slope: {regression.Slope():F5}  R2: {regression.RSquared():F5} PValue: {regression.PValue():F4} N: {regression.NumberSamples}");
