@@ -1,29 +1,4 @@
 namespace Keto_Cta;
-/* Example JSON structure for IParticipant
-      * {
-            "id": "d4e5f",  // Hash of V1 data: "009.300.004"
-            "visits": [
-              {
-                "id": "V1",
-                "visit_date": null,
-                "tps": 0,
-                "cac": 0,
-                "ncpv": 9.3,
-                "tcpv": 0,
-                "pav": 0.004
-              },
-              {
-                "id": "V2",
-                "visit_date": null,
-                "tps": 0,
-                "cac": 0,
-                "ncpv": 18.8,
-                "tcpv": 0,
-                "pav": 0.007
-              }
-            ]
-          },
-      */
 
 /// <summary>
 ///     The four current leaf sets of the Keto CTA data set in this subset partition
@@ -39,13 +14,13 @@ namespace Keto_Cta;
 ///     • Ω : All participants
 ///     ◦ 100 participants
 ///     • α : { x ∈ Ω | ¬isZeta(x) }
-///     ◦ 89 participants (CAC and TPS stable or increasing)
+///     ◦ 88 participants (CAC and TPS stable or increasing)
 ///     • ζ : { x ∈ Ω | isZeta(x) }
-///     ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
+///     ◦ 12 participants (CAC or TPS decrease, “Unicorns”)
 ///     • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
 ///     ◦ 40 participants (non-zero CAC in α)
 ///     • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
-///     ◦ 49 participants (zero CAC in α)
+///     ◦ 4 participants (zero CAC in α)
 ///     • η : { x ∈ β | Δcac(x) &gt; 10 }
 ///     ◦ 17 participants (larger CAC increase)
 ///     • θ : { x ∈ β | Δcac(x) ≤ 10 }

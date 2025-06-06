@@ -108,8 +108,8 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Arrange
         var visits = new List<Visit>
         {
-            new("V1", null, 0, 0, 18.8, 0, 0.007),
-            new("V2", null, 1, 1, 9.3, 0, 0.004)
+            new("V1", null, 0, 0, 18.8, 0, 0.002),
+            new("V2", null, 1, 1, 19.3, 1, 0.007)
         };
         var element = new Element("d4e5f", visits);
         // Act
@@ -117,6 +117,23 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Assert
         Assert.False(isZeta);
     }
+
+    [Fact]
+    public void ElementIsBetaSetIfAllCleeryValuesAreZero()
+    {
+        // Arrange
+        var visits = new List<Visit>
+        {
+            new("V1", null, 0, 0, 0, 0, 0),
+            new("V2", null, 0, 0, 0, 0, 0)
+        };
+        var element = new Element("d4e5f", visits);
+        // Act
+        var isBeta = element.IsGamma;
+
+        Assert.True(isBeta, $"Element should be in Gamma set when all values are zero. {element.MemberSet}"); 
+    }
+
 
     [Fact]
     public void IsAlpha_ZetaFalse_AlphaTrue()
