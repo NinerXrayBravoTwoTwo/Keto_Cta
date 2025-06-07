@@ -187,7 +187,9 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         RegressionPvalue RegressionLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
+
             dataPoints.AddRange(targetElements.Select(item => (item.LnDNcpv, LnDCp: item.LnDCac)));
+
             var regression = new RegressionPvalue(dataPoints);
 
             testOutputHelper.WriteLine(Message(label, regression));
@@ -394,10 +396,12 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         }
     }
     #endregion
+
     private Element[] Elements(List<Element> elements, out Element[] alphas, out Element[] zetas, out Element[] gammas,
         out Element[] thetas, out Element[] etas)
     {
         var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+
         alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
         zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
         gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();

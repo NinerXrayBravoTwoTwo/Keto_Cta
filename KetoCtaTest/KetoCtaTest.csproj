@@ -21,13 +21,14 @@
     <PackageReference Include="LinearRegression.Pvalues" Version="1.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataMiner\DataMiner.csproj" />
     <ProjectReference Include="..\Keto_Cta\Keto_Cta.csproj" />
   </ItemGroup>
 

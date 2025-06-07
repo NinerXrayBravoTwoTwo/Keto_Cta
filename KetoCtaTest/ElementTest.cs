@@ -129,7 +129,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         };
 
         var element = new Element("d4e5f", visits);
-        
+
         // Act
         var isBeta = element.IsGamma;
 

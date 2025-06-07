@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{02EA681E-C
 		..\..\..\iCloudDrive\Medical\Lundquist\Study Ancillary_\keto-cta-quant-and-semi-quant.csv = ..\..\..\iCloudDrive\Medical\Lundquist\Study Ancillary_\keto-cta-quant-and-semi-quant.csv
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMiner", "DataMiner\DataMiner.csproj", "{30E790EE-B490-4A68-AAA6-6BCC42E38F95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{C4709EBE-2DEA-45C0-8A6A-CF0A222BDC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4709EBE-2DEA-45C0-8A6A-CF0A222BDC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4709EBE-2DEA-45C0-8A6A-CF0A222BDC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30E790EE-B490-4A68-AAA6-6BCC42E38F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30E790EE-B490-4A68-AAA6-6BCC42E38F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30E790EE-B490-4A68-AAA6-6BCC42E38F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30E790EE-B490-4A68-AAA6-6BCC42E38F95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
