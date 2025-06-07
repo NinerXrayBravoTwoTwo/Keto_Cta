@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /KetoCtaTest/TestData/keto-cta-quant-and-semi-quant.csv
+/KetoCtaTest/TestData/keto-cta-quant-and-semi-quant-empty.csv

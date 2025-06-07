@@ -38,12 +38,14 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var saltMiner = new SaltMiner(filePath);
         Assert.NotNull(saltMiner);
-        var result =saltMiner.MineLnNcpLnDcac();
+        var result = saltMiner.MineLnNcpLnDcac();
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Equal(7, result.Length); // Expecting 7 sets: Omega, Alpha, Zeta, Beta, Gamma, Theta, Eta
         Assert.All(result, Assert.NotNull); // Ensure all results are not null
         Assert.Equal(100, result[0].NumberSamples);
+
+        testOutputHelper.WriteLine($"Omega Regression: Label=Omega, Slope={result[0].Slope}, Intercept={result[0].YIntercept}, P-value={result[0].PValue}");
 
         testOutputHelper.WriteLine("Salt mining completed successfully.");
     }
