@@ -127,11 +127,13 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
             new("V1", null, 0, 0, 0, 0, 0),
             new("V2", null, 0, 0, 0, 0, 0)
         };
+
         var element = new Element("d4e5f", visits);
+        
         // Act
         var isBeta = element.IsGamma;
 
-        Assert.True(isBeta, $"Element should be in Gamma set when all values are zero. {element.MemberSet}"); 
+        Assert.True(isBeta, $"Element should be in Gamma set when all values are zero. {element.MemberSet}");
     }
 
 

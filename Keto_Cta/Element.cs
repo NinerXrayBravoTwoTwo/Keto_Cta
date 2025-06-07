@@ -94,10 +94,10 @@ public record Element
 
     private static SetName ComputeSetState(Visit v1, Visit v2)
     {
-     
+
         if (
              v2.Tps < v1.Tps
-            || v2.Cac< v1.Cac
+            || v2.Cac < v1.Cac
             || v2.Ncpv < v1.Ncpv
             || v2.Tcpv < v1.Tcpv
             || v2.Pav < v1.Pav
@@ -106,7 +106,7 @@ public record Element
 
         if (v1.Cac == 0 && v2.Cac == 0) return SetName.Gamma; // Zero CAC
 
-        return (v2.Cac- v1.Cac) switch // Delta CAC
+        return (v2.Cac - v1.Cac) switch // Delta CAC
         {
             > 10 => SetName.Eta,
             <= 10 => SetName.Theta
