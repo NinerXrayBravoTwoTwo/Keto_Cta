@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="LinearRegression.Pvalues" Version="1.0.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
@@ -41,4 +41,11 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Link>TestData\keto-cta-quant-and-semi-quant.csv</Link>
 		</Content>
-	</ItemGroup>	</Project>
+	</ItemGroup>
+
+
+	    	<ItemGroup>
+	    	  <None Update="TestData\keto-cta-quant-and-semi-quant-empty.csv">
+	    	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    	  </None>
+	    	</ItemGroup>	</Project>

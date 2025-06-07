@@ -77,11 +77,11 @@ public record Element
     public double DTcpv => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
 
-    public double LnDTps => Ln(DTps);
-    public double LnDCac => Ln(DCac);
-    public double LnDNcpv => Ln(DNcpv);
-    public double LnDTcpv => Ln(DTcpv);
-    public double LnDPav => Ln(DPav);
+    public double LnDTps => Visit.Ln(DTps);
+    public double LnDCac => Visit.Ln(DCac);
+    public double LnDNcpv => Visit.Ln(DNcpv);
+    public double LnDTcpv => Visit.Ln(DTcpv);
+    public double LnDPav => Visit.Ln(DPav);
 
 
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
@@ -92,39 +92,21 @@ public record Element
     public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
     public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
 
-    public double Ln(double value)
-    {
-        return Math.Log(Math.Abs(value) + 1, double.E);
-    }
-
-    //public SetName SetOf { get; init; } = ComputeSetState(Visits[0], Visits[1]);
-
     private static SetName ComputeSetState(Visit v1, Visit v2)
     {
-        var tps2 = v2.Tps;
-        var tps1 = v1.Tps;
-        var cac2 = v2.Cac;
-        var cac1 = v1.Cac;
-        var ncpv2 = v2.Ncpv;
-        var ncpv1 = v1.Ncpv;
-        var pav2 = v2.Pav;
-        var pav1 = v1.Pav;
-        var tcpv2 = v2.Tcpv;
-        var tcpv1 = v1.Tcpv;
-
-
+     
         if (
-             tps2 < tps1
-            || cac2 < cac1
-            || ncpv2 < ncpv1
-            || tcpv2 < tcpv1
-            || pav2 < pav1
+             v2.Tps < v1.Tps
+            || v2.Cac< v1.Cac
+            || v2.Ncpv < v1.Ncpv
+            || v2.Tcpv < v1.Tcpv
+            || v2.Pav < v1.Pav
             )
             return SetName.Zeta; // Unicorns
 
-        if (cac1 == 0 && cac2 == 0) return SetName.Gamma; // Zero CAC
+        if (v1.Cac == 0 && v2.Cac == 0) return SetName.Gamma; // Zero CAC
 
-        return (cac2 - cac1) switch // Delta CAC
+        return (v2.Cac- v1.Cac) switch // Delta CAC
         {
             > 10 => SetName.Eta,
             <= 10 => SetName.Theta

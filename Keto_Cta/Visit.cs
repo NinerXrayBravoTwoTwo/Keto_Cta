@@ -24,6 +24,17 @@ public record Visit
         Ncpv = ncpv;
         Tcpv = tcpv;
         Pav = pav;
+
+        LnTps = Ln(Tps);
+        LnCac = Ln(Cac);
+        LnNcpv = Ln(Ncpv);
+        LnTcpv = Ln(Tcpv);
+        LnPav = Ln(Pav);
+    }
+
+    internal static double Ln(double value)
+    {
+        return Math.Log(Math.Abs(value) + 1, double.E);
     }
 
     public string Id { get; init; }
@@ -33,6 +44,12 @@ public record Visit
     public double Ncpv { get; init; }
     public double Tcpv { get; init; }
     public double Pav { get; init; }
+
+    public double LnTps { get; init; }
+    public double LnCac { get; init; }
+    public double LnNcpv { get; init; }
+    public double LnTcpv { get; init; }
+    public double LnPav { get; init; }
 
     public override string ToString()
     {
