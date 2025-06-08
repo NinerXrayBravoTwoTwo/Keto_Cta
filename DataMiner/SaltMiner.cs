@@ -33,12 +33,11 @@ namespace DataMiner
         public Element[] Eta;
 
         /// <summary>
-        ///     This method is a placeholder for future functionality.
+        /// Regression of Ln(Ncpv) vs Ln(Dcac) for each set.
         /// </summary>
+        /// <returns>Regressions for each set, [omega,alpha, zeta, beta, gamma, theta, eta</returns>
         public RegressionPvalue[]  MineLnNcpLnDcac()
         {
-            // Placeholder for salt mining logic
-            Console.WriteLine("Mining salt...");
 
             var omega = RegressionLnNcpvLnDcac(Omega, "Omega");
             var alpha = RegressionLnNcpvLnDcac(Alpha, "Alpha");
