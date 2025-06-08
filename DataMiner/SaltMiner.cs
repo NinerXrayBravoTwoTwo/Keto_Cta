@@ -40,6 +40,7 @@ namespace DataMiner
             var regression = new RegressionPvalue(dataPoints);
             return regression;
         }
+        #region log-transformed regressions
 
         /// <summary>
         /// Regression of Ln(Ncpv) vs Ln(Dcac) for each set.
@@ -47,26 +48,29 @@ namespace DataMiner
         /// <returns>Regressions for each set, [omega,alpha, zeta, beta, gamma, theta, eta</returns>
         public RegressionPvalue[] MineLnDNcpLnDCac()
         {
-            var omega = CalculateRegression(Omega, "Omega", item => (item.LnDNcpv, item.LnDCac));
-            var alpha = CalculateRegression(Alpha, "Alpha", item => (item.LnDNcpv, item.LnDCac));
-            var zeta = CalculateRegression(Zeta, "Zeta", item => (item.LnDNcpv, item.LnDCac));
-            var beta = CalculateRegression(Beta, "Beta", item => (item.LnDNcpv, item.LnDCac));
-            var gamma = CalculateRegression(Gamma, "Gamma", item => (item.LnDNcpv, item.LnDCac));
-            var theta = CalculateRegression(Theta, "Theta", item => (item.LnDNcpv, item.LnDCac));
-            var eta = CalculateRegression(Eta, "Etas", item => (item.LnDNcpv, item.LnDCac));
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDNcpv, item.LnDCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            //item => (item.LnDNcpv, item.LnDCac));
 
             return [omega, alpha, zeta, beta, gamma, theta, eta];
         }
 
         public RegressionPvalue[] MineLnDTpsLnDCac()
         {
-            var omega = CalculateRegression(Omega, "Omega", item => (item.LnDTps, item.LnDCac));
-            var alpha = CalculateRegression(Alpha, "Alpha", item => (item.LnDTps, item.LnDCac));
-            var zeta = CalculateRegression(Zeta, "Zeta", item => (item.LnDTps, item.LnDCac));
-            var beta = CalculateRegression(Beta, "Beta", item => (item.LnDTps, item.LnDCac));
-            var gamma = CalculateRegression(Gamma, "Gamma", item => (item.LnDTps, item.LnDCac));
-            var theta = CalculateRegression(Theta, "Theta", item => (item.LnDTps, item.LnDCac));
-            var eta = CalculateRegression(Eta, "Etas", item => (item.LnDTps, item.LnDCac));
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector); ;
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
 
             return [omega, alpha, zeta, beta, gamma, theta, eta];
 
@@ -74,13 +78,14 @@ namespace DataMiner
 
         public RegressionPvalue[] MineLnDPavLnDCac()
         {
-            var omega = CalculateRegression(Omega, "Omega", item => (item.LnDPav, item.LnDCac));
-            var alpha = CalculateRegression(Alpha, "Alpha", item => (item.LnDPav, item.LnDCac));
-            var zeta = CalculateRegression(Zeta, "Zeta", item => (item.LnDPav, item.LnDCac));
-            var beta = CalculateRegression(Beta, "Beta", item => (item.LnDPav, item.LnDCac));
-            var gamma = CalculateRegression(Gamma, "Gamma", item => (item.LnDPav, item.LnDCac));
-            var theta = CalculateRegression(Theta, "Theta", item => (item.LnDPav, item.LnDCac));
-            var eta = CalculateRegression(Eta, "Etas", item => (item.LnDPav, item.LnDCac));
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDPav, item.LnDCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
 
             return [omega, alpha, zeta, beta, gamma, theta, eta];
 
@@ -88,16 +93,218 @@ namespace DataMiner
 
         public RegressionPvalue[] MineLnDTcpvLnDCac()
         {
-            var omega = CalculateRegression(Omega, "Omega", item => (item.LnDTcpv, item.LnDNcpv));
-            var alpha = CalculateRegression(Alpha, "Alpha", item => (item.LnDTcpv, item.LnDNcpv));
-            var zeta = CalculateRegression(Zeta, "Zeta", item => (item.LnDTcpv, item.LnDNcpv));
-            var beta = CalculateRegression(Beta, "Beta", item => (item.LnDTcpv, item.LnDNcpv));
-            var gamma = CalculateRegression(Gamma, "Gamma", item => (item.LnDTcpv, item.LnDNcpv));
-            var theta = CalculateRegression(Theta, "Theta", item => (item.LnDTcpv, item.LnDNcpv));
-            var eta = CalculateRegression(Eta, "Etas", item => (item.LnDTcpv, item.LnDNcpv));
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDTcpv, item.LnDCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+        #endregion
+
+        #region Delta regressions not log-transformed
+
+        public RegressionPvalue[] MineDNcpvDCac()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
             return [omega, alpha, zeta, beta, gamma, theta, eta];
         }
 
+        public RegressionPvalue[] MineDTpsDCac()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DTps, item.DCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MineDPavDCac()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DPav, item.DCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MineDTcpvDCac()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DTcpv, item.DCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        #endregion
+        #region log-transformed regressions CTA vs CTA
+
+        public RegressionPvalue[] MineLnNcpv1LnNcpv2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnNcpv, item.Visits[1].LnNcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+
+        public RegressionPvalue[] MineLnTps1LnTps2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTps, item.Visits[1].LnTps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MineLnPav1LnPav2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnPav, item.Visits[1].LnPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+        public RegressionPvalue[] MineLnTcpv1LnTcpv2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTcpv, item.Visits[1].LnTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MineLnCac1LnCac2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnCac, item.Visits[1].LnCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+        #endregion
+
+
+        #region
+
+        public RegressionPvalue[] MineNcpv1Ncpv2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Ncpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+
+        public RegressionPvalue[] MineTps1Tps2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Tps, item.Visits[1].Tps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MinePav1Pav2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Pav, item.Visits[1].Pav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+        public RegressionPvalue[] MineTcpv1Tcpv2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Tcpv, item.Visits[1].Tcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+
+        public RegressionPvalue[] MineCac1Cac2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Cac, item.Visits[1].Cac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta];
+        }
+        #endregion
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         private static List<Element> ReadCsvFile(string path)
         {
             var list = new List<Element>();
