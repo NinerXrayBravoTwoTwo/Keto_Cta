@@ -38,7 +38,7 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
         var saltMiner = new SaltMiner(filePath);
         Assert.NotNull(saltMiner);
-        var result = saltMiner.MineLnNcpLnDcac();
+        var result = saltMiner.MineLnDNcpLnDCac();
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Equal(7, result.Length); // Expecting 7 sets: Omega, Alpha, Zeta, Beta, Gamma, Theta, Eta
