@@ -1,4 +1,5 @@
-﻿namespace Keto_Cta;
+﻿using System.Text.Json.Serialization;
+namespace Keto_Cta;
 
 public record Visit
 {
@@ -25,6 +26,7 @@ public record Visit
         Tcpv = tcpv;
         Pav = pav;
 
+ 
         LnTps = Ln(Tps);
         LnCac = Ln(Cac);
         LnNcpv = Ln(Ncpv);
@@ -39,16 +41,21 @@ public record Visit
 
     public string Id { get; init; }
     public DateTime? VisitDate { get; init; }
-    public int Tps { get; init; }
-    public int Cac { get; init; }
+    public double Tps { get; init; }
+    public double Cac { get; init; }
     public double Ncpv { get; init; }
     public double Tcpv { get; init; }
     public double Pav { get; init; }
 
+    [JsonIgnore]
     public double LnTps { get; init; }
+    [JsonIgnore]
     public double LnCac { get; init; }
+    [JsonIgnore]
     public double LnNcpv { get; init; }
+    [JsonIgnore]
     public double LnTcpv { get; init; }
+    [JsonIgnore]
     public double LnPav { get; init; }
 
     public override string ToString()

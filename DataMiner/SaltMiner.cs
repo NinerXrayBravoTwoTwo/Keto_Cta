@@ -56,9 +56,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            //item => (item.LnDNcpv, item.LnDCac));
-
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineLnDTpsLnDCac()
@@ -71,8 +70,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
         }
 
@@ -86,8 +85,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
         }
 
@@ -101,7 +100,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
         #endregion
 
@@ -117,7 +117,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineDTpsDCac()
@@ -130,7 +131,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineDPavDCac()
@@ -143,7 +145,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineDTcpvDCac()
@@ -156,7 +159,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         #endregion
@@ -173,7 +177,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
 
@@ -187,7 +192,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineLnPav1LnPav2()
@@ -200,11 +206,13 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
+
         public RegressionPvalue[] MineLnTcpv1LnTcpv2()
         {
-            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTcpv, item.Visits[1].Tcpv));
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTcpv, item.Visits[1].LnTcpv));
             var omega = CalculateRegression(Omega, "Omega", selector);
             var alpha = CalculateRegression(Alpha, "Alpha", selector);
             var zeta = CalculateRegression(Zeta, "Zeta", selector);
@@ -212,7 +220,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineLnCac1LnCac2()
@@ -225,10 +234,10 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
         #endregion
-
 
         #region regressions CTA1 vs CTA2
 
@@ -242,9 +251,9 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
-
 
         public RegressionPvalue[] MineTps1Tps2()
         {
@@ -256,8 +265,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
-        }
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta]; }
 
         public RegressionPvalue[] MinePav1Pav2()
         {
@@ -268,9 +277,11 @@ namespace DataMiner
             var beta = CalculateRegression(Beta, "Beta", selector);
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
-            var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var eta = CalculateRegression(Eta, "Etas", selector); 
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
+
         public RegressionPvalue[] MineTcpv1Tcpv2()
         {
             var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Tcpv, item.Visits[1].Tcpv));
@@ -281,7 +292,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+           var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
         public RegressionPvalue[] MineCac1Cac2()
@@ -294,7 +306,8 @@ namespace DataMiner
             var gamma = CalculateRegression(Gamma, "Gamma", selector);
             var theta = CalculateRegression(Theta, "Theta", selector);
             var eta = CalculateRegression(Eta, "Etas", selector);
-            return [omega, alpha, zeta, beta, gamma, theta, eta];
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
         #endregion
 

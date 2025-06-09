@@ -1,10 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using DataMiner;
 using LinearRegression;
 
-var labels = new[] { "Omega", "Alpha", "Zeta", "Beta", "Gamma", "Theta", "Eta" };
+var labels = new[] { "Omega", "Alpha", "Zeta", "Beta", "Gamma", "Theta", "Eta", "BetaUZeta" };
 
 var myMine = new SaltMiner("TestData/keto-cta-quant-and-semi-quant-empty.csv");
 
@@ -14,11 +15,15 @@ Console.WriteLine("index, ChartLabel, SetName, Slope, NumberSamples, RSquared, P
 var count = 0;
 
 var allRegressions = new List<RegressionPvalue>();
+var allChartLabels = new List<string>();
+var allSetNames = new List<string>();
 
-string FormatRegression(RegressionPvalue item, string label, string chartLabel, int index)
+string FormatRegression(RegressionPvalue item, string set, string chartLabel, int index)
 {
     allRegressions.Add(item);
-    return $"{count}, {chartLabel}, {label}, {item.Slope():F3}, {item.N}, {item.RSquared():F5}, {item.PValue():F9}, {item.YIntercept():F5}, {item.MeanX():F2}, {item.MeanY():F5}";
+    allChartLabels.Add(chartLabel);
+    allSetNames.Add(set);
+    return $"{count}, {chartLabel}, {set}, {item.Slope():F3}, {item.N}, {item.RSquared():F5}, {item.PValue():F9}, {item.YIntercept():F5}, {item.MeanX():F2}, {item.MeanY():F5}";
 }
 
 #region Ln-Ln CTA vs Ln cac
@@ -148,12 +153,33 @@ Console.WriteLine(string.Join(Environment.NewLine,
 
 // Print the regression data points for a specific regression
 
-const int chartIdx =37; // Example index for the regression you want to print
-var target = allRegressions[chartIdx];
-Console.WriteLine($"\nRegression: {chartIdx} Slope: {target.Slope()}\n\nx, y");
+const int chartIdx = 134; // Example index for the regression you want to print
+var target = allRegressions[chartIdx - 1];
+var iamThis = allChartLabels[chartIdx - 1];
+var iamInSet = allSetNames[chartIdx - 1];
 
+Console.WriteLine($"\n-,-,Regression: {chartIdx} slope: {target.Slope():F4}");
 
-foreach (var point in target.DataPoints )
+Console.WriteLine($"-,-,'{iamThis} - {iamInSet}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
+
+var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
+
+//var isLogLog = Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase);
+
+var xxx = regSplit[0];
+var yyy = regSplit[1];
+
+if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
+{
+    xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+
+    xxx = $"Ln(|{xxx}|+1)";
+    yyy = $"Ln(|{regSplit[1]}|+1)";
+}
+
+Console.WriteLine($"{xxx}, {yyy}"); // not log-log split
+
+foreach (var point in target.DataPoints)
 {
     Console.WriteLine($"{point.x}, {point.y}");
 }
