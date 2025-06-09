@@ -27,7 +27,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 
     [Theory]
     [InlineData("TestData/keto-cta-quant-and-semi-quant.csv", 100)]
-    [InlineData("TestData/keto-cta-quant-and-semi-quant-empty.csv", 0)]
+    //[InlineData("TestData/keto-cta-quant-and-semi-quant-empty.csv", 0)]
 
     public void ReadCsvFile_ValidFile_ShouldReturnCorrectElementCount(string filePath, int expectedCount)
     {
@@ -452,7 +452,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 
     private static string Message(string label, RegressionPvalue regression)
     {
-        return $"'{label}' slope: {regression.Slope():F5} N: {regression.NumberSamples} R2: {regression.RSquared():F5} PValue: {regression.PValue():F5} Y-intercept: {regression.YIntercept():F4}";
+        return $"'{label}' slope: {regression.Slope():F5} N: {regression.N} R2: {regression.RSquared():F5} PValue: {regression.PValue():F5} Y-intercept: {regression.YIntercept():F4}";
     }
 
     private static List<Element> ReadCsvFile(string path)

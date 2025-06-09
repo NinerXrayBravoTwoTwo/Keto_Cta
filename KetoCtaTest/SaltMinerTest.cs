@@ -43,7 +43,7 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
         Assert.NotEmpty(result);
         Assert.Equal(7, result.Length); // Expecting 7 sets: Omega, Alpha, Zeta, Beta, Gamma, Theta, Eta
         Assert.All(result, Assert.NotNull); // Ensure all results are not null
-        Assert.Equal(100, result[0].NumberSamples);
+        Assert.Equal(100, result[0].N);
 
         testOutputHelper.WriteLine($"Omega Regression: Label=Omega, Slope={result[0].Slope}, Intercept={result[0].YIntercept}, P-value={result[0].PValue}");
 

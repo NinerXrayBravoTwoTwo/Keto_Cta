@@ -160,7 +160,8 @@ namespace DataMiner
         }
 
         #endregion
-        #region log-transformed regressions CTA vs CTA
+
+        #region log-transformed regressions CTA1 vs CTA2
 
         public RegressionPvalue[] MineLnNcpv1LnNcpv2()
         {
@@ -203,7 +204,7 @@ namespace DataMiner
         }
         public RegressionPvalue[] MineLnTcpv1LnTcpv2()
         {
-            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTcpv, item.Visits[1].LnTcpv));
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTcpv, item.Visits[1].Tcpv));
             var omega = CalculateRegression(Omega, "Omega", selector);
             var alpha = CalculateRegression(Alpha, "Alpha", selector);
             var zeta = CalculateRegression(Zeta, "Zeta", selector);
@@ -229,7 +230,7 @@ namespace DataMiner
         #endregion
 
 
-        #region
+        #region regressions CTA1 vs CTA2
 
         public RegressionPvalue[] MineNcpv1Ncpv2()
         {
@@ -297,14 +298,15 @@ namespace DataMiner
         }
         #endregion
 
-
-
         /// <summary>
-        /// 
+        /// Reads a CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <remarks>The method assumes the CSV file has a header row, which is skipped during processing. Each row in the
+        /// file is expected to contain numeric and floating-point values in a specific format. Ensure the file adheres to the
+        /// expected structure to avoid parsing errors.</remarks>
+        /// <param name="path">The file path of the CSV file to read. Must be a valid path to an existing file.</param>
+        /// <returns>A list of <see cref="Element"/> objects, each representing a row in the CSV file.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="path"/> is null.</exception>
         private static List<Element> ReadCsvFile(string path)
         {
             var list = new List<Element>();
