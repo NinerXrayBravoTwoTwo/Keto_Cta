@@ -10,7 +10,7 @@ var labels = new[] { "Omega", "Alpha", "Zeta", "Beta", "Gamma", "Theta", "Eta", 
 var myMine = new SaltMiner("TestData/keto-cta-quant-and-semi-quant-empty.csv");
 
 //Headers
-Console.WriteLine("index, ChartLabel, SetName, Slope, NumberSamples, RSquared, PValue, YIntercept, MeanX, MeanY");
+Console.WriteLine("index, ChartLabel, SetName, Slope, N=, RSquared, PValue, YIntercept, MeanX, MeanY");
 
 var count = 0;
 
@@ -152,8 +152,9 @@ Console.WriteLine(string.Join(Environment.NewLine,
 #endregion
 
 // Print the regression data points for a specific regression
-
-const int chartIdx = 134; // Example index for the regression you want to print
+// Change the chartIdx to the index of the regression you want to print
+//*****
+const int chartIdx = 128; // Example index for the regression you want to print
 var target = allRegressions[chartIdx - 1];
 var iamThis = allChartLabels[chartIdx - 1];
 var iamInSet = allSetNames[chartIdx - 1];

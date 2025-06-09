@@ -72,7 +72,6 @@ namespace DataMiner
             var eta = CalculateRegression(Eta, "Etas", selector);
             var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
-
         }
 
         public RegressionPvalue[] MineLnDPavLnDCac()
