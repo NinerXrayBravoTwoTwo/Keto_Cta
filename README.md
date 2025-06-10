@@ -40,8 +40,8 @@ The following analyses were conducted to explore the dataset and verify its prop
    - Calculated \( R^2 \) for raw and log-transformed data, both for paired and separate (all V1 vs. all V2) analyses.
    - Results:
 	
-|index|Chart Name | Set | Slope|N=|R^2|P-Value|Y-Intercept|
-|--------|---------------|---------------------------|-------------|
+|index|Chart Name | Set | Slope|N=	|R^2	|P-Value	|Y-Intercept|
+|-----|-----------|-----|------|----|-------|-----------|-----------|
 |89	 |Tcpv0 vs Tcpv    |Omega	|1.128	|100	|0.98194	|0	|1.62159	         |
 |97	 |Cac0 vs Cac1	 |Omega	|1.18	|100	|0.97802	|0.000000002	|-0.55542	           |
 |137 |ln-ln Cac0 vs. Cac1	 |Omega	|1.012	|100	|0.97308	|0.000000041	|0.08179         |
