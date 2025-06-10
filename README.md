@@ -58,7 +58,8 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 > Lower correlations were observed in delta (D) vs. delta comparisons, reflecting greater variability.
 ### .5 Omega Set Hierarchy
 - The Omega set hierarchy was used to categorize Participants based in the presence of  Plaque reversal and their CAC scores.
-![Logo](./Analysis/Keto-CTA-SubsetDivisionTree/png)
+![Logo](./Analysis/Keto-CTA-SubsetDivisionTree.png).
+-
 
 ### 3. JSON Schema Generation
 - Created a metadata schema including column names, types, and value ranges.
