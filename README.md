@@ -59,8 +59,25 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 ### .5 Omega Set Hierarchy
 - The Omega set hierarchy was used to categorize Participants based in the presence of  Plaque reversal and their CAC scores.
 ![Logo](./Analysis/Keto-CTA-SubsetDivisionTree.png).
--
+-The hierarchy is based on the presence of plaque reversal and CAC scores, with the following categories:
+**Definitions based on the provided sets and conditions:**
 
+- **Ω (Omega)** : All participants  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 100 participants
+- **α (Alpha)** : { x ∈ Ω | ¬isZeta(x) }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 88 participants (CAC and TPS stable or increasing)
+- **ζ (Zeta)** : { x ∈ Ω | isZeta(x) }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 12 participants (CAC or TPS decrease, “Unicorns”)
+- **β (Beta)** : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 40 participants (non-zero CAC in α)
+- **γ (Gamma)** : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 4 participants (zero CAC in α)
+- **η (Eta)** : { x ∈ β | Δcac(x) > 10 }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 17 participants (larger CAC increase)
+- **θ (Theta)** : { x ∈ β | Δcac(x) ≤ 10 }  
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 23 participants (smaller CAC increase)
+
+- **Theta**: All particiopant with CAC1 >
 ### 3. JSON Schema Generation
 - Created a metadata schema including column names, types, and value ranges.
 - Intended for dataset validation and documentation.
