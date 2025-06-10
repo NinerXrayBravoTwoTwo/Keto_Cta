@@ -1,6 +1,6 @@
 # Keto-CTA Dataset Analysis and Software Specification
 
-![Logo](https://example.com/logo.png)
+![Logo](./logo.jpg)
 
 ## Disclaimer
 
