@@ -45,11 +45,12 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 
 - The hierarchy is based on the presence of plaque reversal and CAC scores, with the following categories:
 **Definitions based on the provided sets and conditions:**
-- **isZeta** = v2.Tps < v1.Tps
--            or v2.Cac < v1.Cac
--            or v2.Ncpv < v1.Ncpv
--            or v2.Tcpv < v1.Tcpv
--            or v2.Pav < v1.Pav;
+- **isZeta** = 
+>		v2.Tps < v1.Tps
+>    or v2.Cac < v1.Cac
+>    or v2.Ncpv < v1.Ncpv
+>    or v2.Tcpv < v1.Tcpv
+>    or v2.Pav < v1.Pav;
 
 - **Ω (Omega)** : All participants  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 100 participants
