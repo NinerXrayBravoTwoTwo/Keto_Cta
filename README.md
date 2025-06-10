@@ -50,8 +50,8 @@ The following analyses were conducted to explore the dataset and verify its prop
 |81	 |Pav0 vs Pav1	    |Omega	    |1.174	|100	|0.95027	|0.000036384	|0.00612	    |
 |121 |ln-ln Pav0 vs. Pav1	 |Omega	|1.157	|100	|0.94982	|0.000039348	|0.00617	    |
 |105 |ln-ln Ncpv0 vs. Ncpv1	 |Omega	|0.805	|100	|0.91247	|0.001873699	|1.22112	    |
-|73	 |Tps0 vs Tps1	    |Omega	|1.092  |100	|0.88051	|0.008464156	|0.35656	        |
-|113 |ln-ln Tps0 vs. Tps1	 |Omega	0.993	|100	|0.84723	|0.021784459	|0.15085	   |
+|73	 |Tps0 vs Tps1	    |Omega	|1.092  |100	|0.88051	|0.008464156	|0.35656	|2.17        |
+|113 |ln-ln Tps0 vs. Tps1|Omega	0.993	|100	|0.84723	|0.021784459	|0.15085	|0.77777 |
 |25	 |ln-ln (D Tcpv) vs. D Cac)	 |Omega	1.086	|100	|0.67612	|0.155805567	|0.08032  |
 |33	 |D Ncpv vs D Cac	 |Omega	|0.409	|100	|0.25575	|0.563039934        |-4.36562	   |
 |17	 |ln-ln (D Pav vs. D Cac)   |Omega	|61.422|100	|0.24163	|0.577575797	|0.3309	       |
