@@ -39,7 +39,8 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 
 ### Omega Set Hierarchy
 - This Omega set hierarchy was used to categorize Participants based in the presence of  Plaque reversal and their CAC scores.
-![Logo](./Analysis/Keto-CTA-SubsetDivisionTree.png).
+![Set division tree](./Analysis/Keto-CTA-SubsetDivisionTree.png).
+![Set division graph](./Analysis/Omega-SetDivisionGraph.png).
 -The hierarchy is based on the presence of plaque reversal and CAC scores, with the following categories:
 **Definitions based on the provided sets and conditions:**
 
@@ -57,6 +58,7 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 17 participants (larger CAC increase)
 - **θ (Theta)** : { x ∈ β | Δcac(x) ≤ 10 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 23 participants (smaller CAC increase)
+- 
 
 ---
 
