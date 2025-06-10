@@ -51,7 +51,7 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 | 137   | CAC (log-log)    | Omega | 1.012 | 100 | 0.9731 | ~0         | 0.0818 |
 | 129   | TCPV (log-log)   | Omega | 1.002 | 100 | 0.9675 | 0.00046    | 0.2178 |
 | 121   | PAV (log-log)    | Omega | 1.157 | 100 | 0.9498 | 0.000039   | 0.0062 |
-| ...   | *See full table in analysis folder* |
+| ...   | [*See full table in analysis folder*](./Analisis/Keto-CTA-Regressions.txt).|
 
 > Lower correlations were observed in delta (D) vs. delta comparisons, reflecting greater variability.
 
