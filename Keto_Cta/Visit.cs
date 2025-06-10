@@ -26,7 +26,7 @@ public record Visit
         Tcpv = tcpv;
         Pav = pav;
 
- 
+
         LnTps = Ln(Tps);
         LnCac = Ln(Cac);
         LnNcpv = Ln(Ncpv);

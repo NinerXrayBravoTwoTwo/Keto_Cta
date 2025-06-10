@@ -1,9 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Reflection;
-using System.Text.RegularExpressions;
 using DataMiner;
 using LinearRegression;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 var labels = new[] { "Omega", "Alpha", "Zeta", "Beta", "Gamma", "Theta", "Eta", "BetaUZeta" };
 
@@ -154,33 +154,97 @@ Console.WriteLine(string.Join(Environment.NewLine,
 // Print the regression data points for a specific regression
 // Change the chartIdx to the index of the regression you want to print
 //*****
-const int chartIdx = 128; // Example index for the regression you want to print
-var target = allRegressions[chartIdx - 1];
-var iamThis = allChartLabels[chartIdx - 1];
-var iamInSet = allSetNames[chartIdx - 1];
+const int chartIdx = 3; // 3,6,7Example index for the regression you want to print
+ChartARegressionGrok(allRegressions, chartIdx, allChartLabels, allSetNames);
 
-Console.WriteLine($"\n-,-,Regression: {chartIdx} slope: {target.Slope():F4}");
-
-Console.WriteLine($"-,-,'{iamThis} - {iamInSet}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-
-var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
-
-//var isLogLog = Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase);
-
-var xxx = regSplit[0];
-var yyy = regSplit[1];
-
-if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
+void ChartARegressionExcel(List<RegressionPvalue> regressionPvalues, int i, List<string> list, List<string> allSetNames1)
 {
-    xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+    var target = regressionPvalues[i - 1];
+    var iamThis = list[i - 1];
+    var iamInSet = allSetNames1[i - 1];
 
-    xxx = $"Ln(|{xxx}|+1)";
-    yyy = $"Ln(|{regSplit[1]}|+1)";
+    Console.WriteLine($"\n-,-,Regression: {i} slope: {target.Slope():F4}");
+
+    Console.WriteLine($"-,-,'{iamThis} - {iamInSet}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
+
+    var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
+
+    //var isLogLog = Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase);
+
+    var xxx = regSplit[0];
+    var yyy = regSplit[1];
+
+    if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
+    {
+        xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+
+        xxx = $"Ln(|{xxx}|+1)";
+        yyy = $"Ln(|{regSplit[1]}|+1)";
+    }
+
+    Console.WriteLine($"{xxx}, {yyy}"); // not log-log split
+
+    foreach (var point in target.DataPoints)
+    {
+        Console.WriteLine($"{point.x}, {point.y}");
+    }
 }
 
-Console.WriteLine($"{xxx}, {yyy}"); // not log-log split
 
-foreach (var point in target.DataPoints)
+
+void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<string> list,
+    List<string> allSetNames1)
 {
-    Console.WriteLine($"{point.x}, {point.y}");
+    var target = regressionPvalues[i - 1];
+    var iamThis = list[i - 1];
+    var iamInSet = allSetNames1[i - 1];
+
+    // Extract x and y variable names from the regression label
+    var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
+    var xxx = regSplit[0];
+    var yyy = regSplit[1];
+
+    // Handle log-log transformation if present
+    if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
+    {
+        xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+        xxx = $"Ln(|{xxx}|+1)";
+        yyy = $"Ln(|{regSplit[1]}|+1)";
+    }
+
+    // Build the dataset with x,y points
+    var dataPoints = target.DataPoints.Select(point => new { x = point.x, y = point.y }).ToList();
+
+    // Create the JSON configuration object
+    var chartConfig = new
+    {
+        type = "scatter",
+        data = new
+        {
+            datasets = new[]
+            {
+                new
+                {
+                    label =
+                        $"'{iamThis} - {iamInSet}' (slope: {target.Slope():F4}, N={target.N}, R^2: {target.RSquared():F4}, p-value: {target.PValue():F6})",
+                    data = dataPoints,
+                    backgroundColor = "#FF6B6B",
+                    borderColor = "#FF6B6B",
+                    pointRadius = 5
+                }
+            }
+        },
+        options = new
+        {
+            scales = new
+            {
+                x = new { title = new { display = true, text = xxx } },
+                y = new { title = new { display = true, text = yyy } }
+            }
+        }
+    };
+
+    // Serialize to JSON and output
+    string jsonOutput = JsonSerializer.Serialize(chartConfig, new JsonSerializerOptions { WriteIndented = true });
+    Console.WriteLine(jsonOutput);
 }
