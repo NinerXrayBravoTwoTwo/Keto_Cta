@@ -1,5 +1,7 @@
 # Keto-CTA Dataset Analysis and Software Specification
 
+![Logo](https://example.com/logo.png)
+
 ## Disclaimer
 
 This project, **Keto_CTA**, is an independent software development initiative. It is **not affiliated with** the Citizen Science Foundation, Lundquist Institute, or any other organization. The dataset used is publicly available for research from the Citizen Science Foundation. All analyses and software specifications herein are provided solely for educational and research purposes.
@@ -54,6 +56,9 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 | ...   | [*See full table in analysis folder*](./Analisis/Keto-CTA-Regressions.txt).|
 
 > Lower correlations were observed in delta (D) vs. delta comparisons, reflecting greater variability.
+### .5 Omega Set Hierarchy
+- The Omega set hierarchy was used to categorize Participants based in the presence of  Plaque reversal and their CAC scores.
+![Logo](./Analysis/Keto-CTA-SubsetDivisionTree/png)
 
 ### 3. JSON Schema Generation
 - Created a metadata schema including column names, types, and value ranges.
