@@ -39,14 +39,28 @@ The following analyses were conducted to explore the dataset and verify its prop
 2. **\( R^2 \) Summary**:
    - Calculated \( R^2 \) for raw and log-transformed data, both for paired and separate (all V1 vs. all V2) analyses.
    - Results:
-     | Metric | Raw \( R^2 \) | Log-Transformed \( R^2 \) | Improvement |
-     |--------|---------------|---------------------------|-------------|
-     | CAC    | 0.8464 (84.6%)| 0.8836 (88.4%)           | +3.7%       |
-     | NCPV   | 0.9025 (90.3%)| 0.9216 (92.2%)           | +1.9%       |
-     | TPS    | 0.7921 (79.2%)| 0.8281 (82.8%)           | +3.6%       |
-     | TCPV   | 0.8649 (86.5%)| 0.9025 (90.3%)           | +3.8%       |
-     | PAV    | 0.9216 (92.2%)| 0.9409 (94.1%)           | +1.9%       |
-   - Separate V1 vs. V2 analysis yielded identical \( R^2 \) values due to TPS ordering, which preserved sequential relationships.
+	
+|index|Chart Name | Set | Slope|N=|R^2|P-Value|Y-Intercept|
+|--------|---------------|---------------------------|-------------|
+|89	 |Tcpv0 vs Tcpv    |Omega	|1.128	|100	|0.98194	|0	|1.62159	         |
+|97	 |Cac0 vs Cac1	 |Omega	|1.18	|100	|0.97802	|0.000000002	|-0.55542	           |
+|137 |ln-ln Cac0 vs. Cac1	 |Omega	|1.012	|100	|0.97308	|0.000000041	|0.08179         |
+|129 |ln-ln Tcpv0 vs. Tcpv1	 |Omega	|1.002	|100	|0.96752	|0.000000459	|0.21778|
+|65	 |Ncpv0 vs Ncpv1    |Omega	|1.251	|100	|0.96031	|0.000004297	|12.4832	        |
+|81	 |Pav0 vs Pav1	    |Omega	    |1.174	|100	|0.95027	|0.000036384	|0.00612	    |
+|121 |ln-ln Pav0 vs. Pav1	 |Omega	|1.157	|100	|0.94982	|0.000039348	|0.00617	    |
+|105 |ln-ln Ncpv0 vs. Ncpv1	 |Omega	|0.805	|100	|0.91247	|0.001873699	|1.22112	    |
+|73	 |Tps0 vs Tps1	    |Omega	|1.092  |100	|0.88051	|0.008464156	|0.35656	        |
+|113 |ln-ln Tps0 vs. Tps1	 |Omega	0.993	|100	|0.84723	|0.021784459	|0.15085	   |
+|25	 |ln-ln (D Tcpv) vs. D Cac)	 |Omega	1.086	|100	|0.67612	|0.155805567	|0.08032  |
+|33	 |D Ncpv vs D Cac	 |Omega	|0.409	|100	|0.25575	|0.563039934        |-4.36562	   |
+|17	 |ln-ln (D Pav vs. D Cac)   |Omega	|61.422|100	|0.24163	|0.577575797	|0.3309	       |
+|1	 |ln-ln (D Ncpv vs. D Cac	|Omega	|0.62|100	|0.22871	|0.591055905	|-0.78004	   |
+|49	 |D Pav vs D Cac	 |Omega	|884.826	|100	|0.17684	|0.647365497	|-1.86016	   |
+|9	 |ln-ln (D Tps vs. D Cac)|Omega|1.246	|100	|0.17174	|0.653138313	|0.62678       |
+|57	 |D Tcpv vs D Cac	 |Omega	|1.417	|100	|0.17142	    |0.653503725    |2.83147       |
+|41	 |D Tps vs D Cac	 |Omega	|1.426	|100    |0.00364	    |0.952415165    |7.78268       |
+
 
 3. **JSON Schema**:
    - Generated a JSON description of the dataset’s structure, including column names, data types, ranges, and metadata, without data values.
