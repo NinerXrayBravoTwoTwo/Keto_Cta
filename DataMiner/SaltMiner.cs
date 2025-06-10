@@ -351,6 +351,7 @@ namespace DataMiner
             var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
+
         //public RegressionPvalue[] MineDNcpvDCac()
         //{
         //    var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DCac));
@@ -364,7 +365,7 @@ namespace DataMiner
         //    var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         //    return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         //}
-       
+
         public RegressionPvalue[] MineDTpsDPav()
         {
             var selector = new Func<Element, (double x, double y)>(item => (item.DTps, item.DPav));
@@ -391,6 +392,271 @@ namespace DataMiner
             var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
+
+        public RegressionPvalue[] MineDTpsDCac()
+
+        #endregion
+
+        #region ΔPav vs ΔTcpv
+        public RegressionPvalue[] MineDPavDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DPav, item.DTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvLnDTps()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDNcpv, item.LnDTps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvLnDPav()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDNcpv, item.LnDPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvLnDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDNcpv, item.LnDTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvLnDCac()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDNcpv, item.LnDCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDTpsLnDPav()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDTpsLnDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        //public RegressionPvalue[] MineLnDTpsLnDCac()
+        //{
+        //    var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDCac));
+        //    var omega = CalculateRegression(Omega, "Omega", selector);
+        //    var alpha = CalculateRegression(Alpha, "Alpha", selector);
+        //    var zeta = CalculateRegression(Zeta, "Zeta", selector);
+        //    var beta = CalculateRegression(Beta, "Beta", selector);
+        //    var gamma = CalculateRegression(Gamma, "Gamma", selector);
+        //    var theta = CalculateRegression(Theta, "Theta", selector);
+        //    var eta = CalculateRegression(Eta, "Etas", selector);
+        //    var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+        //    return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        //}
+
+        public RegressionPvalue[] MineLnDPavLnDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.LnDPav, item.LnDTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+        #endregion
+
+        #region 4- Ncpv0 vs Tps1 (All Subsets)
+
+        public RegressionPvalue[] MineNcpv0Tps1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Tps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnNcpv0LnTps1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnNcpv, item.Visits[1].LnTps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineNcpv0Pav1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Pav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnNcpv0LnPav1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnNcpv, item.Visits[1].LnPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineNcpv0Tcpv1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Tcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        #endregion
+
+        #region 5- Tps0 vs Cac1 (All Subsets)
+
+        public RegressionPvalue[] MineNcpv0Cac1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Cac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnNcpv0LnCac1()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnNcpv, item.Visits[1].LnCac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineNcpv0Tps2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Ncpv, item.Visits[1].Tps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnNcpv0LnTps2()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnNcpv, item.Visits[1].LnTps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
         #endregion
 
         /// <summary>

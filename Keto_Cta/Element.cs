@@ -4,11 +4,11 @@ namespace Keto_Cta;
 ///     The four current leaf sets of the Keto CTA data set in this subset partition
 ///     set definitions
 /// 
-///     isZeta(x) =
-///         tps2(x) &lt; tps1( x )
-///         OR cac2(x) &lt; cac1(x)
-///         OR 
-///     Δcac(x) = cac2(x) - cac1(x)
+///       isZeta = v2.Tps < v1.Tps
+///            or v2.Cac < v1.Cac
+///            or v2.Ncpv < v1.Ncpv
+///            or v2.Tcpv < v1.Tcpv
+///            or v2.Pav < v1.Pav;
 ///
 /// Definitions based on the provided sets and conditions:
 ///     • Ω : All participants
