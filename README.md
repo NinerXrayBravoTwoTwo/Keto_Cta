@@ -77,7 +77,6 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 - **θ (Theta)** : { x ∈ β | Δcac(x) ≤ 10 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 23 participants (smaller CAC increase)
 
-- **Theta**: All particiopant with CAC1 >
 ### 3. JSON Schema Generation
 - Created a metadata schema including column names, types, and value ranges.
 - Intended for dataset validation and documentation.
