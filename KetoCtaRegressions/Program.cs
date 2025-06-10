@@ -151,9 +151,48 @@ Console.WriteLine(string.Join(Environment.NewLine,
 
 #endregion
 
+#region  ΔNcpv vs ΔTps
+regressions = myMine.MineDNcpvDTps();
+chartLabel = "DNcpv0 vs. DTcp";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineDNcpvDPav();
+chartLabel = "Ncpv vs. DPav";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineDNcpvDTcpv();
+chartLabel = "DNcpv vs. DTcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineDTpsDPav();
+chartLabel = "DTps vs. DPav";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineDTpsDTcpv();
+chartLabel = "DTps vs. DTcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineDPavDTcpv();
+
+
+
+#endregion
+
+
 // Print the regression data points for a specific regression
 // Change the chartIdx to the index of the regression you want to print
 //*****
+
 const int chartIdx = 3; // 3,6,7Example index for the regression you want to print
 ChartARegressionGrok(allRegressions, chartIdx, allChartLabels, allSetNames);
 

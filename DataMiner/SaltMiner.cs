@@ -180,7 +180,6 @@ namespace DataMiner
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
-
         public RegressionPvalue[] MineLnTps1LnTps2()
         {
             var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnTps, item.Visits[1].LnTps));
@@ -299,6 +298,89 @@ namespace DataMiner
         public RegressionPvalue[] MineCac1Cac2()
         {
             var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].Cac, item.Visits[1].Cac));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+        #endregion
+
+        #region regressions ΔNcpv vs ΔTps 
+        public RegressionPvalue[] MineDNcpvDTps()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DTps));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineDNcpvDPav()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+        public RegressionPvalue[] MineDNcpvDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DTcpv));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+        //public RegressionPvalue[] MineDNcpvDCac()
+        //{
+        //    var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DCac));
+        //    var omega = CalculateRegression(Omega, "Omega", selector);
+        //    var alpha = CalculateRegression(Alpha, "Alpha", selector);
+        //    var zeta = CalculateRegression(Zeta, "Zeta", selector);
+        //    var beta = CalculateRegression(Beta, "Beta", selector);
+        //    var gamma = CalculateRegression(Gamma, "Gamma", selector);
+        //    var theta = CalculateRegression(Theta, "Theta", selector);
+        //    var eta = CalculateRegression(Eta, "Etas", selector);
+        //    var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+        //    return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        //}
+       
+        public RegressionPvalue[] MineDTpsDPav()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DTps, item.DPav));
+            var omega = CalculateRegression(Omega, "Omega", selector);
+            var alpha = CalculateRegression(Alpha, "Alpha", selector);
+            var zeta = CalculateRegression(Zeta, "Zeta", selector);
+            var beta = CalculateRegression(Beta, "Beta", selector);
+            var gamma = CalculateRegression(Gamma, "Gamma", selector);
+            var theta = CalculateRegression(Theta, "Theta", selector);
+            var eta = CalculateRegression(Eta, "Etas", selector);
+            var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+        public RegressionPvalue[] MineDTpsDTcpv()
+        {
+            var selector = new Func<Element, (double x, double y)>(item => (item.DTps, item.DTcpv));
             var omega = CalculateRegression(Omega, "Omega", selector);
             var alpha = CalculateRegression(Alpha, "Alpha", selector);
             var zeta = CalculateRegression(Zeta, "Zeta", selector);
