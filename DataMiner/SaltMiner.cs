@@ -40,6 +40,22 @@ namespace DataMiner
             var regression = new RegressionPvalue(dataPoints);
             return regression;
         }
+
+        RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label, Func<Element, (double numerator, double denominator)> xSelector, Func<Element, double> ySelector)
+        {
+            var dataPoints = new List<(double x, double y)>();
+            dataPoints.AddRange(targetElements.Select(e =>
+            {
+                var (numerator, denominator) = xSelector(e);
+                double x = denominator != 0 ? numerator / denominator : 0; // Handle division by zero
+                double y = ySelector(e);
+                return (x, y);
+            }));
+            var regression = new RegressionPvalue(dataPoints);
+            return regression;
+        }
+
+
         #region log-transformed regressions
 
         /// <summary>
@@ -352,19 +368,6 @@ namespace DataMiner
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
-        //public RegressionPvalue[] MineDNcpvDCac()
-        //{
-        //    var selector = new Func<Element, (double x, double y)>(item => (item.DNcpv, item.DCac));
-        //    var omega = CalculateRegression(Omega, "Omega", selector);
-        //    var alpha = CalculateRegression(Alpha, "Alpha", selector);
-        //    var zeta = CalculateRegression(Zeta, "Zeta", selector);
-        //    var beta = CalculateRegression(Beta, "Beta", selector);
-        //    var gamma = CalculateRegression(Gamma, "Gamma", selector);
-        //    var theta = CalculateRegression(Theta, "Theta", selector);
-        //    var eta = CalculateRegression(Eta, "Etas", selector);
-        //    var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
-        //    return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
-        //}
 
         public RegressionPvalue[] MineDTpsDPav()
         {
@@ -392,8 +395,6 @@ namespace DataMiner
             var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
-
-        public RegressionPvalue[] MineDTpsDCac()
 
         #endregion
 
@@ -496,20 +497,6 @@ namespace DataMiner
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
-        //public RegressionPvalue[] MineLnDTpsLnDCac()
-        //{
-        //    var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDCac));
-        //    var omega = CalculateRegression(Omega, "Omega", selector);
-        //    var alpha = CalculateRegression(Alpha, "Alpha", selector);
-        //    var zeta = CalculateRegression(Zeta, "Zeta", selector);
-        //    var beta = CalculateRegression(Beta, "Beta", selector);
-        //    var gamma = CalculateRegression(Gamma, "Gamma", selector);
-        //    var theta = CalculateRegression(Theta, "Theta", selector);
-        //    var eta = CalculateRegression(Eta, "Etas", selector);
-        //    var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
-        //    return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
-        //}
-
         public RegressionPvalue[] MineLnDPavLnDTcpv()
         {
             var selector = new Func<Element, (double x, double y)>(item => (item.LnDPav, item.LnDTcpv));
@@ -597,7 +584,7 @@ namespace DataMiner
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
 
-        #endregion
+        #endregion Tps0 vs Cac1
 
         #region 5- Tps0 vs Cac1 (All Subsets)
 
@@ -656,6 +643,112 @@ namespace DataMiner
             var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
             return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
         }
+        #endregion Tps0 vs Cac1
+
+
+        #region 6- ΔNcpv/ΔCac vs ΔTps (All Subsets)
+
+        public RegressionPvalue[] MineDNcpvOverDCacDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.DNcpv, item.DCac));
+            // Define ySelector to return y value (DTps)
+            var ySelector = new Func<Element, double>(item => item.DTps);
+
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvOverLnDCacLnDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
+            // Define ySelector to return y value (LnDTps)
+            var ySelector = new Func<Element, double>(item => item.LnDTps);
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineDNcpvOverDPavDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDPav));
+            // Define ySelector to return y value (DTps)
+            var ySelector = new Func<Element, double>(item => item.DTps);
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvOverLnDPavLnDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDPav));
+            // Define ySelector to return y value (LnDTps)
+            var ySelector = new Func<Element, double>(item => item.LnDTps);
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineDNcpvOverDTcpvDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDTcpv));
+            // Define ySelector to return y value (DTps)
+            var ySelector = new Func<Element, double>(item => item.DTps);
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        public RegressionPvalue[] MineLnDNcpvOverLnDTcpvLnDTps()
+        {
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDTcpv));
+            // Define ySelector to return y value (LnDTps)
+            var ySelector = new Func<Element, double>(item => item.LnDTps);
+            var omega = CalculateRegressionRatio(Omega, "Omega", xSelector, ySelector);
+            var alpha = CalculateRegressionRatio(Alpha, "Alpha", xSelector, ySelector);
+            var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
+            var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
+            var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
+            var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+            var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+            var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
+            return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
+        }
+
+        #endregion
+
+        #region ln-ln DNcpv vs DTps
+
 
         #endregion
 
