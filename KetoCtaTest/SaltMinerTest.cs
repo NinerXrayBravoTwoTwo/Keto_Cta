@@ -12,26 +12,26 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
 
         var saltMiner = new SaltMiner(filePath);
         Assert.NotNull(saltMiner);
-        Assert.NotEmpty(saltMiner.Omega);
-        Assert.NotEmpty(saltMiner.Alpha);
+        Assert.NotEmpty(SaltMiner.Omega); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Alpha); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Beta); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Zeta); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Gamma); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Theta); // Fixed: Accessing static member with type name
+        Assert.NotEmpty(SaltMiner.Eta); // Fixed: Accessing static member with type name
 
-        Assert.NotEmpty(saltMiner.Beta);
-        Assert.NotEmpty(saltMiner.Zeta);
-        Assert.NotEmpty(saltMiner.Gamma);
-        Assert.NotEmpty(saltMiner.Theta);
-        Assert.NotEmpty(saltMiner.Eta);
+        Assert.Equal(100, SaltMiner.Omega.Length); // Fixed: Accessing static member with type name
+        Assert.Equal(100, SaltMiner.Alpha.Length + SaltMiner.Zeta.Length); // Fixed: Accessing static member with type name
 
-        Assert.Equal(100, saltMiner.Omega.Length);
-        Assert.Equal(100, saltMiner.Alpha.Length + saltMiner.Zeta.Length);
-
-        testOutputHelper.WriteLine($"Omega Count: {saltMiner.Omega.Length}");
-        testOutputHelper.WriteLine($"Alpha Count: {saltMiner.Alpha.Length}");
-        testOutputHelper.WriteLine($"Zeta Count: {saltMiner.Zeta.Length}");
-        testOutputHelper.WriteLine($"Beta Count: {saltMiner.Beta.Length}");
-        testOutputHelper.WriteLine($"Gamma Count: {saltMiner.Gamma.Length}");
-        testOutputHelper.WriteLine($"Theta Count: {saltMiner.Theta.Length}");
-        testOutputHelper.WriteLine($"Eta Count: {saltMiner.Eta.Length}");
+        testOutputHelper.WriteLine($"Omega Count: {SaltMiner.Omega.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Alpha Count: {SaltMiner.Alpha.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Zeta Count: {SaltMiner.Zeta.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Beta Count: {SaltMiner.Beta.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Gamma Count: {SaltMiner.Gamma.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Theta Count: {SaltMiner.Theta.Length}"); // Fixed: Accessing static member with type name
+        testOutputHelper.WriteLine($"Eta Count: {SaltMiner.Eta.Length}"); // Fixed: Accessing static member with type name
     }
+
     [Fact]
     public void LnNcpLnDcac()
     {
@@ -49,6 +49,5 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine("Salt mining completed successfully.");
     }
-
 }
 

@@ -29,28 +29,28 @@ string FormatRegression(RegressionPvalue item, string set, string chartLabel, in
 #region Ln-Ln CTA vs Ln cac
 var regressions = myMine.MineLnDNcpLnDCac();
 
-var chartLabel = "ln-ln D Ncpv vs. D Cac)";
+var chartLabel = "ln-ln D Ncpv vs. D Cac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDTpsLnDCac();
 
-chartLabel = "ln-ln D Tps vs. D Cac)";
+chartLabel = "ln-ln D Tps vs. D Cac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDPavLnDCac();
 
-chartLabel = "ln-ln D Pav vs. D Cac)";
+chartLabel = "ln-ln D Pav vs. D Cac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDTcpvLnDCac();
 
-chartLabel = "ln-ln D Tcpv) vs. D Cac)";
+chartLabel = "ln-ln D Tcpv vs. D Cac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -187,6 +187,39 @@ chartLabel = "DPav vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
+#endregion
+
+#region Cac0 vs. DNcpv 
+
+
+regressions = myMine.MineCac0DNcpv();
+chartLabel = "Cac0 vs. DNcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineCac0DTps();
+chartLabel = "Cac0 vs. DTps";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineLnCac0LnDNcpv();
+chartLabel = "ln-ln Cac0 vs. DNcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineLnCac0LnDTps();
+chartLabel = "ln-ln Cac0 vs. DTps";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineCac0DPav();
+
+
+#endregion
 
 #region Ratios
 
@@ -286,8 +319,6 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-
-
 regressions = myMine.MineLnDTpsLnDTcpv(); 
 chartLabel = "ln-ln DTps vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
@@ -330,14 +361,9 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-
-
-
-
-
-
 #endregion
 
+#region burn a graph please :)
 
 // Print the regression data points for a specific regression
 // Change the chartIdx to the index of the regression you want to print
@@ -441,4 +467,5 @@ void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<
 #endregion
 
 
+// Wait for user input before closing the console window
 Console.ReadLine();
