@@ -61,7 +61,7 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 - **β (Beta)** : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 40 participants (non-zero CAC in α)
 - **γ (Gamma)** : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }  
-  &nbsp;&nbsp;&nbsp;&nbsp;◦ 4 participants (zero CAC in α)
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 48 participants (zero CAC in α)
 - **η (Eta)** : { x ∈ β | Δcac(x) > 10 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 17 participants (larger CAC increase)
 - **θ (Theta)** : { x ∈ β | Δcac(x) ≤ 10 }  
