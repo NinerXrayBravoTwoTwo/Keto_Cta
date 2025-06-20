@@ -1,0 +1,12 @@
+Attribute,Lyon Diet Heart Study,KETO-CTA Study
+Study Design,"RCT, secondary prevention","Single-arm observational study"
+Sample Size,"605 (302 experimental, 303 control)","100 (no control group)"
+Demographics,"91% male, mean age ~54 years","Mostly male, mean age 55 years"
+Health Status,"Post-MI, high CHD risk","Metabolically healthy LMHRs, low BMI, high LDL-C due to keto"
+Baseline Lipids,"LDL-C >145 mg/dL, apoB >130 mg/dL, no group differences","LDL-C ≥190 mg/dL (mean 254 mg/dL), HDL-C ≥60 mg/dL, triglycerides ≤80 mg/dL"
+BMI,"Not specified, but typical post-MI population (likely varied)","Mean BMI 22 (lean)"
+Intervention,"Mediterranean diet vs. prudent Western diet","Long-term ketogenic diet (no dietary change, observational)"
+Duration,"46 months (mean, stopped at 27 months)","1 year"
+Location,"France (low CVD risk)","USA (higher CVD risk context)"
+Control Group,"Yes (prudent Western diet)","No"
+Outcome Focus,"CHD mortality, nonfatal CV events","Plaque progression (CAC/CTA)"
