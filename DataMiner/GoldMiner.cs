@@ -13,7 +13,7 @@ namespace DataMiner;
 public class Gold
 {
 
-    public Gold(string pathl)
+    public Gold(string path)
     {
         var elements = ReadCsvFile(path);
 
