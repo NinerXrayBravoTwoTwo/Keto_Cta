@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 var labels = new[] { "Omega", "Alpha", "Zeta", "Beta", "Gamma", "Theta", "Eta", "BetaUZeta" };
 
-var myMine = new SaltMiner("TestData/keto-cta-quant-and-semi-quant-empty.csv");
+var myMine = new SaltMiner("TestData/keto-cta-quant-and-semi-quant.csv");
 
 //Headers
 Console.WriteLine("index, ChartLabel, SetName, Slope, N=, RSquared, PValue, YIntercept, MeanX, MeanY");
@@ -26,57 +26,57 @@ string FormatRegression(RegressionPvalue item, string set, string chartLabel, in
     return $"{count}, {chartLabel}, {set}, {item.Slope():F3}, {item.N}, {item.RSquared():F5}, {item.PValue():F9}, {item.YIntercept():F5}, {item.MeanX():F2}, {item.MeanY():F5}";
 }
 
-#region Ln-Ln CTA vs Ln cac
+#region Ln-Ln CTA vs.Ln cac
 var regressions = myMine.MineLnDNcpLnDCac();
 
-var chartLabel = "ln-ln D Ncpv vs. D Cac";
+var chartLabel = "ln-ln DNcpv vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDTpsLnDCac();
 
-chartLabel = "ln-ln D Tps vs. D Cac";
+chartLabel = "ln-ln DTps vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDPavLnDCac();
 
-chartLabel = "ln-ln D Pav vs. D Cac";
+chartLabel = "ln-ln DPav vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineLnDTcpvLnDCac();
 
-chartLabel = "ln-ln D Tcpv vs. D Cac";
+chartLabel = "ln-ln DTcpv vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 #endregion
 
-#region CTA vs cac
+#region CTA vs. cac
 regressions = myMine.MineDNcpvDCac();
-chartLabel = "D Ncpv vs D Cac";
+chartLabel = "DNcpv vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineDTpsDCac();
-chartLabel = "D Tps vs D Cac";
+chartLabel = "DTps vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineDPavDCac();
-chartLabel = "D Pav vs D Cac";
+chartLabel = "DPav vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineDTcpvDCac();
-chartLabel = "D Tcpv vs D Cac";
+chartLabel = "DTcpv vs. DCac";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -86,31 +86,31 @@ Console.WriteLine(string.Join(Environment.NewLine,
 #region CTA1 vs. CTA2
 
 regressions = myMine.MineNcpv1Ncpv2();
-chartLabel = "Ncpv0 vs Ncpv1";
+chartLabel = "Ncpv0 vs. Ncpv1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineTps1Tps2();
-chartLabel = "Tps0 vs Tps1";
+chartLabel = "Tps0 vs. Tps1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MinePav1Pav2();
-chartLabel = "Pav0 vs Pav1";
+chartLabel = "Pav0 vs. Pav1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineTcpv1Tcpv2();
-chartLabel = "Tcpv0 vs Tcpv1";
+chartLabel = "Tcpv0 vs. Tcpv1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineCac1Cac2();
-chartLabel = "Cac0 vs Cac1";
+chartLabel = "Cac0 vs. Cac1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -151,7 +151,7 @@ Console.WriteLine(string.Join(Environment.NewLine,
 
 #endregion
 
-#region  ΔNcpv vs ΔTps
+#region  ΔNcpv vs. ΔTps
 regressions = myMine.MineDNcpvDTps();
 chartLabel = "DNcpv0 vs. DTcp";
 Console.WriteLine(string.Join(Environment.NewLine,
@@ -313,6 +313,32 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
+regressions = myMine.MineNcpv0DNcpv();
+chartLabel = "Ncpv0 vs. DNcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineLnNcpv0LnDNcpv();
+
+chartLabel = "ln-ln Ncpv0 vs. DNcpv";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineNcpv0DCac();
+chartLabel = "Ncpv0 vs. DCac";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+regressions = myMine.MineLnNcpv0LnDCac();
+chartLabel = "ln-ln Ncpv0 vs. DCac";
+Console.WriteLine(string.Join(Environment.NewLine,
+    regressions.Zip(labels, (item, label) =>
+        FormatRegression(item, label, chartLabel, count++))));
+
+
 regressions = myMine.MineLnDPavLnDTcpv();
 chartLabel = "ln-ln DPav vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
@@ -404,8 +430,6 @@ void ChartARegressionExcel(List<RegressionPvalue> regressionPvalues, int i, List
         Console.WriteLine($"{point.x}, {point.y}");
     }
 }
-
-
 
 void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<string> list,
     List<string> allSetNames1)

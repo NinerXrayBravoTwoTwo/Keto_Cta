@@ -49,4 +49,7 @@
 	    	  <None Update="TestData\keto-cta-quant-and-semi-quant-empty.csv">
 	    	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    	  </None>
+	    	  <None Update="TestData\keto-cta-quant-and-semi-quant.csv">
+	    	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    	  </None>
 	    	</ItemGroup>	</Project>
