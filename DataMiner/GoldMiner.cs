@@ -67,13 +67,13 @@ public class Dust
 {
     public Dust(SetName set, string title, RegressionPvalue regression)
     {
-        _setName = set;
+        SetName = set;
         Title = title;
-        regression = regression ?? throw new ArgumentNullException(nameof(regression));
+        Regression = regression ?? throw new ArgumentNullException(nameof(regression));
     }
 
-    public readonly SetName _setName;
+    public readonly SetName SetName;
     public readonly string Title;
-    public readonly Regression _Regression;
+    public readonly Regression Regression;
 
 }
