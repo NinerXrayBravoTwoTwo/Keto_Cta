@@ -71,7 +71,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -85,7 +85,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -99,7 +99,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
@@ -114,7 +114,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -131,7 +131,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -145,7 +145,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -159,7 +159,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -173,7 +173,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -191,7 +191,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -205,7 +205,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -219,7 +219,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -233,7 +233,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -247,7 +247,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -264,7 +264,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -278,7 +278,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -292,7 +292,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -306,7 +306,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -320,7 +320,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -336,7 +336,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -350,7 +350,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -363,7 +363,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -378,7 +378,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -391,7 +391,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -408,7 +408,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -422,7 +422,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -436,7 +436,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -450,7 +450,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -464,7 +464,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -478,7 +478,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -492,7 +492,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -506,7 +506,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -523,7 +523,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -537,7 +537,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
@@ -552,7 +552,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
@@ -567,7 +567,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
@@ -582,7 +582,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
 
@@ -597,7 +597,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -611,7 +611,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -625,7 +625,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -639,7 +639,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -657,7 +657,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -671,7 +671,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -685,7 +685,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -699,7 +699,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -720,7 +720,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -736,7 +736,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -752,7 +752,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -768,7 +768,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -784,7 +784,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -800,7 +800,7 @@ public class SaltMiner
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
         var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
-        var eta = CalculateRegressionRatio(Eta, "Etas", xSelector, ySelector);
+        var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -818,7 +818,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }   
@@ -831,7 +831,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -844,7 +844,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -857,7 +857,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
@@ -871,7 +871,7 @@ public class SaltMiner
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
         var theta = CalculateRegression(Theta, "Theta", selector);
-        var eta = CalculateRegression(Eta, "Etas", selector);
+        var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
     }
