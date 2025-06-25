@@ -21,16 +21,15 @@ public class SaltMiner
         Gamma = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
         Theta = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
-
     }
 
-    public static Element[] Omega;
-    public static Element[] Alpha;
-    public static Element[] Beta;
-    public static Element[] Zeta;
-    public static Element[] Gamma;
-    public static Element[] Theta;
-    public static Element[] Eta;
+    public Element[] Omega;
+    public Element[] Alpha;
+    public Element[] Beta;
+    public Element[] Zeta;
+    public Element[] Gamma;
+    public Element[] Theta;
+    public Element[] Eta;
 
 
     RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label, Func<Element, (double x, double y)> selector)
@@ -80,7 +79,7 @@ public class SaltMiner
     {
         var selector = new Func<Element, (double x, double y)>(item => (item.LnDTps, item.LnDCac));
         var omega = CalculateRegression(Omega, "Omega", selector);
-        var alpha = CalculateRegression(Alpha, "Alpha", selector); ;
+        var alpha = CalculateRegression(Alpha, "Alpha", selector);
         var zeta = CalculateRegression(Zeta, "Zeta", selector);
         var beta = CalculateRegression(Beta, "Beta", selector);
         var gamma = CalculateRegression(Gamma, "Gamma", selector);
@@ -719,7 +718,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -735,7 +734,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -751,7 +750,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -767,7 +766,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -783,7 +782,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -799,7 +798,7 @@ public class SaltMiner
         var zeta = CalculateRegressionRatio(Zeta, "Zeta", xSelector, ySelector);
         var beta = CalculateRegressionRatio(Beta, "Beta", xSelector, ySelector);
         var gamma = CalculateRegressionRatio(Gamma, "Gamma", xSelector, ySelector);
-        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector); ;
+        var theta = CalculateRegressionRatio(Theta, "Theta", xSelector, ySelector);
         var eta = CalculateRegressionRatio(Eta, "Eta", xSelector, ySelector);
         var betaUZeta = CalculateRegressionRatio(Beta.Concat(Zeta), "BetaUZeta", xSelector, ySelector);
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
@@ -821,7 +820,7 @@ public class SaltMiner
         var eta = CalculateRegression(Eta, "Eta", selector);
         var betaUZeta = CalculateRegression(Beta.Concat(Zeta), "BetaUZeta", selector); // Combined Beta and Zeta for specific analysis
         return [omega, alpha, zeta, beta, gamma, theta, eta, betaUZeta];
-    }   
+    }
     public RegressionPvalue[] MineLnCac0LnDNcpv()
     {
         var selector = new Func<Element, (double x, double y)>(item => (item.Visits[0].LnCac, item.LnDNcpv));

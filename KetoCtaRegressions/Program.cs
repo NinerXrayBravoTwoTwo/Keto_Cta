@@ -183,7 +183,7 @@ Console.WriteLine(string.Join(Environment.NewLine,
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineDPavDTcpv();
-chartLabel = "DPav vs. DTcpv";  
+chartLabel = "DPav vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -253,14 +253,14 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-regressions = myMine.MineLnNcpv0LnTps2();    
+regressions = myMine.MineLnNcpv0LnTps2();
 chartLabel = "ln-ln Ncpv0 vs. Tps2";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineNcpv0Tps2();
-chartLabel = "Ncpv0 vs. Tps2";  
+chartLabel = "Ncpv0 vs. Tps2";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -281,7 +281,7 @@ regressions = myMine.MineLnNcpv0LnCac1();
 chartLabel = "ln-ln Ncpv0 vs. Cac1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
-        FormatRegression(item, label, chartLabel, count++))));  
+        FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineNcpv0Tcpv1();
 chartLabel = "Ncpv0 vs. Tcpv1";
@@ -308,7 +308,7 @@ Console.WriteLine(string.Join(Environment.NewLine,
         FormatRegression(item, label, chartLabel, count++))));
 
 regressions = myMine.MineNcpv0Tps1();
-chartLabel= "Ncpv0 vs. Tps1";
+chartLabel = "Ncpv0 vs. Tps1";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
@@ -345,13 +345,13 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-regressions = myMine.MineLnDTpsLnDTcpv(); 
+regressions = myMine.MineLnDTpsLnDTcpv();
 chartLabel = "ln-ln DTps vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-regressions = myMine.MineLnDTpsLnDTcpv();   
+regressions = myMine.MineLnDTpsLnDTcpv();
 chartLabel = "ln-ln DTps vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
@@ -369,7 +369,7 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
- regressions = myMine.MineLnDNcpvLnDTcpv();
+regressions = myMine.MineLnDNcpvLnDTcpv();
 chartLabel = "ln-ln DNcpv vs. DTcpv";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
@@ -381,7 +381,7 @@ Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
         FormatRegression(item, label, chartLabel, count++))));
 
-regressions = myMine.MineLnDNcpvLnDTps();   
+regressions = myMine.MineLnDNcpvLnDTps();
 chartLabel = "ln-ln DNcpv vs. DTps";
 Console.WriteLine(string.Join(Environment.NewLine,
     regressions.Zip(labels, (item, label) =>
@@ -395,8 +395,8 @@ Console.WriteLine(string.Join(Environment.NewLine,
 // Change the chartIdx to the index of the regression you want to print
 //*****
 
-const int chartIdx = 3; // 3,6,7Example index for the regression you want to print
-ChartARegressionGrok(allRegressions, chartIdx, allChartLabels, allSetNames);
+const int chartIdx = 366;// 374; // 3,6,7Example index for the regression you want to print
+ChartARegressionExcel(allRegressions, chartIdx, allChartLabels, allSetNames);
 
 void ChartARegressionExcel(List<RegressionPvalue> regressionPvalues, int i, List<string> list, List<string> allSetNames1)
 {

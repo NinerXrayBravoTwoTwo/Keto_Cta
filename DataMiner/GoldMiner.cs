@@ -1,11 +1,4 @@
 ﻿using Keto_Cta;
-using MathNet.Numerics.Distributions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LinearRegression;
 
 namespace DataMiner;
@@ -28,14 +21,14 @@ public class Gold
         Eta = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
     }
 
-    public static Element[] Omega;
-    public static Element[] Alpha;
-    public static Element[] Beta;
-    public static Element[] Zeta;
-    public static Element[] Gamma;
-    public static Element[] Theta;
-    public static Element[] Eta;
-    
+    public Element[] Omega;
+    public Element[] Alpha;
+    public Element[] Beta;
+    public Element[] Zeta;
+    public Element[] Gamma;
+    public Element[] Theta;
+    public Element[] Eta;
+
     private static List<Element> ReadCsvFile(string path)
     {
         var list = new List<Element>();
@@ -66,7 +59,7 @@ public class Gold
         return list;
     }
 
-    
+
 
 }
 
