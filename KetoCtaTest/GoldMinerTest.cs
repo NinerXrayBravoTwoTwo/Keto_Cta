@@ -1,11 +1,4 @@
 ﻿using DataMiner;
-using Keto_Cta;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 using LinearRegression;
 using Xunit.Abstractions;
 
@@ -45,9 +38,9 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var x = 0; x < attributes.Length; x++)
-            for (var y = 0; y < attributes.Length; y++)
-                if (x != y)
-                    testOutputHelper.WriteLine($"{index++}: Generating chart for {attributes[x]} vs. {attributes[y]}");
+                for (var y = 0; y < attributes.Length; y++)
+                    if (x != y)
+                        testOutputHelper.WriteLine($"{index++}: Generating chart for {attributes[x]} vs. {attributes[y]}");
 
         }
 
@@ -58,12 +51,12 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var dvisit = 0; dvisit < 2; dvisit++)
-            for (var x = 0; x < attributes.Length; x++)
-            for (var y = 0; y < attributes.Length; y++)
-                if (x != y)
-                    for (var ivisit = 0; ivisit < 2; ivisit++)
-                        if (index++ %3 == 0)
-                            testOutputHelper.WriteLine($"{index}: Generating chart for {attributes[x]}{dvisit} vs. {attributes[y]}{ivisit}");
+                for (var x = 0; x < attributes.Length; x++)
+                    for (var y = 0; y < attributes.Length; y++)
+                        if (x != y)
+                            for (var ivisit = 0; ivisit < 2; ivisit++)
+                                if (index++ % 3 == 0)
+                                    testOutputHelper.WriteLine($"{index}: Generating chart for {attributes[x]}{dvisit} vs. {attributes[y]}{ivisit}");
 
         }
     }

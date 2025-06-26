@@ -1,5 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using Keto_Cta;
+﻿using Keto_Cta;
+using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
@@ -44,5 +44,5 @@ public class CreateSelector
 
     public string Dependant { get; set; }
     public string Independent { get; set; }
-    public Func<Element,(double x, double y)>? Selector { get; set; }
+    public Func<Element, (double x, double y)>? Selector { get; set; }
 }

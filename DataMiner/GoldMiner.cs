@@ -74,7 +74,7 @@ public class GoldMiner
     {
         var dataPoints = new List<(double x, double y)>();
 
-       // var selector = GenSelectorFromString(string chartTitle);
+        // var selector = GenSelectorFromString(string chartTitle);
 
         //dataPoints.AddRange(targetElements.Select(selector));
         var regression = new RegressionPvalue(dataPoints);

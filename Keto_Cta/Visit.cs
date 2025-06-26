@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace Keto_Cta;
+﻿namespace Keto_Cta;
 
 public record Visit
 {
