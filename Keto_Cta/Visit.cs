@@ -26,7 +26,6 @@ public record Visit
         Tcpv = tcpv;
         Pav = pav;
 
-
         LnTps = Ln(Tps);
         LnCac = Ln(Cac);
         LnNcpv = Ln(Ncpv);
@@ -47,15 +46,10 @@ public record Visit
     public double Tcpv { get; init; }
     public double Pav { get; init; }
 
-    [JsonIgnore]
     public double LnTps { get; init; }
-    [JsonIgnore]
     public double LnCac { get; init; }
-    [JsonIgnore]
     public double LnNcpv { get; init; }
-    [JsonIgnore]
     public double LnTcpv { get; init; }
-    [JsonIgnore]
     public double LnPav { get; init; }
 
     public override string ToString()

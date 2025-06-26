@@ -3,9 +3,9 @@ using LinearRegression;
 
 namespace DataMiner;
 
-public class Gold
+public class GoldMiner
 {
-    public Gold(string path)
+    public GoldMiner(string path)
     {
         var elements = ReadCsvFile(path);
 
