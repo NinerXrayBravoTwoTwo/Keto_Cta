@@ -230,7 +230,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         };
         var element = new Element("d4e5f", visits);
         _testOutputHelper.WriteLine(element.ToString());
-        Assert.True(element.MemberSet == SetName.Theta, "Expected result to belong to Theta");
+        Assert.True(element.MemberSet == LeafSetName.Theta, "Expected result to belong to Theta");
         Assert.True(element.IsTheta, "Expected result to belong to Theta");
         Assert.Equal(10, element.DCac);
     }
@@ -246,7 +246,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         };
         var element = new Element("d4e5f", visits);
         _testOutputHelper.WriteLine(element.ToString());
-        Assert.False(element.MemberSet == SetName.Theta, "element.MemberSet == SetName.Theta");
+        Assert.False(element.MemberSet == LeafSetName.Theta, "element.MemberSet == SetName.Theta");
         Assert.False(element.IsTheta, "element is supposed to be Beta");
         Assert.Equal(11, element.DCac);
     }

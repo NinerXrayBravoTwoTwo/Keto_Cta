@@ -14,13 +14,13 @@ public class SaltMiner
 
         // Load elements into sets based on their MemberSet property
 
-        Omega = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
-        Alpha = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
-        Beta = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta).ToArray();
-        Zeta = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
-        Gamma = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
-        Theta = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
-        Eta = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
+        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
+        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
+        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
+        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
     }
 
     public Element[] Omega;

@@ -400,13 +400,13 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     private Element[] Elements(List<Element> elements, out Element[] alphas, out Element[] zetas, out Element[] gammas,
         out Element[] thetas, out Element[] etas)
     {
-        var omegas = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
+        var omegas = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
 
-        alphas = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
-        zetas = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
-        gammas = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
-        thetas = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
-        etas = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+        alphas = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
+        zetas = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
+        gammas = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
+        thetas = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
+        etas = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
 
         testOutputHelper.WriteLine($"omega count: {omegas.Length}");
         testOutputHelper.WriteLine($"alpha count: {alphas.Length}");

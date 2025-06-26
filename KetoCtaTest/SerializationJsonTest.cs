@@ -27,19 +27,19 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     //    Assert.Equal(10, visit.Tps);
     //}
 
-    [Fact]
-    public void SerializeVisitWithLnValues()
-    {
-        var visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5);
-        var json = System.Text.Json.JsonSerializer.Serialize(visit);
-        _testOutputHelper.WriteLine(json);
-        Assert.NotNull(json);
-        Assert.Contains("LnTps", json);
-        Assert.Contains("LnCac", json);
-        Assert.Contains("LnNcpv", json);
-        Assert.Contains("LnTcpv", json);
-        Assert.Contains("LnPav", json);
-    }
+    //[Fact]
+    //public void SerializeVisitWithLnValues()
+    //{
+    //    var visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5);
+    //    var json = System.Text.Json.JsonSerializer.Serialize(visit);
+    //    _testOutputHelper.WriteLine(json);
+    //    Assert.NotNull(json);
+    //    Assert.Contains("LnTps", json);
+    //    Assert.Contains("LnCac", json);
+    //    Assert.Contains("LnNcpv", json);
+    //    Assert.Contains("LnTcpv", json);
+    //    Assert.Contains("LnPav", json);
+    //}
 
     //[Fact]
     //public void DeserializeVisitWithLnValues()

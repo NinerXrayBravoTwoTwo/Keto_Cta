@@ -26,12 +26,23 @@ namespace Keto_Cta;
 ///     • θ : { x ∈ β | Δcac(x) ≤ 10 }
 ///     ◦ 23 participants (smaller CAC increase)
 /// </summary>
-public enum SetName
+public enum LeafSetName
 {
     Zeta = 1, // Unicorns
     Gamma = 2, // Zero CAC
     Theta = 3, // Smaller CAC increase  
     Eta = 4 // Larger CAC increase
+}
+
+public enum SetName
+{
+    Omega = 0, // All participants, Zeta U Gamma U Theta U Eta
+    Alpha = 5, // Non-Zeta participants
+    Beta = 6, // Non-Zeta with non-zero CAC, Alpha Except Beta
+    Zeta = 1, // Unicorns
+    Gamma = 2, // Zero CAC in Alpha, Alpha exclude Gamma
+    Theta = 3, // Smaller CAC increase in Beta
+    Eta = 4 // Larger CAC increase in Beta
 }
 
 /// <summary>
@@ -65,7 +76,7 @@ public record Element
         MemberSet = ComputeSetState(visits[0], visits[1]);
     }
 
-    public SetName MemberSet { get; init; }
+    public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
     public List<Visit> Visits { get; init; }
@@ -85,14 +96,14 @@ public record Element
 
 
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
-    public bool IsAlpha => MemberSet != SetName.Zeta; // Not a Unicorn
+    public bool IsAlpha => MemberSet != LeafSetName.Zeta; // Not a Unicorn
 
-    public bool IsZeta => MemberSet == SetName.Zeta;
-    public bool IsGamma => MemberSet == SetName.Gamma;
-    public bool IsTheta => MemberSet == SetName.Theta; // Smaller CAC increase
-    public bool IsEta => MemberSet == SetName.Eta; // Larger CAC increase
+    public bool IsZeta => MemberSet == LeafSetName.Zeta;
+    public bool IsGamma => MemberSet == LeafSetName.Gamma;
+    public bool IsTheta => MemberSet == LeafSetName.Theta; // Smaller CAC increase
+    public bool IsEta => MemberSet == LeafSetName.Eta; // Larger CAC increase
 
-    private static SetName ComputeSetState(Visit v1, Visit v2)
+    private static LeafSetName ComputeSetState(Visit v1, Visit v2)
     {
 
         if (
@@ -102,14 +113,14 @@ public record Element
             || v2.Tcpv < v1.Tcpv
             || v2.Pav < v1.Pav
             )
-            return SetName.Zeta; // Unicorns
+            return LeafSetName.Zeta; // Unicorns
 
-        if (v1.Cac == 0 && v2.Cac == 0) return SetName.Gamma; // Zero CAC
+        if (v1.Cac == 0 && v2.Cac == 0) return LeafSetName.Gamma; // Zero CAC
 
         return (v2.Cac - v1.Cac) switch // Delta CAC
         {
-            > 10 => SetName.Eta,
-            <= 10 => SetName.Theta
+            > 10 => LeafSetName.Eta,
+            <= 10 => LeafSetName.Theta
         };
     }
 

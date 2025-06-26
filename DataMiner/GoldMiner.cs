@@ -5,20 +5,19 @@ namespace DataMiner;
 
 public class Gold
 {
-
     public Gold(string path)
     {
         var elements = ReadCsvFile(path);
 
         // Load elements into sets based on their MemberSet property
 
-        Omega = elements.Where(e => e.MemberSet is SetName.Zeta or SetName.Gamma or SetName.Theta or SetName.Eta).ToArray();
-        Alpha = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta or SetName.Gamma).ToArray();
-        Beta = elements.Where(e => e.MemberSet is SetName.Theta or SetName.Eta).ToArray();
-        Zeta = elements.Where(e => e.MemberSet == SetName.Zeta).ToArray();
-        Gamma = elements.Where(e => e.MemberSet == SetName.Gamma).ToArray();
-        Theta = elements.Where(e => e.MemberSet == SetName.Theta).ToArray();
-        Eta = elements.Where(e => e.MemberSet == SetName.Eta).ToArray();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
+        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
+        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
+        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
+        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
     }
 
     public Element[] Omega;
@@ -59,21 +58,41 @@ public class Gold
         return list;
     }
 
-
-
-}
-
-public class Dust
-{
-    public Dust(SetName set, string title, RegressionPvalue regression)
+    RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label, Func<Element, (double x, double y)> selector)
     {
-        SetName = set;
-        Title = title;
-        Regression = regression ?? throw new ArgumentNullException(nameof(regression));
+        var dataPoints = new List<(double x, double y)>();
+        dataPoints.AddRange(targetElements.Select(selector));
+        var regression = new RegressionPvalue(dataPoints);
+        return regression;
     }
 
-    public readonly SetName SetName;
-    public readonly string Title;
-    public readonly Regression Regression;
+    /// <summary>
+    /// Mines the data to create a regression for each set based on LnNcp and LnDcac values.
+    /// </summary>
+    /// <returns></returns>
+    public Dust[] GoldDust(string chartTitle)
+    {
+        var dataPoints = new List<(double x, double y)>();
 
+       // var selector = GenSelectorFromString(string chartTitle);
+
+        //dataPoints.AddRange(targetElements.Select(selector));
+        var regression = new RegressionPvalue(dataPoints);
+
+        return new List<Dust>
+        {
+            //new Dust(SetName.Omega, regressionTitle, new Regression(Omega.Select(e => e.DNcpv), Omega.Select(e => e.LnDCac))),
+            //new Dust(SetName.Alpha, "Alpha", new Regression(Alpha.Select(e => e.Visit1.LnNcp), Alpha.Select(e => e.Visit1.LnDcac))),
+            //new Dust(SetName.Zeta, "Zeta", new Regression(Zeta.Select(e => e.Visit1.LnNcp), Zeta.Select(e => e.Visit1.LnDcac))),
+            //new Dust(SetName.Beta, "Beta", new Regression(Beta.Select(e => e.Visit1.LnNcp), Beta.Select(e => e.Visit1.LnDcac))),
+            //new Dust(SetName.Gamma, "Gamma", new Regression(Gamma.Select(e => e.Visit1.LnNcp), Gamma.Select(e => e.Visit1.LnDcac))),
+            //new Dust(SetName.Theta, "Theta", new Regression(Theta.Select(e => e.Visit1.LnNcp), Theta.Select(e => e.Visit1.LnDcac))),
+            //new Dust(SetName.Eta, "Eta", new Regression(Eta.Select(e => e.Visits[0].LnNcpv), Eta.Select(e => e.Visit1.LnDcac)))
+        }.ToArray();
+    }
+
+    private object GenSelectorFromString(object o, string chartTitle)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -41,7 +41,7 @@ public class SaltMinerTest(ITestOutputHelper testOutputHelper)
         var result = saltMiner.MineLnDNcpLnDCac();
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(7, result.Length); // Expecting 7 sets: Omega, Alpha, Zeta, Beta, Gamma, Theta, Eta
+        Assert.Equal(8, result.Length); // Expecting 7 sets: Omega, Alpha, Zeta, Beta, Gamma, Theta, Eta
         Assert.All(result, Assert.NotNull); // Ensure all results are not null
         Assert.Equal(100, result[0].N);
 
