@@ -11,7 +11,8 @@ public class GoldMiner
 
         // Load elements into sets based on their MemberSet property
 
-        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Omega = elements.Where(e =>
+            e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
         Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
@@ -58,7 +59,8 @@ public class GoldMiner
         return list;
     }
 
-    RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label, Func<Element, (double x, double y)> selector)
+    RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
+        Func<Element, (double x, double y)> selector)
     {
         var dataPoints = new List<(double x, double y)>();
         dataPoints.AddRange(targetElements.Select(selector));
@@ -91,8 +93,32 @@ public class GoldMiner
         }.ToArray();
     }
 
-    private object GenSelectorFromString(object o, string chartTitle)
+    public string[] ChartsForVisitVsDelement()
     {
-        throw new NotImplementedException();
+        var deltaAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+        var visitAttributes = "Tps,Cac,Ncpv,Tcpv,DPav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
+
+        var charts = new List<string>();
+        for (var dVisit = 0; dVisit < 2; dVisit++)
+            for (var x = 0; x < visitAttributes.Length; x++)
+                for (var y = 0; y < deltaAttributes.Length; y++)
+                    if (x != y)
+                        charts.Add($"{visitAttributes[x]}{dVisit} vs. {deltaAttributes[y]}");
+
+        return charts.ToArray();
+
     }
-}
+
+    public Dust Dust(SetName setName, string chartTitle)
+    {
+        var selector = new CreateSelector(chartTitle);
+
+        if (setName == SetName.Omega)
+        {
+            var regression = CalculateRegression(Omega, chartTitle, selector.Selector);
+            return new Dust(setName, chartTitle, regression);
+        }
+
+        return null;
+    }
+} 

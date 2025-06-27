@@ -72,14 +72,14 @@ public record Element
 
         Id = id ?? throw new ArgumentNullException(nameof(id));
 
-        Visits = visits;
+        Visits = visits.ToArray();
         MemberSet = ComputeSetState(visits[0], visits[1]);
     }
 
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
-    public List<Visit> Visits { get; init; }
+    public Visit [] Visits { get; init; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
     public double DTps => Visits[1].Tps - Visits[0].Tps;
@@ -126,6 +126,6 @@ public record Element
 
     public override string ToString()
     {
-        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits)}]";
+        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits.ToString())}]";
     }
 }

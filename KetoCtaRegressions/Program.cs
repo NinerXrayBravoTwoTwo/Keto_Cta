@@ -408,7 +408,7 @@ void ChartARegressionExcel(List<RegressionPvalue> regressionPvalues, int i, List
 
     Console.WriteLine($"-,-,'{iamThis} - {iamInSet}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
 
-    var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
+    var regSplit = Regex.Split(iamThis, @"\s+vs.\s*", RegexOptions.IgnoreCase);
 
     //var isLogLog = Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase);
 
@@ -417,7 +417,7 @@ void ChartARegressionExcel(List<RegressionPvalue> regressionPvalues, int i, List
 
     if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
     {
-        xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+        xxx = Regex.Replace(regSplit[0], @"(log.log|ln.ln)\s*", "");
 
         xxx = $"Ln(|{xxx}|+1)";
         yyy = $"Ln(|{regSplit[1]}|+1)";
@@ -439,14 +439,14 @@ void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<
     var iamInSet = allSetNames1[i - 1];
 
     // Extract x and y variable names from the regression label
-    var regSplit = Regex.Split(iamThis, "\\s+vs.\\s*", RegexOptions.IgnoreCase);
+    var regSplit = Regex.Split(iamThis, @"\s+vs.\s*", RegexOptions.IgnoreCase);
     var xxx = regSplit[0];
     var yyy = regSplit[1];
 
     // Handle log-log transformation if present
     if (Regex.IsMatch(iamThis, "log.log|ln.ln", RegexOptions.IgnoreCase))
     {
-        xxx = Regex.Replace(regSplit[0], "(log.log|ln.ln)\\s*", "");
+        xxx = Regex.Replace(regSplit[0], @"(log.log|ln.ln)\s*", "");
         xxx = $"Ln(|{xxx}|+1)";
         yyy = $"Ln(|{regSplit[1]}|+1)";
     }

@@ -22,7 +22,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         Assert.NotNull(element);
         Assert.Equal("d4e5f", element.Id);
 
-        Assert.Equal(2, element.Visits.Count);
+        Assert.Equal(2, element.Visits.Length);
 
         _testOutputHelper.WriteLine(element.ToString());
     }
@@ -69,7 +69,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         // Assert
         var id = "d4e5f";
         Assert.Contains($"ParticipantId: {id}", result);
-        Assert.Equal(2, element.Visits.Count);
+        Assert.Equal(2, element.Visits.Length);
     }
 
     [Fact]
