@@ -26,22 +26,22 @@ public class CreateSelector
         Regressor = new CovariantDicer(regSplit[0].Trim());
         Dependant = new CovariantDicer(regSplit[1].Trim());
 
-        if (Regressor == null || Dependant == null)
-            throw new ArgumentException("Dependent and Independent variables cannot be null.");
+            if (Regressor == null || Dependant == null)
+                throw new ArgumentException("Dependent and Independent variables cannot be null.");
 
-        if (Regressor.Target.Equals(Dependant.Target, StringComparison.OrdinalIgnoreCase))
-            throw new ArgumentException("Dependent and Independent variables must be different.");
+            if (Regressor.Target.Equals(Dependant.Target, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Dependent and Independent variables must be different.");
 
-        Selector = new Func<Element, (double x, double y)>(item =>
-        {
-            var xValue = GetNestedPropertyValue(item, Regressor.Target);
-            var yValue = GetNestedPropertyValue(item, Dependant.Target);
-            if (xValue == null || yValue == null)
+            Selector = new Func<Element?, (double x, double y)>(item =>
             {
-                throw new ArgumentException($"Properties '{Regressor.Target}' or '{Dependant.Target}' not found in Element.");
-            }
-            return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
-        });
+                var xValue = GetNestedPropertyValue(item, Regressor.Target);
+                var yValue = GetNestedPropertyValue(item, Dependant.Target);
+                if (xValue == null || yValue == null)
+                {
+                    throw new ArgumentException($"Properties '{Regressor.Target}' or '{Dependant.Target}' not found in Element.");
+                }
+                return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
+            });
     }
 
     public CovariantDicer Regressor { get; set; } // X, predictor, regressor, independent variable
@@ -51,32 +51,44 @@ public class CreateSelector
 
     public Func<Element, (double x, double y)>? Selector { get; set; }
 
-    private object? GetNestedPropertyValue(object obj, string propertyPath)
+    private static object? GetNestedPropertyValue(object? obj, string propertyPath)
     {
+        var regex = new Regex(@"([a-zA-Z_][a-zA-Z0-9_]*)(\[(\d+)\])?");
         var properties = propertyPath.Split('.');
+
         foreach (var property in properties)
         {
             if (obj == null) return null;
-            var propInfo = obj.GetType().GetProperty(property);
+
+            var match = regex.Match(property);
+            if (!match.Success) return null;
+
+            var propName = match.Groups[1].Value;
+            var propInfo = obj.GetType().GetProperty(propName);
             if (propInfo == null) return null;
+
             obj = propInfo.GetValue(obj);
+
+            // Handle indexer if present
+            if (match.Groups[2].Success && obj is System.Collections.IList list)
+            {
+                int index = int.Parse(match.Groups[3].Value);
+                if (index < 0 || index >= list.Count) return null;
+                obj = list[index];
+            }
         }
         return obj;
     }
 }
 
-// Example usage:
-// var selector = new CreateSelector("LnDcac vs. Ncpv");
-// var result = selector.Selector(new Element("1", new List<Visit> { new Visit(), new Visit() }));
-// Console.WriteLine($"X: {result.x}, Y: {result.y}");
-//         for (var x = 0; x < deltaAttributes.Length; x++)
-//             for (var y = 0; y < visitAttributes.Length; y++)
-//                 if (x != y)
-//                     charts.Add($"{deltaAttributes[x]} vs. {visitAttributes[y]}");
-//         return charts.ToArray();
-//     }
 
-
+/// <summary>
+/// Represents a utility for parsing and analyzing variable names with specific patterns and extracting metadata such as
+/// logarithmic, delta, and visit-related properties.
+/// </summary>
+/// <remarks>The <see cref="CovariantDicer"/> class validates and processes variable names that follow a specific
+/// format, such as "LnD(Tps|Cac|Ncpv|Tcpv|Pav)(\d?)". It extracts metadata about the variable, including whether it is
+/// logarithmic, delta-based, or visit-related, and constructs a target string for further use.</remarks>
 public class CovariantDicer
 {
     // Fix for CS0200: Property or indexer 'Group.Success' cannot be assigned to -- it is read only.
@@ -116,7 +128,7 @@ public class CovariantDicer
         }
 
         IsVisit = match.Groups[4].Success;
-
+        // {Keto_Cta.Visit
         Target = IsVisit && !string.IsNullOrEmpty(match.Groups[4].Value) ? $"Visits[{match.Groups[4].Value}].{varSb}" : varSb.ToString();
 
     }

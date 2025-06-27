@@ -55,7 +55,7 @@ public enum SetName
 ///     It also avoids the potential confusion of using a term like "Participant" when the
 ///     data does not actually contain personal information.
 /// </summary>
-public record Element
+public class Element
 {
     /// <summary>
     /// </summary>
@@ -72,14 +72,14 @@ public record Element
 
         Id = id ?? throw new ArgumentNullException(nameof(id));
 
-        Visits = visits.ToArray();
+        Visits = visits;
         MemberSet = ComputeSetState(visits[0], visits[1]);
     }
 
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
-    public Visit [] Visits { get; init; }
+    public List<Visit> Visits { get; set; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
     public double DTps => Visits[1].Tps - Visits[0].Tps;

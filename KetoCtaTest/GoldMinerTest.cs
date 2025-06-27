@@ -25,7 +25,7 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void SelectorXyComplexTest() 
+        public void SelectorXyComplexTest()
         {
             var result = new CreateSelector("Ncpv0 vs. LnDCac");
             Assert.Equal("Visits[0].Ncpv", result.Regressor.Target);
@@ -66,7 +66,7 @@ namespace KetoCtaTest
         [Fact]
         public void GenerateVisitCharts()
         {
-            var attributes = "Tps,Cac,Ncpv,Tcpv,DPav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
+            var attributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
 
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(filePath);
@@ -83,13 +83,16 @@ namespace KetoCtaTest
                                     index++;
                                     var chart = $"{attributes[x]}{dVisit} vs. {attributes[y]}{iVisit}";
                                     var selector = new CreateSelector(chart);
-                                    if (!selector.IsLogMismatch)
-                                        testOutputHelper.WriteLine(
-                                            $"{index}: Generating chart for {chart}");
-                                    else logMismatch++;
+                                    if (selector.IsLogMismatch)
+                                    {
+                                        logMismatch++;
+                                        continue;
+                                    }
 
                                     var result = goldMiner.Dust(SetName.Omega, chart);
-                                    testOutputHelper.WriteLine($"{index++}; {result}");
+                                    index++;
+                                    if (result.Regression.PValue() < 0.5)
+                                        testOutputHelper.WriteLine($"{index}; {result}");
                                 }
 
             testOutputHelper.WriteLine($"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
@@ -164,4 +167,3 @@ namespace KetoCtaTest
 
     }
 }
-    
