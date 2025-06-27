@@ -135,7 +135,7 @@ public class CovariantDicer
 
     public string Target { get; set; }
 
-    public int NumberedIndex { get; set; }
+   //public int NumberedIndex { get; set; }
 
     public bool IsVisit { get; set; }
 

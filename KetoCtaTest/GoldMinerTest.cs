@@ -59,7 +59,9 @@ namespace KetoCtaTest
                         testOutputHelper.WriteLine($"{index++}; {result}");
 
                     }
-            testOutputHelper.WriteLine($"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
+
+            testOutputHelper.WriteLine(
+                $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
 
         }
 
@@ -95,7 +97,8 @@ namespace KetoCtaTest
                                         testOutputHelper.WriteLine($"{index}; {result}");
                                 }
 
-            testOutputHelper.WriteLine($"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
+            testOutputHelper.WriteLine(
+                $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
         }
 
 
@@ -165,5 +168,41 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine(result.Regression.ToString());
         }
 
+        [Fact]
+        public void BaselinePredictElementDelta()
+        {
+            string[] visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+            string[] elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+
+            const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+            var goldMiner = new GoldMiner(filePath);
+            testOutputHelper.WriteLine("Index, Title, Set, Slope, N=, p-value, Correlation");
+            var index = 0;
+            var logMismatch = 0;
+            for (var x = 0; x < visitBaseline.Length; x++)
+            {
+                for (var y = 0; y < elementDelta.Length; y++)
+                {
+                    if (x != y)
+                    {
+                        var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
+                        var selector = new CreateSelector(chart);
+                        if (selector.IsLogMismatch)
+                        {
+                            logMismatch++;
+                            continue;
+                        }
+
+                        var result = goldMiner.Dust(SetName.Omega, chart);
+                        var reg = result.Regression;
+                        testOutputHelper.WriteLine($"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.N}, {reg.PValue():F4}, {reg.Correlation():F4}");
+                    }
+
+                }
+            }
+            testOutputHelper.WriteLine(
+                $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
+
+        }
     }
 }
