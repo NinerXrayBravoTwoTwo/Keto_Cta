@@ -43,21 +43,21 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var x = 0; x < attributes.Length; x++)
-            for (var y = 0; y < attributes.Length; y++)
-                if (x != y)
-                {
-                    var chart = $"{attributes[x]} vs. {attributes[y]}";
-                    // testOutputHelper.WriteLine($"{index++}: Generating chart for {chart}");
-                    var selector = new CreateSelector(chart);
-                    if (selector.IsLogMismatch)
+                for (var y = 0; y < attributes.Length; y++)
+                    if (x != y)
                     {
-                        logMismatch++;
-                        continue;
-                    }
+                        var chart = $"{attributes[x]} vs. {attributes[y]}";
+                        // testOutputHelper.WriteLine($"{index++}: Generating chart for {chart}");
+                        var selector = new CreateSelector(chart);
+                        if (selector.IsLogMismatch)
+                        {
+                            logMismatch++;
+                            continue;
+                        }
 
-                    var result = goldMiner.Dust(SetName.Omega, chart);
-                    testOutputHelper.WriteLine($"{index++}; {result}");
-                }
+                        var result = goldMiner.Dust(SetName.Omega, chart);
+                        testOutputHelper.WriteLine($"{index++}; {result}");
+                    }
 
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
@@ -75,26 +75,26 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var dVisit = 0; dVisit < 2; dVisit++)
-            for (var x = 0; x < attributes.Length; x++)
-            for (var y = 0; y < attributes.Length; y++)
-                if (x != y)
-                    for (var iVisit = 0; iVisit < 2; iVisit++)
-                        if (true)
-                        {
-                            index++;
-                            var chart = $"{attributes[x]}{dVisit} vs. {attributes[y]}{iVisit}";
-                            var selector = new CreateSelector(chart);
-                            if (selector.IsLogMismatch)
-                            {
-                                logMismatch++;
-                                continue;
-                            }
+                for (var x = 0; x < attributes.Length; x++)
+                    for (var y = 0; y < attributes.Length; y++)
+                        if (x != y)
+                            for (var iVisit = 0; iVisit < 2; iVisit++)
+                                if (true)
+                                {
+                                    index++;
+                                    var chart = $"{attributes[x]}{dVisit} vs. {attributes[y]}{iVisit}";
+                                    var selector = new CreateSelector(chart);
+                                    if (selector.IsLogMismatch)
+                                    {
+                                        logMismatch++;
+                                        continue;
+                                    }
 
-                            var result = goldMiner.Dust(SetName.Omega, chart);
-                            index++;
-                            if (result.RegressionPvalue.PValue() < 0.5)
-                                testOutputHelper.WriteLine($"{index}; {result}");
-                        }
+                                    var result = goldMiner.Dust(SetName.Omega, chart);
+                                    index++;
+                                    if (result.RegressionPvalue.PValue() < 0.5)
+                                        testOutputHelper.WriteLine($"{index}; {result}");
+                                }
 
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");

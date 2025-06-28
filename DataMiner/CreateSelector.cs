@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Keto_Cta;
+﻿using Keto_Cta;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace DataMiner;
@@ -26,22 +26,22 @@ public class CreateSelector
         Regressor = new CovariantDicer(regSplit[0].Trim());
         Dependant = new CovariantDicer(regSplit[1].Trim());
 
-            if (Regressor == null || Dependant == null)
-                throw new ArgumentException("Dependent and Independent variables cannot be null.");
+        if (Regressor == null || Dependant == null)
+            throw new ArgumentException("Dependent and Independent variables cannot be null.");
 
-            if (Regressor.Target.Equals(Dependant.Target, StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("Dependent and Independent variables must be different.");
+        if (Regressor.Target.Equals(Dependant.Target, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Dependent and Independent variables must be different.");
 
-            Selector = new Func<Element?, (double x, double y)>(item =>
+        Selector = new Func<Element?, (double x, double y)>(item =>
+        {
+            var xValue = GetNestedPropertyValue(item, Regressor.Target);
+            var yValue = GetNestedPropertyValue(item, Dependant.Target);
+            if (xValue == null || yValue == null)
             {
-                var xValue = GetNestedPropertyValue(item, Regressor.Target);
-                var yValue = GetNestedPropertyValue(item, Dependant.Target);
-                if (xValue == null || yValue == null)
-                {
-                    throw new ArgumentException($"Properties '{Regressor.Target}' or '{Dependant.Target}' not found in Element.");
-                }
-                return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
-            });
+                throw new ArgumentException($"Properties '{Regressor.Target}' or '{Dependant.Target}' not found in Element.");
+            }
+            return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
+        });
     }
 
     public CovariantDicer Regressor { get; set; } // X, predictor, regressor, independent variable

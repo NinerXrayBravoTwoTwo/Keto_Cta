@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Keto_Cta;
+﻿using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
