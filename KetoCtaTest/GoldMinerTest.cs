@@ -264,8 +264,11 @@ namespace KetoCtaTest
 
             foreach (var dust in result)
             {
-                testOutputHelper.WriteLine($"{index++}, " + dust.ToString());
+                if (index++ % 3 == 1)
+                    testOutputHelper.WriteLine($"{index}, " + dust.ToString());
             }
+            testOutputHelper.WriteLine(
+                $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
         }
     }
 }

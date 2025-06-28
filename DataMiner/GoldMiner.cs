@@ -20,7 +20,6 @@ public class GoldMiner
         Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
         BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
-        int i = 1;
     }
 
     public Element[] Omega;
