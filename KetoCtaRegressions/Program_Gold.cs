@@ -7,8 +7,6 @@ using System.Text.RegularExpressions;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 
-//Headers
-Console.WriteLine("index, ChartLabel, SetName, Slope, N=, RSquared, PValue, YIntercept, MeanX, MeanY");
 
 var Dust = new List<Dust>();
 var MyMine = new GoldMiner(ctaDataPath);
@@ -49,10 +47,33 @@ for (var x = 0; x < visit.Length; x++)
 }
 
 #endregion
+#region dust Baseline vs. Year delta
+var eDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+
+foreach (var visit0 in visit)
+{
+    foreach (var delta in eDelta)
+    {
+        var chart = $"{visit0}0 vs. {delta}";
+
+
+        var selector = new CreateSelector(chart);
+        if (selector.IsLogMismatch)
+        {
+            logMismatch++;
+            continue;
+        }
+
+        Dust.AddRange(MyMine.GoldDust(chart));
+    }
+}
+
+#endregion
 
 #region Print regession Csv table
 // header
-Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
+Console.WriteLine($"In Order of PValue:");
+            Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 // Print the regression data points
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.RegressionPvalue.PValue());
@@ -62,8 +83,10 @@ foreach (var dust in sortedDust)
     var reg = dust.RegressionPvalue;
     Console.WriteLine($"{index++}, {dust.Title}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                        + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                       + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Correlation():F4}");
+                       + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
 }
+
+Console.WriteLine($"\nLog mismatch skipped: {logMismatch}");
 #endregion
 
 #region burn a graph please :)
