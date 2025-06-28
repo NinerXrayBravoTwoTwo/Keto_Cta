@@ -43,22 +43,21 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var x = 0; x < attributes.Length; x++)
-                for (var y = 0; y < attributes.Length; y++)
-                    if (x != y)
+            for (var y = 0; y < attributes.Length; y++)
+                if (x != y)
+                {
+                    var chart = $"{attributes[x]} vs. {attributes[y]}";
+                    // testOutputHelper.WriteLine($"{index++}: Generating chart for {chart}");
+                    var selector = new CreateSelector(chart);
+                    if (selector.IsLogMismatch)
                     {
-                        var chart = $"{attributes[x]} vs. {attributes[y]}";
-                        // testOutputHelper.WriteLine($"{index++}: Generating chart for {chart}");
-                        var selector = new CreateSelector(chart);
-                        if (selector.IsLogMismatch)
-                        {
-                            logMismatch++;
-                            continue;
-                        }
-
-                        var result = goldMiner.Dust(SetName.Omega, chart);
-                        testOutputHelper.WriteLine($"{index++}; {result}");
-
+                        logMismatch++;
+                        continue;
                     }
+
+                    var result = goldMiner.Dust(SetName.Omega, chart);
+                    testOutputHelper.WriteLine($"{index++}; {result}");
+                }
 
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
@@ -76,26 +75,26 @@ namespace KetoCtaTest
 
             var index = 0;
             for (var dVisit = 0; dVisit < 2; dVisit++)
-                for (var x = 0; x < attributes.Length; x++)
-                    for (var y = 0; y < attributes.Length; y++)
-                        if (x != y)
-                            for (var iVisit = 0; iVisit < 2; iVisit++)
-                                if (true)
-                                {
-                                    index++;
-                                    var chart = $"{attributes[x]}{dVisit} vs. {attributes[y]}{iVisit}";
-                                    var selector = new CreateSelector(chart);
-                                    if (selector.IsLogMismatch)
-                                    {
-                                        logMismatch++;
-                                        continue;
-                                    }
+            for (var x = 0; x < attributes.Length; x++)
+            for (var y = 0; y < attributes.Length; y++)
+                if (x != y)
+                    for (var iVisit = 0; iVisit < 2; iVisit++)
+                        if (true)
+                        {
+                            index++;
+                            var chart = $"{attributes[x]}{dVisit} vs. {attributes[y]}{iVisit}";
+                            var selector = new CreateSelector(chart);
+                            if (selector.IsLogMismatch)
+                            {
+                                logMismatch++;
+                                continue;
+                            }
 
-                                    var result = goldMiner.Dust(SetName.Omega, chart);
-                                    index++;
-                                    if (result.Regression.PValue() < 0.5)
-                                        testOutputHelper.WriteLine($"{index}; {result}");
-                                }
+                            var result = goldMiner.Dust(SetName.Omega, chart);
+                            index++;
+                            if (result.RegressionPvalue.PValue() < 0.5)
+                                testOutputHelper.WriteLine($"{index}; {result}");
+                        }
 
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
@@ -106,7 +105,7 @@ namespace KetoCtaTest
 
     public class GoldMinerTest(ITestOutputHelper testOutputHelper)
     {
-        private readonly SelectorTest _selectorTest = new SelectorTest(testOutputHelper);
+        //private readonly SelectorTest _selectorTest = new SelectorTest(testOutputHelper);
 
         [Fact]
         public void GoldMiner_RegressionTest()
@@ -132,18 +131,18 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine($"Eta Count: {goldMiner.Eta.Length}");
         }
 
-        [Fact]
-        public void GoldMiner_NullDustSet()
-        {
-            const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
-            var goldMiner = new GoldMiner(filePath);
+        //[Fact]
+        //public void GoldMiner_NullDustSet()
+        //{
+        //    const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
+        //    var goldMiner = new GoldMiner(filePath);
 
-            Assert.NotNull(goldMiner);
-            var result = goldMiner.GoldDust(string.Empty);
-            Assert.NotNull(result);
-            Assert.Empty(result);
-            testOutputHelper.WriteLine("Gold mining completed successfully.");
-        }
+        //    Assert.NotNull(goldMiner);
+        //    var result = goldMiner.Dust(string.Empty);
+        //    Assert.NotNull(result);
+        //    Assert.Empty(result);
+        //    testOutputHelper.WriteLine("Gold mining completed successfully.");
+        //}
 
         [Fact]
         public void GenerateVisitChartsWithRegression()
@@ -152,7 +151,7 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(filePath);
 
             var index = 0;
-            foreach (var item in goldMiner.ChartsForVisitVsDelement())
+            foreach (var item in goldMiner.BaselinePredictDelta())
             {
                 testOutputHelper.WriteLine($"Index {index++}: {item}");
             }
@@ -165,7 +164,7 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(filePath);
 
             var result = goldMiner.Dust(SetName.Omega, "DNcpv vs. DCac");
-            testOutputHelper.WriteLine(result.Regression.ToString());
+            testOutputHelper.WriteLine(result.RegressionPvalue.ToString());
         }
 
         [Fact]
@@ -176,7 +175,9 @@ namespace KetoCtaTest
 
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(filePath);
-            testOutputHelper.WriteLine("Index, Title, Set, Slope, N=, p-value, Correlation");
+            Assert.NotNull(goldMiner);
+            // Ensure the goldMiner is not null and has data
+            testOutputHelper.WriteLine("Index, Title, Set, Slope, p-value, Correlation");
             var index = 0;
             var logMismatch = 0;
             for (var x = 0; x < visitBaseline.Length; x++)
@@ -194,15 +195,27 @@ namespace KetoCtaTest
                         }
 
                         var result = goldMiner.Dust(SetName.Omega, chart);
-                        var reg = result.Regression;
-                        testOutputHelper.WriteLine($"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.N}, {reg.PValue():F4}, {reg.Correlation():F4}");
+                        var reg = result.RegressionPvalue;
+                        testOutputHelper.WriteLine(
+                            $"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
                     }
 
                 }
             }
+
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
+        }
 
+        [Fact]
+        public void RatioRegressorTest()
+        {
+            string[] numerator = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+            string[] denominator = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+
+            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
+            // Define ySelector to return y value (LnDTps)
+            var ySelector = new Func<Element, double>(item => item.LnDTps);
         }
     }
 }

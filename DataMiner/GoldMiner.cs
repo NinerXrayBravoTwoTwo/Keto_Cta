@@ -68,47 +68,85 @@ public class GoldMiner
         return regression;
     }
 
+    RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
+        Func<Element, (double numerator, double denominator)> xSelector,
+        Func<Element, double> ySelector)
+    {
+        var dataPoints = new List<(double x, double y)>();
+        dataPoints.AddRange(targetElements.Select(e =>
+        {
+            var (numerator, denominator) = xSelector(e);
+            double x = denominator != 0 ? numerator / denominator : 0; // Handle division by zero
+            double y = ySelector(e);
+            return (x, y);
+        }));
+        var regression = new RegressionPvalue(dataPoints);
+        return regression;
+    }
+
     /// <summary>
     /// Mines the data to create a regression for each set based on LnNcp and LnDcac values.
     /// </summary>
     /// <returns></returns>
-    public Dust[] GoldDust(string chartTitle)
+    //public Dust[] GoldDust(string chartTitle)
+    //{
+    //    var dataPoints = new List<(double x, double y)>();
+
+    //    // var selector = GenSelectorFromString(string chartTitle);
+
+    //    //dataPoints.AddRange(targetElements.Select(selector));
+    //    var regression = new RegressionPvalue(dataPoints);
+
+    //    return new List<Dust>
+    //    {
+    //        //new Dust(SetName.Omega, regressionTitle, new Regression(Omega.Select(e => e.DNcpv), Omega.Select(e => e.LnDCac))),
+    //        //new Dust(SetName.Alpha, "Alpha", new Regression(Alpha.Select(e => e.Visit1.LnNcp), Alpha.Select(e => e.Visit1.LnDcac))),
+    //        //new Dust(SetName.Zeta, "Zeta", new Regression(Zeta.Select(e => e.Visit1.LnNcp), Zeta.Select(e => e.Visit1.LnDcac))),
+    //        //new Dust(SetName.Beta, "Beta", new Regression(Beta.Select(e => e.Visit1.LnNcp), Beta.Select(e => e.Visit1.LnDcac))),
+    //        //new Dust(SetName.Gamma, "Gamma", new Regression(Gamma.Select(e => e.Visit1.LnNcp), Gamma.Select(e => e.Visit1.LnDcac))),
+    //        //new Dust(SetName.Theta, "Theta", new Regression(Theta.Select(e => e.Visit1.LnNcp), Theta.Select(e => e.Visit1.LnDcac))),
+    //        //new Dust(SetName.Eta, "Eta", new Regression(Eta.Select(e => e.Visits[0].LnNcpv), Eta.Select(e => e.Visit1.LnDcac)))
+    //    }.ToArray();
+    //}
+
+    ///
+    ///  
+    public Dust[] BaselinePredictDelta()
     {
-        var dataPoints = new List<(double x, double y)>();
+        var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+        var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
-        // var selector = GenSelectorFromString(string chartTitle);
+        Console.WriteLine("Index, Title, Set, Slope, p-value, Correlation");
 
-        //dataPoints.AddRange(targetElements.Select(selector));
-        var regression = new RegressionPvalue(dataPoints);
+        var dusts = new List<Dust>();
 
-        return new List<Dust>
+        for (var x = 0; x < visitBaseline.Length; x++)
         {
-            //new Dust(SetName.Omega, regressionTitle, new Regression(Omega.Select(e => e.DNcpv), Omega.Select(e => e.LnDCac))),
-            //new Dust(SetName.Alpha, "Alpha", new Regression(Alpha.Select(e => e.Visit1.LnNcp), Alpha.Select(e => e.Visit1.LnDcac))),
-            //new Dust(SetName.Zeta, "Zeta", new Regression(Zeta.Select(e => e.Visit1.LnNcp), Zeta.Select(e => e.Visit1.LnDcac))),
-            //new Dust(SetName.Beta, "Beta", new Regression(Beta.Select(e => e.Visit1.LnNcp), Beta.Select(e => e.Visit1.LnDcac))),
-            //new Dust(SetName.Gamma, "Gamma", new Regression(Gamma.Select(e => e.Visit1.LnNcp), Gamma.Select(e => e.Visit1.LnDcac))),
-            //new Dust(SetName.Theta, "Theta", new Regression(Theta.Select(e => e.Visit1.LnNcp), Theta.Select(e => e.Visit1.LnDcac))),
-            //new Dust(SetName.Eta, "Eta", new Regression(Eta.Select(e => e.Visits[0].LnNcpv), Eta.Select(e => e.Visit1.LnDcac)))
-        }.ToArray();
+            for (var y = 0; y < elementDelta.Length; y++)
+            {
+                if (x == y) continue;
+
+                var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
+                var selector = new CreateSelector(chart);
+
+                if (selector.IsLogMismatch) continue; //do no create regression only one convariant is ln
+
+                dusts.Add(Dust(SetName.Omega, chart));
+            }
+        }
+
+        return dusts.ToArray();
     }
-
-    public string[] ChartsForVisitVsDelement()
-    {
-        var deltaAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
-        var visitAttributes = "Tps,Cac,Ncpv,Tcpv,DPav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
-
-        var charts = new List<string>();
-        for (var dVisit = 0; dVisit < 2; dVisit++)
-            for (var x = 0; x < visitAttributes.Length; x++)
-                for (var y = 0; y < deltaAttributes.Length; y++)
-                    if (x != y)
-                        charts.Add($"{visitAttributes[x]}{dVisit} vs. {deltaAttributes[y]}");
-
-        return charts.ToArray();
-
-    }
-
+    /// <summary>
+    /// Creates a <see cref="Dust"/> object for the specified set and chart title,
+    /// or returns <see langword="null"/> if
+    /// the set is not supported.
+    /// </summary>
+    /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Must be <see cref="SetName.Omega"/> to
+    /// produce a result.</param>
+    /// <param name="chartTitle">The title of the chart associated with the <see cref="Dust"/> object.</param>
+    /// <returns>A <see cref="Dust"/> object initialized with the specified set name and chart title,  or <see langword="null"/>
+    /// if <paramref name="setName"/> is not <see cref="SetName.Omega"/>.</returns>
     public Dust Dust(SetName setName, string chartTitle)
     {
         var selector = new CreateSelector(chartTitle);
@@ -121,4 +159,4 @@ public class GoldMiner
 
         return null;
     }
-} 
+}

@@ -81,7 +81,6 @@ public class CreateSelector
     }
 }
 
-
 /// <summary>
 /// Represents a utility for parsing and analyzing variable names with specific patterns and extracting metadata such as
 /// logarithmic, delta, and visit-related properties.
@@ -91,10 +90,6 @@ public class CreateSelector
 /// logarithmic, delta-based, or visit-related, and constructs a target string for further use.</remarks>
 public class CovariantDicer
 {
-    // Fix for CS0200: Property or indexer 'Group.Success' cannot be assigned to -- it is read only.
-    // The issue is that `Group.Success` is a read-only property and cannot be assigned directly.
-    // Instead, we should use separate logic to set the corresponding boolean fields.
-
     public CovariantDicer(string variableName)
     {
         VariableName = variableName ?? throw new ArgumentNullException(nameof(variableName));
@@ -134,8 +129,6 @@ public class CovariantDicer
     }
 
     public string Target { get; set; }
-
-   //public int NumberedIndex { get; set; }
 
     public bool IsVisit { get; set; }
 
