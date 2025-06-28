@@ -42,7 +42,8 @@ public enum SetName
     Zeta = 1, // Unicorns
     Gamma = 2, // Zero CAC in Alpha, Alpha exclude Gamma
     Theta = 3, // Smaller CAC increase in Beta
-    Eta = 4 // Larger CAC increase in Beta
+    Eta = 4, // Larger CAC increase in Beta
+    BetaUZeta = 7  // Beta union Zeta Eta and Theta are closely related to the Zeta set in terms of CAC
 }
 
 /// <summary>

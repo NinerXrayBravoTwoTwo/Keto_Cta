@@ -19,6 +19,8 @@ public class GoldMiner
         Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
         Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
+        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
+        int i = 1;
     }
 
     public Element[] Omega;
@@ -28,6 +30,7 @@ public class GoldMiner
     public Element[] Gamma;
     public Element[] Theta;
     public Element[] Eta;
+    public Element[] BetaUZeta;
 
     private static List<Element> ReadCsvFile(string path)
     {
@@ -88,29 +91,30 @@ public class GoldMiner
     /// Mines the data to create a regression for each set based on LnNcp and LnDcac values.
     /// </summary>
     /// <returns></returns>
-    //public Dust[] GoldDust(string chartTitle)
-    //{
-    //    var dataPoints = new List<(double x, double y)>();
+    public Dust[] GoldDust(string chartTitle)
+    {
+        return new List<Dust>
+        {
+            Dust (SetName.Omega, chartTitle),
+            Dust (SetName.Alpha, chartTitle),
+            Dust (SetName.Zeta, chartTitle),
+            Dust (SetName.Beta, chartTitle),
+            Dust (SetName.Gamma,chartTitle),
+            Dust (SetName.Theta,chartTitle),
+            Dust (SetName.Eta,  chartTitle),
+            Dust (SetName.BetaUZeta, chartTitle)
+        }.ToArray();
+    }
 
-    //    // var selector = GenSelectorFromString(string chartTitle);
-
-    //    //dataPoints.AddRange(targetElements.Select(selector));
-    //    var regression = new RegressionPvalue(dataPoints);
-
-    //    return new List<Dust>
-    //    {
-    //        //new Dust(SetName.Omega, regressionTitle, new Regression(Omega.Select(e => e.DNcpv), Omega.Select(e => e.LnDCac))),
-    //        //new Dust(SetName.Alpha, "Alpha", new Regression(Alpha.Select(e => e.Visit1.LnNcp), Alpha.Select(e => e.Visit1.LnDcac))),
-    //        //new Dust(SetName.Zeta, "Zeta", new Regression(Zeta.Select(e => e.Visit1.LnNcp), Zeta.Select(e => e.Visit1.LnDcac))),
-    //        //new Dust(SetName.Beta, "Beta", new Regression(Beta.Select(e => e.Visit1.LnNcp), Beta.Select(e => e.Visit1.LnDcac))),
-    //        //new Dust(SetName.Gamma, "Gamma", new Regression(Gamma.Select(e => e.Visit1.LnNcp), Gamma.Select(e => e.Visit1.LnDcac))),
-    //        //new Dust(SetName.Theta, "Theta", new Regression(Theta.Select(e => e.Visit1.LnNcp), Theta.Select(e => e.Visit1.LnDcac))),
-    //        //new Dust(SetName.Eta, "Eta", new Regression(Eta.Select(e => e.Visits[0].LnNcpv), Eta.Select(e => e.Visit1.LnDcac)))
-    //    }.ToArray();
-    //}
-
-    ///
-    ///  
+    /// <summary>
+    /// Generates a collection of <see cref="Dust"/> objects representing the relationship between baseline  visit
+    /// metrics and delta metrics, excluding incompatible combinations.
+    /// </summary>
+    /// <remarks>This method iterates through predefined baseline visit metrics and delta metrics, pairing
+    /// them to  create regression models. Only valid combinations are included, as determined by the  <see
+    /// cref="CreateSelector"/> logic, which filters out mismatched logarithmic relationships.</remarks>
+    /// <returns>An array of <see cref="Dust"/> objects, each representing a valid regression model between a baseline  metric
+    /// and a delta metric.</returns>
     public Dust[] BaselinePredictDelta()
     {
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
@@ -150,13 +154,56 @@ public class GoldMiner
     public Dust Dust(SetName setName, string chartTitle)
     {
         var selector = new CreateSelector(chartTitle);
-
-        if (setName == SetName.Omega)
+        if (selector.IsLogMismatch)
         {
-            var regression = CalculateRegression(Omega, chartTitle, selector.Selector);
-            return new Dust(setName, chartTitle, regression);
+            throw new ArgumentException("Cannot create regression with mismatched logarithmic properties.");
         }
 
-        return null;
+        switch (setName)
+        {
+            case SetName.Omega:
+                {
+                    var regression = CalculateRegression(Omega, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Alpha:
+                {
+                    var regression = CalculateRegression(Alpha, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Beta:
+                {
+                    var regression = CalculateRegression(Beta, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Zeta:
+                {
+                    var regression = CalculateRegression(Zeta, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Gamma:
+                {
+                    var regression = CalculateRegression(Gamma, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Eta:
+                {
+                    var regression = CalculateRegression(Eta, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.Theta:
+                {
+                    var regression = CalculateRegression(Theta, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+            case SetName.BetaUZeta:
+                {
+                    var regression = CalculateRegression(BetaUZeta, chartTitle, selector.Selector);
+                    return new Dust(setName, chartTitle, regression);
+                }
+
+            default:
+                return null;
+        }
     }
 }

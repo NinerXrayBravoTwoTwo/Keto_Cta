@@ -199,7 +199,6 @@ namespace KetoCtaTest
                         testOutputHelper.WriteLine(
                             $"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
                     }
-
                 }
             }
 
@@ -216,6 +215,57 @@ namespace KetoCtaTest
             var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
             // Define ySelector to return y value (LnDTps)
             var ySelector = new Func<Element, double>(item => item.LnDTps);
+        }
+
+        [Fact]
+        public void GoldDustTest()
+        {
+            var mine = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            var result = new List<Dust>();
+            result.AddRange(mine.GoldDust("DNcpv vs. DCac"));
+            result.AddRange(mine.GoldDust("LnDNcpv vs. LnDCac"));
+            Assert.NotNull(result);
+            Assert.Equal(16, result.Count());
+
+            foreach (var dust in result)
+            {
+                testOutputHelper.WriteLine(dust.ToString());
+            }
+
+        }
+        [Fact]
+        public void GoldDustRegressionTest()
+        {
+            var mine = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+
+            string[] elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+            var index = 0;
+            var logMismatch = 0;
+
+            var result = new List<Dust>();
+
+            for (var x = 0; x < elementDelta.Length; x++)
+            {
+                for (var y = 0; y < elementDelta.Length; y++)
+                {
+                    if (x != y)
+                    {
+                        var chart = $"{elementDelta[x]} vs. {elementDelta[y]}";
+                        var selector = new CreateSelector(chart);
+                        if (selector.IsLogMismatch)
+                        {
+                            logMismatch++;
+                            continue;
+                        }
+                        result.AddRange(mine.GoldDust(chart));
+                    }
+                }
+            }
+
+            foreach (var dust in result)
+            {
+                testOutputHelper.WriteLine($"{index++}, " + dust.ToString());
+            }
         }
     }
 }

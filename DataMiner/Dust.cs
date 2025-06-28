@@ -26,6 +26,6 @@ public class Dust
     public override string ToString()
     {
         return $"{SetName}, {Title}, Slope {RegressionPvalue.Slope():F5}, "
-               + "N={RegressionPvalue.N}, p-value: {RegressionPvalue.PValue():F3}";
+               + $"N={RegressionPvalue.N}, p-value: {RegressionPvalue.PValue():F3}";
     }
 }
