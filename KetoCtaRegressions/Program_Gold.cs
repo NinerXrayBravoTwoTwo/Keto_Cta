@@ -1,9 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using DataMiner;
-using LinearRegression;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 
@@ -73,11 +70,11 @@ foreach (var visit0 in visit)
 #region Print regession Csv table
 // header
 Console.WriteLine($"In Order of PValue:");
-            Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
+Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 // Print the regression data points
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.RegressionPvalue.PValue());
-    
+
 foreach (var dust in sortedDust)
 {
     var reg = dust.RegressionPvalue;

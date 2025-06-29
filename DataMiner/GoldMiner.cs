@@ -10,7 +10,6 @@ public class GoldMiner
         var elements = ReadCsvFile(path);
 
         // Load elements into sets based on their MemberSet property
-
         Omega = elements.Where(e =>
             e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
@@ -20,6 +19,19 @@ public class GoldMiner
         Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
         BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
+
+        // Initialize _setNameToData after datasets are assigned
+        _setNameToData = new Dictionary<SetName, Element[]>
+        {
+            { SetName.Omega, Omega },
+            { SetName.Alpha, Alpha },
+            { SetName.Beta, Beta },
+            { SetName.Zeta, Zeta },
+            { SetName.Gamma, Gamma },
+            { SetName.Eta, Eta },
+            { SetName.Theta, Theta },
+            { SetName.BetaUZeta, BetaUZeta }
+        };
     }
 
     public Element[] Omega;
@@ -31,11 +43,11 @@ public class GoldMiner
     public Element[] Eta;
     public Element[] BetaUZeta;
 
+    private readonly Dictionary<SetName, Element[]> _setNameToData;
+
     private static List<Element> ReadCsvFile(string path)
     {
         var list = new List<Element>();
-        if (list == null) throw new ArgumentNullException(nameof(list));
-
         using var reader = new StreamReader(path);
         var index = 0;
         // Skip the header line
@@ -61,7 +73,7 @@ public class GoldMiner
         return list;
     }
 
-    RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
+    private RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
         Func<Element, (double x, double y)> selector)
     {
         var dataPoints = new List<(double x, double y)>();
@@ -70,7 +82,7 @@ public class GoldMiner
         return regression;
     }
 
-    RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
+    private RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
         Func<Element, (double numerator, double denominator)> xSelector,
         Func<Element, double> ySelector)
     {
@@ -89,31 +101,31 @@ public class GoldMiner
     /// <summary>
     /// Mines the data to create a regression for each set based on LnNcp and LnDcac values.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>An array of <see cref="Dust"/> objects for supported sets.</returns>
     public Dust[] GoldDust(string chartTitle)
     {
-        return new List<Dust>
+        return new List<Dust?>
         {
-            Dust (SetName.Omega, chartTitle),
-            Dust (SetName.Alpha, chartTitle),
-            Dust (SetName.Zeta, chartTitle),
-            Dust (SetName.Beta, chartTitle),
-            Dust (SetName.Gamma,chartTitle),
-            Dust (SetName.Theta,chartTitle),
-            Dust (SetName.Eta,  chartTitle),
-            Dust (SetName.BetaUZeta, chartTitle)
-        }.ToArray();
+            Dust(SetName.Omega, chartTitle),
+            Dust(SetName.Alpha, chartTitle),
+            Dust(SetName.Zeta, chartTitle),
+            Dust(SetName.Beta, chartTitle),
+            Dust(SetName.Gamma, chartTitle),
+            Dust(SetName.Theta, chartTitle),
+            Dust(SetName.Eta, chartTitle),
+            Dust(SetName.BetaUZeta, chartTitle)
+        }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
     /// <summary>
-    /// Generates a collection of <see cref="Dust"/> objects representing the relationship between baseline  visit
-    /// metrics and delta metrics, excluding incompatible combinations.
+    /// Generates a collection of <see cref="Dust"/> objects representing the relationships between baseline visit
+    /// metrics and delta metrics based on predefined selectors.
     /// </summary>
-    /// <remarks>This method iterates through predefined baseline visit metrics and delta metrics, pairing
-    /// them to  create regression models. Only valid combinations are included, as determined by the  <see
-    /// cref="CreateSelector"/> logic, which filters out mismatched logarithmic relationships.</remarks>
-    /// <returns>An array of <see cref="Dust"/> objects, each representing a valid regression model between a baseline  metric
-    /// and a delta metric.</returns>
+    /// <remarks>This method evaluates combinations of baseline visit metrics and delta metrics, excluding
+    /// cases where the metrics are mismatched in logarithmic scale. For each valid combination, a <see cref="Dust"/> 
+    /// object is created and added to the result set. The method outputs diagnostic information to the console during
+    /// execution.</remarks>
+    /// <returns>An array of <see cref="Dust"/> objects representing the valid metric combinations.</returns>
     public Dust[] BaselinePredictDelta()
     {
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
@@ -130,79 +142,62 @@ public class GoldMiner
                 if (x == y) continue;
 
                 var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
-                var selector = new CreateSelector(chart);
-
-                if (selector.IsLogMismatch) continue; //do no create regression only one convariant is ln
-
-                dusts.Add(Dust(SetName.Omega, chart));
+                try
+                {
+                    var dust = Dust(SetName.Omega, chart);
+                    if (dust != null)
+                    {
+                        dusts.Add(dust);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
+                }
             }
         }
 
         return dusts.ToArray();
     }
+
     /// <summary>
     /// Creates a <see cref="Dust"/> object for the specified set and chart title,
-    /// or returns <see langword="null"/> if
-    /// the set is not supported.
+    /// or returns <see langword="null"/> if the set is not supported.
     /// </summary>
-    /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Must be <see cref="SetName.Omega"/> to
-    /// produce a result.</param>
+    /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Supported values are <see cref="SetName.Omega"/>, <see cref="SetName.Alpha"/>, <see cref="SetName.Beta"/>, <see cref="SetName.Zeta"/>, <see cref="SetName.Gamma"/>, <see cref="SetName.Eta"/>, <see cref="SetName.Theta"/>, and <see cref="SetName.BetaUZeta"/>.</param>
     /// <param name="chartTitle">The title of the chart associated with the <see cref="Dust"/> object.</param>
-    /// <returns>A <see cref="Dust"/> object initialized with the specified set name and chart title,  or <see langword="null"/>
-    /// if <paramref name="setName"/> is not <see cref="SetName.Omega"/>.</returns>
-    public Dust Dust(SetName setName, string chartTitle)
+    /// <returns>A <see cref="Dust"/> object initialized with the specified set name, chart title, and regression, or <see langword="null"/> if <paramref name="setName"/> is not supported.</returns>
+    /// <exception cref="ArgumentException">Thrown when the chart title is null, empty, or results in mismatched logarithmic properties.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the dataset for the specified set is null or empty, or when the selector is invalid.</exception>
+    public Dust? Dust(SetName setName, string chartTitle)
     {
+        if (string.IsNullOrWhiteSpace(chartTitle))
+        {
+            throw new ArgumentException("Chart title cannot be null or empty.", nameof(chartTitle));
+        }
+
         var selector = new CreateSelector(chartTitle);
         if (selector.IsLogMismatch)
         {
-            throw new ArgumentException("Cannot create regression with mismatched logarithmic properties.");
+            throw new ArgumentException("Cannot create regression with mismatched logarithmic properties.", nameof(chartTitle));
         }
 
-        switch (setName)
+        if (selector.Selector == null)
         {
-            case SetName.Omega:
-                {
-                    var regression = CalculateRegression(Omega, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Alpha:
-                {
-                    var regression = CalculateRegression(Alpha, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Beta:
-                {
-                    var regression = CalculateRegression(Beta, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Zeta:
-                {
-                    var regression = CalculateRegression(Zeta, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Gamma:
-                {
-                    var regression = CalculateRegression(Gamma, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Eta:
-                {
-                    var regression = CalculateRegression(Eta, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.Theta:
-                {
-                    var regression = CalculateRegression(Theta, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-            case SetName.BetaUZeta:
-                {
-                    var regression = CalculateRegression(BetaUZeta, chartTitle, selector.Selector);
-                    return new Dust(setName, chartTitle, regression);
-                }
-
-            default:
-                return null;
+            throw new InvalidOperationException("Selector is null for the specified chart title.");
         }
+
+        if (!_setNameToData.TryGetValue(setName, out var data))
+        {
+            return null;
+        }
+
+        if (data == null || data.Length == 0)
+        {
+            throw new InvalidOperationException($"Dataset for {setName} is null or empty.");
+        }
+
+        var regression = CalculateRegression(data, chartTitle, selector.Selector);
+        return new Dust(setName, chartTitle, regression);
     }
 }
