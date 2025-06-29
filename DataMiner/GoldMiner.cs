@@ -49,25 +49,36 @@ public class GoldMiner
     {
         var list = new List<Element>();
         using var reader = new StreamReader(path);
+        if (!reader.EndOfStream) reader.ReadLine(); // Skip header
         var index = 0;
-        // Skip the header line
-        if (!reader.EndOfStream) reader.ReadLine();
+
         while (!reader.EndOfStream)
         {
             var line = reader.ReadLine();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            if (string.IsNullOrEmpty(line)) continue;
+
             var values = line.Split(',');
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            if (values.Length < 10)
+            {
+                Console.WriteLine($"Skipping line {index + 1}: insufficient values.");
+                continue;
+            }
 
-            var visit1 = new Visit("V1", null, int.Parse(values[0]), int.Parse(values[2]), double.Parse(values[4]),
-                double.Parse(values[6]), double.Parse(values[8]));
-            var visit2 = new Visit("V2", null, int.Parse(values[1]), int.Parse(values[3]), double.Parse(values[5]),
-                double.Parse(values[7]), double.Parse(values[9]));
+            try
+            {
+                var visit1 = new Visit("V1", null, int.Parse(values[0]), int.Parse(values[2]), double.Parse(values[4]),
+                    double.Parse(values[6]), double.Parse(values[8]));
+                var visit2 = new Visit("V2", null, int.Parse(values[1]), int.Parse(values[3]), double.Parse(values[5]),
+                    double.Parse(values[7]), double.Parse(values[9]));
 
-            index++;
-            var element = new Element(index.ToString(), [visit1, visit2]);
-
-            list.Add(element);
+                index++;
+                var element = new Element(index.ToString(), [visit1, visit2]);
+                list.Add(element);
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Skipping line {index + 1}: invalid number format ({ex.Message}).");
+            }
         }
 
         return list;
@@ -167,24 +178,23 @@ public class GoldMiner
     /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Supported values are <see cref="SetName.Omega"/>, <see cref="SetName.Alpha"/>, <see cref="SetName.Beta"/>, <see cref="SetName.Zeta"/>, <see cref="SetName.Gamma"/>, <see cref="SetName.Eta"/>, <see cref="SetName.Theta"/>, and <see cref="SetName.BetaUZeta"/>.</param>
     /// <param name="chartTitle">The title of the chart associated with the <see cref="Dust"/> object.</param>
     /// <returns>A <see cref="Dust"/> object initialized with the specified set name, chart title, and regression, or <see langword="null"/> if <paramref name="setName"/> is not supported.</returns>
-    /// <exception cref="ArgumentException">Thrown when the chart title is null, empty, or results in mismatched logarithmic properties.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the dataset for the specified set is null or empty, or when the selector is invalid.</exception>
+    /// <exception cref="ArgumentException">Thrown when the chart title is invalid (e.g., missing 'vs.', same variables, or invalid variable names).</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the dataset for the specified set is null or empty.</exception>
     public Dust? Dust(SetName setName, string chartTitle)
     {
-        if (string.IsNullOrWhiteSpace(chartTitle))
+        CreateSelector selector;
+        try
         {
-            throw new ArgumentException("Chart title cannot be null or empty.", nameof(chartTitle));
+            selector = new CreateSelector(chartTitle);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new ArgumentException($"Invalid chart title: {ex.Message}", nameof(chartTitle), ex);
         }
 
-        var selector = new CreateSelector(chartTitle);
         if (selector.IsLogMismatch)
         {
             throw new ArgumentException("Cannot create regression with mismatched logarithmic properties.", nameof(chartTitle));
-        }
-
-        if (selector.Selector == null)
-        {
-            throw new InvalidOperationException("Selector is null for the specified chart title.");
         }
 
         if (!_setNameToData.TryGetValue(setName, out var data))

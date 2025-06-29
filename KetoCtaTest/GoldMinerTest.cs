@@ -108,6 +108,52 @@ namespace KetoCtaTest
         //private readonly SelectorTest _selectorTest = new SelectorTest(testOutputHelper);
 
         [Fact]
+        public void Dust_ValidSetNameAndChartTitle_ReturnsDust()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Assume test.csv populates datasets
+            var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
+            Assert.NotNull(dust);
+            Assert.Equal(SetName.Omega, dust.SetName);
+            Assert.Equal("Tps0 vs. DTps", dust.Title);
+        }
+
+        [Fact]
+        public void Dust_UnsupportedSetName_ReturnsNull()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            var dust = miner.Dust((SetName)999, "Tps0 vs. DTps");
+            Assert.Null(dust);
+        }
+
+        [Fact]
+        public void Dust_InvalidChartTitle_ThrowsArgumentException()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            Assert.Throws<ArgumentException>(() => miner.Dust(SetName.Omega, "Tps0")); // Missing 'vs.'
+        }
+
+        [Fact]
+        public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
+        {
+            var selector = new CreateSelector("Tps0 vs. DTps");
+            Assert.NotNull(selector.Selector);
+            Assert.False(selector.IsLogMismatch);
+        }
+
+        [Fact]
+        public void CreateSelector_NullElement_ThrowsArgumentNullException()
+        {
+            var selector = new CreateSelector("Tps0 vs. DTps");
+            Assert.Throws<ArgumentNullException>(() => selector.Selector(null));
+        }
+        [Fact]
+        public void Dust_NullChartTitle_ThrowsArgumentException()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            Assert.Throws<ArgumentException>(() => miner.Dust(SetName.Omega, null));
+        }
+
+        [Fact]
         public void GoldMiner_RegressionTest()
         {
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";

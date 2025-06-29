@@ -32,8 +32,12 @@ public class CreateSelector
         if (Regressor.Target.Equals(Dependant.Target, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Dependent and Independent variables must be different.");
 
-        Selector = new Func<Element?, (double x, double y)>(item =>
+        Selector = item =>
         {
+            if (item == null)
+            {
+                throw new ArgumentNullException(nameof(item), "Element cannot be null.");
+            }
             var xValue = GetNestedPropertyValue(item, Regressor.Target);
             var yValue = GetNestedPropertyValue(item, Dependant.Target);
             if (xValue == null || yValue == null)
@@ -41,15 +45,15 @@ public class CreateSelector
                 throw new ArgumentException($"Properties '{Regressor.Target}' or '{Dependant.Target}' not found in Element.");
             }
             return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
-        });
+        };
     }
 
     public CovariantDicer Regressor { get; set; } // X, predictor, regressor, independent variable
-    public CovariantDicer Dependant { get; set; } // Y, response,  dependent variable
+    public CovariantDicer Dependant { get; set; } // Y, response, dependent variable
 
     public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic;
 
-    public Func<Element, (double x, double y)>? Selector { get; set; }
+    public Func<Element, (double x, double y)> Selector { get; init; }
 
     private static object? GetNestedPropertyValue(object? obj, string propertyPath)
     {

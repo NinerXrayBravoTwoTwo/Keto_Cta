@@ -280,6 +280,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     #endregion
 
     #region v1 vs. v2 
+    [Fact]
     public void DoRegressionV1V2Tps()
     {
         const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
