@@ -73,11 +73,11 @@ Console.WriteLine($"In Order of PValue:");
 Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 // Print the regression data points
 var index = 0;
-var sortedDust = Dust.OrderBy(d => d.RegressionPvalue.PValue());
+var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
 
 foreach (var dust in sortedDust)
 {
-    var reg = dust.RegressionPvalue;
+    var reg = dust.Regression;
     Console.WriteLine($"{index++}, {dust.Title}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                        + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
                        + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");

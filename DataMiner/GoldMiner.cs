@@ -1,5 +1,6 @@
 ﻿using Keto_Cta;
 using LinearRegression;
+using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
@@ -7,20 +8,17 @@ public class GoldMiner
 {
     public GoldMiner(string path)
     {
-        var elements = ReadCsvFile(path);
+        var elements = ReadCsvFile(path) ?? throw new ArgumentException("CSV file returned null elements.", nameof(path));
 
-        // Load elements into sets based on their MemberSet property
-        Omega = elements.Where(e =>
-            e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
-        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
-        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
-        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
-        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
-        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
-        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
-        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
+        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray() ?? Array.Empty<Element>();
+        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
+        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray() ?? Array.Empty<Element>();
+        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray() ?? Array.Empty<Element>();
+        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray() ?? Array.Empty<Element>();
+        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
+        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray() ?? Array.Empty<Element>();
 
-        // Initialize _setNameToData after datasets are assigned
         _setNameToData = new Dictionary<SetName, Element[]>
         {
             { SetName.Omega, Omega },
@@ -44,25 +42,20 @@ public class GoldMiner
     public Element[] BetaUZeta;
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
+    private readonly Dictionary<string, CreateSelector> _selectorCache = new();
 
     private static List<Element> ReadCsvFile(string path)
     {
         var list = new List<Element>();
         using var reader = new StreamReader(path);
-        if (!reader.EndOfStream) reader.ReadLine(); // Skip header
         var index = 0;
-
+        if (!reader.EndOfStream) reader.ReadLine();
         while (!reader.EndOfStream)
         {
             var line = reader.ReadLine();
-            if (string.IsNullOrEmpty(line)) continue;
-
+#pragma warning disable CS8602
             var values = line.Split(',');
-            if (values.Length < 10)
-            {
-                Console.WriteLine($"Skipping line {index + 1}: insufficient values.");
-                continue;
-            }
+#pragma warning restore CS8602
 
             try
             {
@@ -80,17 +73,29 @@ public class GoldMiner
                 Console.WriteLine($"Skipping line {index + 1}: invalid number format ({ex.Message}).");
             }
         }
-
         return list;
     }
 
     private RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
         Func<Element, (double x, double y)> selector)
     {
+        if (targetElements == null) throw new ArgumentNullException(nameof(targetElements));
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
         var dataPoints = new List<(double x, double y)>();
-        dataPoints.AddRange(targetElements.Select(selector));
-        var regression = new RegressionPvalue(dataPoints);
-        return regression;
+        foreach (var element in targetElements)
+        {
+            try
+            {
+                dataPoints.Add(selector(element));
+            }
+            catch (ArgumentException)
+            {
+                // Skip invalid data points (e.g., missing properties), let RegressionPvalue handle NaN
+                continue;
+            }
+        }
+        return new RegressionPvalue(dataPoints);
     }
 
     private RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
@@ -98,21 +103,23 @@ public class GoldMiner
         Func<Element, double> ySelector)
     {
         var dataPoints = new List<(double x, double y)>();
-        dataPoints.AddRange(targetElements.Select(e =>
+        foreach (var element in targetElements)
         {
-            var (numerator, denominator) = xSelector(e);
-            double x = denominator != 0 ? numerator / denominator : 0; // Handle division by zero
-            double y = ySelector(e);
-            return (x, y);
-        }));
-        var regression = new RegressionPvalue(dataPoints);
-        return regression;
+            try
+            {
+                var (numerator, denominator) = xSelector(element);
+                double x = denominator != 0 ? numerator / denominator : 0;
+                double y = ySelector(element);
+                dataPoints.Add((x, y));
+            }
+            catch (ArgumentException)
+            {
+                continue;
+            }
+        }
+        return new RegressionPvalue(dataPoints);
     }
 
-    /// <summary>
-    /// Mines the data to create a regression for each set based on LnNcp and LnDcac values.
-    /// </summary>
-    /// <returns>An array of <see cref="Dust"/> objects for supported sets.</returns>
     public Dust[] GoldDust(string chartTitle)
     {
         return new List<Dust?>
@@ -128,23 +135,16 @@ public class GoldMiner
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
-    /// <summary>
-    /// Generates a collection of <see cref="Dust"/> objects representing the relationships between baseline visit
-    /// metrics and delta metrics based on predefined selectors.
-    /// </summary>
-    /// <remarks>This method evaluates combinations of baseline visit metrics and delta metrics, excluding
-    /// cases where the metrics are mismatched in logarithmic scale. For each valid combination, a <see cref="Dust"/> 
-    /// object is created and added to the result set. The method outputs diagnostic information to the console during
-    /// execution.</remarks>
-    /// <returns>An array of <see cref="Dust"/> objects representing the valid metric combinations.</returns>
     public Dust[] BaselinePredictDelta()
     {
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
         var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
-        Console.WriteLine("Index, Title, Set, Slope, p-value, Correlation");
+        Console.WriteLine("Index, Title, Set, Slope, P-value, Correlation");
+        Console.WriteLine($"Processing {visitBaseline.Length * elementDelta.Length} combinations...");
 
         var dusts = new List<Dust>();
+        var skipped = new List<(string chart, string reason)>();
 
         for (var x = 0; x < visitBaseline.Length; x++)
         {
@@ -155,59 +155,71 @@ public class GoldMiner
                 var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
                 try
                 {
+                    if (!_selectorCache.TryGetValue(chart, out var selector))
+                    {
+                        selector = new CreateSelector(chart);
+                        _selectorCache[chart] = selector;
+                    }
+
+                    if (selector.IsLogMismatch)
+                    {
+                        skipped.Add((chart, "Logarithmic mismatch"));
+                        continue;
+                    }
+
                     var dust = Dust(SetName.Omega, chart);
                     if (dust != null)
                     {
                         dusts.Add(dust);
+                        Console.WriteLine($"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
                     }
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
+                    skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
+                    Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
+                    skipped.Add((chart, $"Unexpected error: {ex.Message}"));
                 }
             }
         }
 
+        Console.WriteLine($"Generated {dusts.Count} regressions, skipped {skipped.Count}: {string.Join("; ", skipped.Select(s => $"{s.chart} ({s.reason})"))}");
         return dusts.ToArray();
     }
 
     /// <summary>
     /// Creates a <see cref="Dust"/> object for the specified set and chart title,
-    /// or returns <see langword="null"/> if the set is not supported.
+    /// or returns <see langword="null"/> if the set is not supported or the dataset is invalid.
     /// </summary>
     /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Supported values are <see cref="SetName.Omega"/>, <see cref="SetName.Alpha"/>, <see cref="SetName.Beta"/>, <see cref="SetName.Zeta"/>, <see cref="SetName.Gamma"/>, <see cref="SetName.Eta"/>, <see cref="SetName.Theta"/>, and <see cref="SetName.BetaUZeta"/>.</param>
     /// <param name="chartTitle">The title of the chart associated with the <see cref="Dust"/> object.</param>
-    /// <returns>A <see cref="Dust"/> object initialized with the specified set name, chart title, and regression, or <see langword="null"/> if <paramref name="setName"/> is not supported.</returns>
+    /// <returns>A <see cref="Dust"/> object initialized with the specified set name, chart title, and regression, or <see langword="null"/> if <paramref name="setName"/> is not supported or the dataset is null/empty.</returns>
     /// <exception cref="ArgumentException">Thrown when the chart title is invalid (e.g., missing 'vs.', same variables, or invalid variable names).</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the dataset for the specified set is null or empty.</exception>
     public Dust? Dust(SetName setName, string chartTitle)
     {
-        CreateSelector selector;
-        try
-        {
-            selector = new CreateSelector(chartTitle);
-        }
-        catch (ArgumentException ex)
-        {
-            throw new ArgumentException($"Invalid chart title: {ex.Message}", nameof(chartTitle), ex);
-        }
-
-        if (selector.IsLogMismatch)
-        {
-            throw new ArgumentException("Cannot create regression with mismatched logarithmic properties.", nameof(chartTitle));
-        }
-
-        if (!_setNameToData.TryGetValue(setName, out var data))
+        if (!_setNameToData.TryGetValue(setName, out var data) || data == null || data.Length == 0)
         {
             return null;
         }
 
-        if (data == null || data.Length == 0)
+        if (!_selectorCache.TryGetValue(chartTitle, out var selector))
         {
-            throw new InvalidOperationException($"Dataset for {setName} is null or empty.");
+            try
+            {
+                selector = new CreateSelector(chartTitle);
+                _selectorCache[chartTitle] = selector;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException($"Invalid chart title: {ex.Message}", nameof(chartTitle), ex);
+            }
         }
 
         var regression = CalculateRegression(data, chartTitle, selector.Selector);
-        return new Dust(setName, chartTitle, regression);
+        return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
 }

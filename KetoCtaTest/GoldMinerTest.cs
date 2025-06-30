@@ -8,6 +8,41 @@ namespace KetoCtaTest
     public class SelectorTest(ITestOutputHelper testOutputHelper)
     {
         [Fact]
+        public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
+        {
+            var selector = new CreateSelector("Tps0 vs. DTps");
+            Assert.NotNull(selector.Selector);
+            Assert.False(selector.IsLogMismatch);
+        }
+
+        [Fact]
+        public void Dust_ValidSetNameAndChartTitle_ReturnsDust()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Assume test.csv populates datasets
+            var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
+            Assert.NotNull(dust);
+            Assert.Equal(SetName.Omega, dust.SetName);
+            Assert.Equal("Tps0 vs. DTps", dust.Title);
+            Assert.True(dust.Regression.DataPointsCount() >= 3);
+        }
+
+       [Fact]
+        public void Dust_InvalidChartTitle_ThrowsArgumentException()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            Assert.Throws<ArgumentException>(() => miner.Dust(SetName.Omega, "Tps0"));
+        }
+
+        [Fact]
+        public void BaselinePredictDelta_GeneratesRegressions()
+        {
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            var dusts = miner.BaselinePredictDelta();
+            Assert.NotEmpty(dusts);
+            Assert.True(dusts.Length <= 90, "Should skip some combinations");
+            Assert.All(dusts, d => Assert.True(d.Regression.DataPointsCount() >= 3));
+        }
+        [Fact]
         public void SelectorXySimpleTest()
         {
             var result = new CreateSelector("DNcpv vs. DCac");
@@ -92,7 +127,7 @@ namespace KetoCtaTest
 
                                     var result = goldMiner.Dust(SetName.Omega, chart);
                                     index++;
-                                    if (result.RegressionPvalue.PValue() < 0.5)
+                                    if (result.Regression.PValue() < 0.5)
                                         testOutputHelper.WriteLine($"{index}; {result}");
                                 }
 
@@ -150,7 +185,7 @@ namespace KetoCtaTest
         public void Dust_NullChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            Assert.Throws<ArgumentException>(() => miner.Dust(SetName.Omega, null));
+            Assert.Throws<ArgumentNullException>(() => miner.Dust(SetName.Omega, null));
         }
 
         [Fact]
@@ -210,7 +245,7 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(filePath);
 
             var result = goldMiner.Dust(SetName.Omega, "DNcpv vs. DCac");
-            testOutputHelper.WriteLine(result.RegressionPvalue.ToString());
+            testOutputHelper.WriteLine(result.Regression.ToString());
         }
 
         [Fact]
@@ -241,7 +276,7 @@ namespace KetoCtaTest
                         }
 
                         var result = goldMiner.Dust(SetName.Omega, chart);
-                        var reg = result.RegressionPvalue;
+                        var reg = result.Regression;
                         testOutputHelper.WriteLine(
                             $"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
                     }
