@@ -51,7 +51,9 @@ public class CreateSelector
     public CovariantDicer Regressor { get; set; } // X, predictor, regressor, independent variable
     public CovariantDicer Dependant { get; set; } // Y, response, dependent variable
 
-    public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic;
+    //public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic; // but if regressor is logarithmic and dependant delta it is okay
+    public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic
+                                  && !(Regressor.IsLogarithmic && Dependant.IsDelta);
 
     public Func<Element, (double x, double y)> Selector { get; init; }
 

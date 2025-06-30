@@ -26,7 +26,7 @@ namespace KetoCtaTest
             Assert.True(dust.Regression.DataPointsCount() >= 3);
         }
 
-       [Fact]
+        [Fact]
         public void Dust_InvalidChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
