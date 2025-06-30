@@ -25,6 +25,12 @@ public class CreateSelector
         Regressor = new CovariantDicer(regSplit[0].Trim());
         Dependant = new CovariantDicer(regSplit[1].Trim());
 
+        if (Regressor.RootAttribute.Equals(Dependant.RootAttribute))
+        {
+            // WTF? This is a regression of the same attribute.
+            throw new ArgumentException($"Dependent and Independent variables must be different. {chartTitle}");
+        }
+
         if (Regressor == null || Dependant == null)
             throw new ArgumentException("Dependent and Independent variables cannot be null.");
 

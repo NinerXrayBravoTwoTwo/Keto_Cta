@@ -33,24 +33,30 @@ public class CovariantDicer
             IsLogarithmic = true;
         }
 
+        var sbRoot = new StringBuilder();
         if (match.Groups[2].Success)
         {
             IsDelta = true;
             varSb.Append("D");
+            sbRoot.Append("D");
         }
 
         if (match.Groups[3].Success)
         {
             varSb.Append(match.Groups[3].Value);
+            sbRoot.Append(match.Groups[3].Value);
         }
 
         // This should be invalid;  LnDTps vs. DTps, LnCac vs.Cac, etc.
 
         IsVisit = match.Groups[4].Success;
+
         // Keto_Cta.Visit
         Target = IsVisit && !string.IsNullOrEmpty(match.Groups[4].Value) ? $"Visits[{match.Groups[4].Value}].{varSb}" : varSb.ToString();
-
+        RootAttribute = IsVisit && !string.IsNullOrEmpty(match.Groups[4].Value) ? $"Visits[{match.Groups[4].Value}].{sbRoot}" : sbRoot.ToString();
     }
+
+    public string RootAttribute { get; set; }
 
     public string Target { get; set; }
 

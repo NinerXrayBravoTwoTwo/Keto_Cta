@@ -21,14 +21,21 @@ for (var x = 0; x < elementDelta.Length; x++)
         if (x != y)
         {
             var chart = $"{elementDelta[x]} vs. {elementDelta[y]}";
-            var selector = new CreateSelector(chart);
-            if (selector.IsLogMismatch)
+            try
             {
-                logMismatch++;
-                continue;
+                var selector = new CreateSelector(chart);
+                if (selector.IsLogMismatch)
+                {
+                    logMismatch++;
+                    continue;
+                }
+                Dust.AddRange(MyMine.GoldDust(chart));
+            }
+            catch (ArgumentException error)
+            {
+                logMismatch++; // technically this is a regression against self error  
             }
 
-            Dust.AddRange(MyMine.GoldDust(chart));
         }
     }
 }
