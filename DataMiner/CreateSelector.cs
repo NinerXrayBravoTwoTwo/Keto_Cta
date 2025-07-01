@@ -3,6 +3,14 @@ using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
+/// <summary>
+/// Represents a selector that parses a chart title to define the relationship between  dependent and independent
+/// variables, and provides a function to extract their values  from a given element.
+/// </summary>
+/// <remarks>The <see cref="CreateSelector"/> class is designed to interpret a chart title in the  format "X vs.
+/// Y", where "X" represents the independent variable (regressor) and "Y"  represents the dependent variable (response).
+/// It validates the input and ensures that  the variables are distinct. The resulting selector function can be used to
+/// extract  numeric values for these variables from an object of type <see cref="Element"/>.</remarks>
 public class CreateSelector
 {
     public CreateSelector(string chartTitle)

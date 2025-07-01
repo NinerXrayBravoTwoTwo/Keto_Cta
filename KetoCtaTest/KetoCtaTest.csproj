@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SaltMinerTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="keto-cta-quant-and-semi-quant.csv" />
   </ItemGroup>
 

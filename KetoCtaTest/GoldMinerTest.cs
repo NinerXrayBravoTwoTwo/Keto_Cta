@@ -290,6 +290,13 @@ namespace KetoCtaTest
         [Fact]
         public void RatioRegressorTest()
         {
+            /*
+             * chartLabel = "DNcpv/DCac vs. DTps";
+               chartLabel = "ln-ln DNcpv/DCac vs. DTps";
+               chartLabel = "DNcpv/DPav vs. DTps";
+               chartLabel = "ln-ln DNcpv/DPav vs. DTps";
+               chartLabel = "DNcpv/DTcpv vs. DTps";
+             */
             string[] numerator = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
             string[] denominator = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
 
