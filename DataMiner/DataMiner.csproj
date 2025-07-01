@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SaltMiner.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LinearRegression.Pvalues" Version="1.0.4" />
   </ItemGroup>
 

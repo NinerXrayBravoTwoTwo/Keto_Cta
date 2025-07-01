@@ -158,16 +158,22 @@ namespace KetoCtaTest
                chartLabel = "ln-ln DNcpv/DCac vs. DTps";
                chartLabel = "DNcpv/DPav vs. DTps";
                chartLabel = "ln-ln DNcpv/DPav vs. DTps";
-               chartLabel = "DNcpv/DTcpv vs. DTps";
-             */
-            string[] numerator = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
-            string[] denominator = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+            */
+            var chart = "DNcpv/DTcpv vs. DTps";
 
-            var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
-            // Define ySelector to return y value (LnDTps)
-            var ySelector = new Func<Element, double>(item => item.LnDTps);
+            //string[] numerator = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+            //string[] denominator = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+
+            //var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
+            //// Define ySelector to return y value (LnDTps)
+            //var ySelector = new Func<Element, double>(item => item.LnDTps);
+
+            var selector = new CreateSelector(chart);
+
+            if (selector.IsRatio)
+            {
+
+            }
         }
-
-
     }
 }

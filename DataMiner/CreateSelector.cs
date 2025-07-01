@@ -13,6 +13,11 @@ namespace DataMiner;
 /// extract  numeric values for these variables from an object of type <see cref="Element"/>.</remarks>
 public class CreateSelector
 {
+    //public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic; // but if regressor is logarithmic and dependant delta it is okay
+    public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic
+                                 && !(Regressor.IsLogarithmic && Dependant.IsDelta);
+    public readonly bool IsRatio;
+
     public CreateSelector(string chartTitle)
     {
         // Parse the chart title to create a selector
@@ -29,10 +34,39 @@ public class CreateSelector
                 throw new ArgumentException(
                     "Chart title must contain 'vs.' to separate dependent and independent variables.");
         }
+        //  Regressor contains a '/' then the regressor is a ratio expression, e.g. "LnDNcpv /LnDCac"
 
-        Regressor = new CovariantDicer(regSplit[0].Trim());
-        Dependant = new CovariantDicer(regSplit[1].Trim());
+        if (regSplit[0].Contains('/'))
+        {
+            // Regressor is a ratio expression
+            IsRatio = true;
+            var ratioParts = regSplit[0].Split('/');
+            if (ratioParts.Length != 2)
+                throw new ArgumentException($"Invalid ratio expression in regressor: {regSplit[0]}");
+            if (string.IsNullOrWhiteSpace(ratioParts[0]) || string.IsNullOrWhiteSpace(ratioParts[1]))
+                throw new ArgumentException($"Invalid ratio expression in regressor: {regSplit[0]}");
 
+            Numerator = new CovariantDicer(ratioParts[0].Trim());
+            Denominator = new CovariantDicer(ratioParts[1].Trim());
+
+            if (Numerator.RootAttribute.Equals(Denominator.RootAttribute))
+            {
+                //  Ratio = 1?
+                throw new ArgumentException($"Numerator and Denominator must be different. {chartTitle}");
+
+            }
+        }
+        else
+        {
+            IsRatio = false;
+            Numerator = null;
+            Denominator = null;
+            // Regressor and Dependant are simple variables
+            Regressor = new CovariantDicer(regSplit[0].Trim());
+            Dependant = new CovariantDicer(regSplit[1].Trim());
+        }
+
+        
         if (Regressor.RootAttribute.Equals(Dependant.RootAttribute))
         {
             // WTF? This is a regression of the same attribute.
@@ -51,6 +85,7 @@ public class CreateSelector
             {
                 throw new ArgumentNullException(nameof(item), "Element cannot be null.");
             }
+
             var xValue = GetNestedPropertyValue(item, Regressor.Target);
             var yValue = GetNestedPropertyValue(item, Dependant.Target);
             if (xValue == null || yValue == null)
@@ -59,16 +94,62 @@ public class CreateSelector
             }
             return (Convert.ToDouble(xValue), Convert.ToDouble(yValue));
         };
+
+        /* Example of how to use the selector in a regression calculation
+           // This is just an example, you can remove it if not needed
+           // It assumes you have a RegressionPvalue class that takes a list of (double x, double y) tuples
+           // and calculates the regression statistics.
+           // Example usage:
+           var targetElements = new List<Element>(); // Populate this with your elements
+           var label = "Example Label"; // Some label for the regression
+           // Calculate regression using the selector
+           var regression = CalculateRegression(targetElements, label, Selector);
+        
+        // Calculate regression ratio if applicable
+           if (IsRatio)
+           {
+               var regressionRatio = CalculateRegressionRatio(targetElements, label,
+                   e => (Numerator.GetNestedPropertyValue(e), Denominator.GetNestedPropertyValue(e)),
+                   e => Dependant.GetNestedPropertyValue(e));
+           }
+         *
+           Regression CalculateRegression(IEnumerable<Element> targetElements, string label, Func<Element, (double x, double y)> selector)
+           {
+               var dataPoints = new List<(double x, double y)>();
+               dataPoints.AddRange(targetElements.Select(selector));
+               var regression = new RegressionPvalue(dataPoints);
+               return regression;
+           }
+
+           RegressionPv CalculateRegressionRatio(IEnumerable<Element> targetElements, string label, Func<Element, (double numerator, double denominator)> xSelector, Func<Element, double> ySelector)
+           {
+               var dataPoints = new List<(double x, double y)>();
+               dataPoints.AddRange(targetElements.Select(e =>
+               {
+                   var (numerator, denominator) = xSelector(e);
+                   double x = denominator != 0 ? numerator / denominator : 0; // Handle division by zero
+                   double y = ySelector(e);
+                   return (x, y);
+               }));
+               var regression = new RegressionPvalue(dataPoints);
+               return regression;
+           }
+         */
     }
+
+    public CovariantDicer Denominator { get; set; }
+
+    public CovariantDicer Numerator { get; set; }
 
     public CovariantDicer Regressor { get; set; } // X, predictor, regressor, independent variable
     public CovariantDicer Dependant { get; set; } // Y, response, dependent variable
 
-    //public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic; // but if regressor is logarithmic and dependant delta it is okay
-    public bool IsLogMismatch => Regressor.IsLogarithmic != Dependant.IsLogarithmic
-                                  && !(Regressor.IsLogarithmic && Dependant.IsDelta);
 
     public Func<Element, (double x, double y)> Selector { get; init; }
+    public Func<Element, (double numerator, double denominator)> XSelector => e => (Selector(e).x, Selector(e).y);
+    public Func<Element, double> YSelector => e => Selector(e).y;
+
+
 
     private static object? GetNestedPropertyValue(object? obj, string propertyPath)
     {
