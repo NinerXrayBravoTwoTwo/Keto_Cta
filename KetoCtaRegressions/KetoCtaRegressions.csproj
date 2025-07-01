@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Compile Remove="Program _Salt.cs" />
+    <Compile Remove="Program_Salt.cs" />
   </ItemGroup>
 
   <ItemGroup>

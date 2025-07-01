@@ -39,8 +39,8 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void DoRegressionDNcpvDCac()
     {
-        const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
-        var elements = ReadCsvFile(filePath);
+        const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
+        var elements = ReadCsvFile(path);
 
         var omegas = Elements(elements,
             out var alphas,
