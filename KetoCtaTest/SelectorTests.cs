@@ -1,7 +1,6 @@
 ﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
-using System.Linq;
 using Xunit.Abstractions;
 
 namespace KetoCtaTest
@@ -207,9 +206,9 @@ namespace KetoCtaTest
             var allAttributes = elementAttributes.Concat(bothVisits).ToList();
 
             Dictionary<string, string> chartMap = new Dictionary<string, string>();
-            var inverseDetected=0;
-            var dependentInRatio=0;
-            var numEqualDenom=0;
+            var inverseDetected = 0;
+            var dependentInRatio = 0;
+            var numEqualDenom = 0;
 
             foreach (var numerator in allAttributes)
             {
@@ -234,7 +233,7 @@ namespace KetoCtaTest
 
                             var chart = $"{numerator} / {denominator} vs. {dependent}";
                             string[] reg = [numerator, denominator];
-                            var key = string.Join(',', reg.OrderBy( r => r)) + $",{dependent}";
+                            var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
 
                             if (!chartMap.TryAdd(key, chart))
                                 inverseDetected++;

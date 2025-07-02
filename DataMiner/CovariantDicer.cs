@@ -34,7 +34,7 @@ public class CovariantDicer
         var varSb = new StringBuilder();
 
         if (match.Groups[1].Success)
-            // Continue with existing logic...
+        // Continue with existing logic...
         {
             varSb.Append("Ln");
             IsLogarithmic = true;

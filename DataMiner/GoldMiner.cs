@@ -222,6 +222,6 @@ public class GoldMiner
             ? CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector)
             : CalculateRegression(data, chartTitle, selector.Selector);
 
-     return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
+        return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
 }
