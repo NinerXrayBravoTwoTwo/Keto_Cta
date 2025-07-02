@@ -12,22 +12,29 @@ namespace DataMiner;
 /// logarithmic, delta-based, or visit-related, and constructs a target string for further use.</remarks>
 public class CovariantDicer
 {
-    public CovariantDicer(string variableName)
+    public CovariantDicer(string variableName, bool isRatio = false)
     {
         VariableName = variableName ?? throw new ArgumentNullException(nameof(variableName));
 
         if (string.IsNullOrWhiteSpace(variableName))
             throw new ArgumentException("Variable name cannot be null or empty.", nameof(variableName));
 
-        // Validate the variable name format
-        var match = Regex.Match(variableName, @"^(Ln)?(D)?(Tps|Cac|Ncpv|Tcpv|Pav)(\d?)$", RegexOptions.IgnoreCase);
+        // Prefix allows 'Visits[0].' or similar (word, array index, dot)
+        var prefixPattern = @"(?:[a-zA-Z_][a-zA-Z0-9_]*\[\d+\]\.)?";
+        var variablePattern = @"(Ln)?(D)?(Tps|Cac|Ncpv|Tcpv|Pav)(\d?)";
+        var pattern = isRatio
+            ? $"^{prefixPattern}{variablePattern}/{prefixPattern}{variablePattern}$"
+            : $"^{prefixPattern}{variablePattern}$";
+
+        var match = Regex.Match(variableName, pattern, RegexOptions.IgnoreCase);
 
         if (!match.Success)
-            throw new ArgumentException($"Invalid variable name: {variableName}. Expected format: 'LnD(Tps|Cac|Ncpv|Tcpv|Pav)(\\d?)'.");
+            throw new ArgumentException($"Invalid variable name: {variableName}. Expected format: '[prefix.](Ln)D(Tps|Cac|Ncpv|Tcpv|Pav)(\\d?)' or 'Visits[0].(Ln)D(Tps|Cac|Ncpv|Tcpv|Pav)(\\d?)/Visits[0].(Ln)D(Tps|Cac|Ncpv|Tcpv|Pav)(\\d?)'");
 
         var varSb = new StringBuilder();
 
         if (match.Groups[1].Success)
+            // Continue with existing logic...
         {
             varSb.Append("Ln");
             IsLogarithmic = true;
@@ -37,8 +44,8 @@ public class CovariantDicer
         if (match.Groups[2].Success)
         {
             IsDelta = true;
-            varSb.Append("D");
-            sbRoot.Append("D");
+            varSb.Append('D');
+            sbRoot.Append('D');
         }
 
         if (match.Groups[3].Success)

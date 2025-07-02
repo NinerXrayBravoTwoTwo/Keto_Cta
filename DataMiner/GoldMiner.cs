@@ -218,19 +218,10 @@ public class GoldMiner
             }
         }
 
-        var regression = CalculateRegression(data, chartTitle, selector.Selector);
+        var regression = selector.IsRatio
+            ? CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector)
+            : CalculateRegression(data, chartTitle, selector.Selector);
 
-        var regressionRatio = CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector);
-                //e => (GetNestedPropertyValue(e, selector.Numerator.Target), GetNestedPropertyValue(e, selector.Denominator.Target)),
-            //e => GetNestedPropertyValue(e, selector.Dependant.Target));
-
-        return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
+     return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
-
-
-
-    //private double GetNestedPropertyValue(Element e, string target)
-    //{
-    //    throw new NotImplementedException();
-    //}
 }

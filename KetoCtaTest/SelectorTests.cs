@@ -1,6 +1,7 @@
 ﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
+using System.Linq;
 using Xunit.Abstractions;
 
 namespace KetoCtaTest
@@ -159,7 +160,7 @@ namespace KetoCtaTest
                chartLabel = "DNcpv/DPav vs. DTps";
                chartLabel = "ln-ln DNcpv/DPav vs. DTps";
             */
-            var chart = "DNcpv/DTcpv vs. DTps";
+            var chart = "Ncpv0/Cac0 vs. DTps";
 
             //string[] numerator = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
             //string[] denominator = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
@@ -172,8 +173,82 @@ namespace KetoCtaTest
 
             if (selector.IsRatio)
             {
+                var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+                var dust = goldMiner.Dust(SetName.Beta, chart);
 
+                // Assuming RegressionPv is a class that can handle regression calculations
+                var regression = dust.Regression;
+                testOutputHelper.WriteLine($"Regression for {chart}: {regression}");
             }
+            else
+            {
+                testOutputHelper.WriteLine($"The selector for chart '{chart}' is not a ratio selector.");
+            }
+
+        }
+
+        [Fact]
+        public void RatioBuilderTest()
+        {
+            /* Notes:
+               Build Histogram of all the Ratio regressions by p-value
+               Scatter plot p-value vs. R^2 score for all ratio regressions there are 26000 x 8 of these
+             */
+
+            var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
+            var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
+
+            var bothVisits = new List<string>();
+            foreach (var visit in visitAttributes)
+            {
+                bothVisits.Add($"{visit}0");
+                bothVisits.Add($"{visit}1");
+            }
+            var allAttributes = elementAttributes.Concat(bothVisits).ToList();
+
+            Dictionary<string, string> chartMap = new Dictionary<string, string>();
+            var inverseDetected=0;
+            var dependentInRatio=0;
+            var numEqualDenom=0;
+
+            foreach (var numerator in allAttributes)
+            {
+                foreach (var denominator in allAttributes)
+                {
+                    if (numerator != denominator)
+                    {
+                        foreach (var dependent in allAttributes)
+                        {
+                            // no ratios with dependent in regressor
+                            if (dependent == numerator || dependent == denominator)
+                            {
+                                dependentInRatio++;
+                                continue;
+                            }
+
+                            if (numerator.Equals(denominator))
+                            {
+                                numEqualDenom++;
+                                continue; // skip self-ratio of identity
+                            }
+
+                            var chart = $"{numerator} / {denominator} vs. {dependent}";
+                            string[] reg = [numerator, denominator];
+                            var key = string.Join(',', reg.OrderBy( r => r)) + $",{dependent}";
+
+                            if (!chartMap.TryAdd(key, chart))
+                                inverseDetected++;
+                        }
+                    }
+
+                }
+            }
+            testOutputHelper.WriteLine($"Charts with inverse ratio skipped: {inverseDetected}\nDependent in Ratio skipped: {dependentInRatio}\nNumerator equal denominator: {numEqualDenom}");
+            testOutputHelper.WriteLine($"Total unique charts: {chartMap.Count}");
+
+            foreach (var chart in chartMap.Values) testOutputHelper.WriteLine($"{chart}");
+
+
         }
     }
 }

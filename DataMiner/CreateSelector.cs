@@ -35,38 +35,31 @@ public class CreateSelector
                     "Chart title must contain 'vs.' to separate dependent and independent variables.");
         }
         //  Regressor contains a '/' then the regressor is a ratio expression, e.g. "LnDNcpv /LnDCac"
-
         if (regSplit[0].Contains('/'))
         {
-            // Regressor is a ratio expression
             IsRatio = true;
             var ratioParts = regSplit[0].Split('/');
-            if (ratioParts.Length != 2)
+
+            if (ratioParts.Length != 2 || ratioParts.Any(string.IsNullOrWhiteSpace))
                 throw new ArgumentException($"Invalid ratio expression in regressor: {regSplit[0]}");
-            if (string.IsNullOrWhiteSpace(ratioParts[0]) || string.IsNullOrWhiteSpace(ratioParts[1]))
-                throw new ArgumentException($"Invalid ratio expression in regressor: {regSplit[0]}");
 
-            Numerator = new CovariantDicer(ratioParts[0].Trim());
-            Denominator = new CovariantDicer(ratioParts[1].Trim());
+            Numerator = new CovariantDicer(ratioParts[0].Trim(), false);
+            Denominator = new CovariantDicer(ratioParts[1].Trim(), false);
 
-            if (Numerator.RootAttribute.Equals(Denominator.RootAttribute))
-            {
-                //  Ratio = 1?
-                throw new ArgumentException($"Numerator and Denominator must be different. {chartTitle}");
+            if (Numerator.RootAttribute == Denominator.RootAttribute)
+                throw new ArgumentException($"Numerator and Denominator must be different: {chartTitle}");
 
-            }
+            Regressor = new CovariantDicer($"{Numerator.RootAttribute}/{Denominator.RootAttribute}", IsRatio);
         }
         else
         {
             IsRatio = false;
             Numerator = null;
             Denominator = null;
-            // Regressor and Dependant are simple variables
             Regressor = new CovariantDicer(regSplit[0].Trim());
-            Dependant = new CovariantDicer(regSplit[1].Trim());
         }
+        Dependant = new CovariantDicer(regSplit[1].Trim());
 
-        
         if (Regressor.RootAttribute.Equals(Dependant.RootAttribute))
         {
             // WTF? This is a regression of the same attribute.
@@ -97,7 +90,7 @@ public class CreateSelector
 
         /* Example of how to use the selector in a regression calculation
            // This is just an example, you can remove it if not needed
-           // It assumes you have a RegressionPvalue class that takes a list of (double x, double y) tuples
+           // It assumes you have a Regression class that takes a list of (double x, double y) tuples
            // and calculates the regression statistics.
            // Example usage:
            var targetElements = new List<Element>(); // Populate this with your elements
@@ -146,7 +139,11 @@ public class CreateSelector
 
 
     public Func<Element, (double x, double y)> Selector { get; init; }
-    public Func<Element, (double numerator, double denominator)> XSelector => e => (Selector(e).x, Selector(e).y);
+    public Func<Element, (double numerator, double denominator)> XSelector => //e => (Selector(e).x, Selector(e).y);
+        e => (
+            Convert.ToDouble(GetNestedPropertyValue(e, Numerator?.Target ?? "")),
+            Convert.ToDouble(GetNestedPropertyValue(e, Denominator?.Target ?? ""))
+        );
     public Func<Element, double> YSelector => e => Selector(e).y;
 
 
