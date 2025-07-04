@@ -132,7 +132,8 @@ public class GoldMiner
             Dust(SetName.Beta, chartTitle),
             Dust(SetName.Gamma, chartTitle),
             Dust(SetName.Theta, chartTitle),
-            Dust(SetName.Eta, chartTitle)
+            Dust(SetName.Eta, chartTitle),
+            Dust(SetName.BetaUZeta, chartTitle)
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
