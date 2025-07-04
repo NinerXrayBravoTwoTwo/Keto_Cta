@@ -1,5 +1,6 @@
 ﻿using Keto_Cta;
 using LinearRegression;
+using System.Collections.Generic;
 
 namespace DataMiner;
 
@@ -42,6 +43,7 @@ public class GoldMiner
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
+    private readonly HashSet<string> _processedRatios = new();
 
     private static List<Element> ReadCsvFile(string path)
     {
@@ -88,9 +90,9 @@ public class GoldMiner
             {
                 dataPoints.Add(selector(element));
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // Skip invalid data points (e.g., missing properties), let RegressionPvalue handle NaN
+                Console.WriteLine($"Skipping data point in {label}: {ex.Message}");
                 continue;
             }
         }
@@ -111,8 +113,9 @@ public class GoldMiner
                 double y = ySelector(element);
                 dataPoints.Add((x, y));
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
+                Console.WriteLine($"Skipping data point in {label}: {ex.Message}");
                 continue;
             }
         }
@@ -129,12 +132,11 @@ public class GoldMiner
             Dust(SetName.Beta, chartTitle),
             Dust(SetName.Gamma, chartTitle),
             Dust(SetName.Theta, chartTitle),
-            Dust(SetName.Eta, chartTitle),
-            Dust(SetName.BetaUZeta, chartTitle)
+            Dust(SetName.Eta, chartTitle)
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
-    public Dust[] BaselinePredictDelta()
+    public (Dust[] Dusts, Dictionary<SetName, int[]> Histograms) BaselinePredictDelta()
     {
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
         var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
@@ -144,12 +146,24 @@ public class GoldMiner
 
         var dusts = new List<Dust>();
         var skipped = new List<(string chart, string reason)>();
+        var histograms = new Dictionary<SetName, int[]>
+        {
+            { SetName.Omega, new int[5] },
+            { SetName.Alpha, new int[5] },
+            { SetName.Beta, new int[5] },
+            { SetName.Zeta, new int[5] },
+            { SetName.Gamma, new int[5] },
+            { SetName.Theta, new int[5] },
+            { SetName.Eta, new int[5] },
+            { SetName.BetaUZeta, new int [5]}    
+        };
+        _processedRatios.Clear();
 
         for (var x = 0; x < visitBaseline.Length; x++)
         {
             for (var y = 0; y < elementDelta.Length; y++)
             {
-                if (x == y) continue;
+                if (x == y && !visitBaseline[x].StartsWith("Ln") && !elementDelta[y].StartsWith("Ln")) continue;
 
                 var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
                 try
@@ -171,6 +185,90 @@ public class GoldMiner
                     {
                         dusts.Add(dust);
                         Console.WriteLine($"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
+
+                        // Add to histogram
+                        var pValue = dust.Regression.PValue();
+                        if (!double.IsNaN(pValue) && pValue >= 0 && pValue <= 1)
+                        {
+                            var bucket = Math.Min((int)(pValue * 5), 4); // Clamp to 0-4
+                            histograms[dust.SetName][bucket]++;
+                        }
+                    }
+                    else
+                    {
+                        skipped.Add((chart, "Null dust (insufficient data points)"));
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
+                    skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
+                    skipped.Add((chart, $"Unexpected error: {ex.Message}"));
+                }
+            }
+        }
+
+        // Process ratio charts
+        var ratioCombinations = new List<(string num, string denom)>();
+        foreach (var num in visitBaseline.Concat(elementDelta))
+        {
+            foreach (var denom in visitBaseline.Concat(elementDelta))
+            {
+                if (num != denom) ratioCombinations.Add((num, denom));
+            }
+        }
+
+        foreach (var (num, denom) in ratioCombinations)
+        {
+            foreach (var dep in elementDelta)
+            {
+                var ratio = $"{num}/{denom}";
+                var inverseRatio = $"{denom}/{num}";
+                var chart = $"{ratio} vs. {dep}";
+
+                if (_processedRatios.Contains(inverseRatio))
+                {
+                    skipped.Add((chart, "Inverse ratio already processed"));
+                    continue;
+                }
+
+                try
+                {
+                    if (!_selectorCache.TryGetValue(chart, out var selector))
+                    {
+                        selector = new CreateSelector(chart);
+                        _selectorCache[chart] = selector;
+                    }
+
+                    _processedRatios.Add(ratio);
+
+                    if (selector.IsLogMismatch)
+                    {
+                        skipped.Add((chart, "Logarithmic mismatch"));
+                        continue;
+                    }
+
+                    var dust = Dust(SetName.Omega, chart);
+                    if (dust != null)
+                    {
+                        dusts.Add(dust);
+                        Console.WriteLine($"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
+
+                        // Add to histogram
+                        var pValue = dust.Regression.PValue();
+                        if (!double.IsNaN(pValue) && pValue >= 0 && pValue <= 1)
+                        {
+                            var bucket = Math.Min((int)(pValue * 5), 4); // Clamp to 0-4
+                            histograms[dust.SetName][bucket]++;
+                        }
+                    }
+                    else
+                    {
+                        skipped.Add((chart, "Null dust (insufficient data points)"));
                     }
                 }
                 catch (ArgumentException ex)
@@ -187,21 +285,14 @@ public class GoldMiner
         }
 
         Console.WriteLine($"Generated {dusts.Count} regressions, skipped {skipped.Count}: {string.Join("; ", skipped.Select(s => $"{s.chart} ({s.reason})"))}");
-        return dusts.ToArray();
+        return (dusts.ToArray(), histograms);
     }
 
-    /// <summary>
-    /// Creates a <see cref="Dust"/> object for the specified set and chart title,
-    /// or returns <see langword="null"/> if the set is not supported or the dataset is invalid.
-    /// </summary>
-    /// <param name="setName">The name of the set for which the <see cref="Dust"/> object is created. Supported values are <see cref="SetName.Omega"/>, <see cref="SetName.Alpha"/>, <see cref="SetName.Beta"/>, <see cref="SetName.Zeta"/>, <see cref="SetName.Gamma"/>, <see cref="SetName.Eta"/>, <see cref="SetName.Theta"/>, and <see cref="SetName.BetaUZeta"/>.</param>
-    /// <param name="chartTitle">The title of the chart associated with the <see cref="Dust"/> object.</param>
-    /// <returns>A <see cref="Dust"/> object initialized with the specified set name, chart title, and regression, or <see langword="null"/> if <paramref name="setName"/> is not supported or the dataset is null/empty.</returns>
-    /// <exception cref="ArgumentException">Thrown when the chart title is invalid (e.g., missing 'vs.', same variables, or invalid variable names).</exception>
     public Dust? Dust(SetName setName, string chartTitle)
     {
         if (!_setNameToData.TryGetValue(setName, out var data) || data == null || data.Length == 0)
         {
+            Console.WriteLine($"No data for set {setName} in chart {chartTitle}");
             return null;
         }
 
@@ -214,7 +305,8 @@ public class GoldMiner
             }
             catch (ArgumentException ex)
             {
-                throw new ArgumentException($"Invalid chart title: {ex.Message}", nameof(chartTitle), ex);
+                Console.WriteLine($"Invalid chart title {chartTitle}: {ex.Message}");
+                return null;
             }
         }
 

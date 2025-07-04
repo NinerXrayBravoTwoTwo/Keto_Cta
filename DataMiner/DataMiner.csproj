@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="SaltMiner.cs" />
   </ItemGroup>
 

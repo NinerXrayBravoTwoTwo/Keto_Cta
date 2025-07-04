@@ -30,7 +30,8 @@ namespace KetoCtaTest
         public void Dust_InvalidChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            Assert.Throws<ArgumentException>(() => miner.Dust(SetName.Omega, "Tps0")); // Missing 'vs.'
+            var result = miner.Dust(SetName.Omega, "Tps0");
+            Assert.Null( result);
         }
 
         [Fact]
@@ -78,27 +79,30 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine($"Eta Count: {goldMiner.Eta.Length}");
         }
 
-        //[Fact]
-        //public void GoldMiner_NullDustSet()
-        //{
-        //    const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
-        //    var goldMiner = new GoldMiner(filePath);
-
-        //    Assert.NotNull(goldMiner);
-        //    var result = goldMiner.Dust(string.Empty);
-        //    Assert.NotNull(result);
-        //    Assert.Empty(result);
-        //    testOutputHelper.WriteLine("Gold mining completed successfully.");
-        //}
-
         [Fact]
-        public void GenerateVisitChartsWithRegression()
+        public void HistogramTest()
+        {
+            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            var (dusts, histograms) = goldMiner.BaselinePredictDelta();
+
+            foreach (var setName in new[] { SetName.Omega, SetName.Alpha, SetName.Beta, SetName.Zeta, SetName.Gamma, SetName.Theta, SetName.Eta })
+            {
+                Assert.True(histograms.ContainsKey(setName), $"Histogram missing for {setName}");
+                var hist = histograms[setName];
+                Assert.Equal(5, hist.Length);
+                Assert.True(hist.All(count => count >= 0), $"Negative counts in histogram for {setName}");
+                testOutputHelper.WriteLine($"Histogram for {setName}: [{string.Join(", ", hist)}]");
+            }
+        }
+        [Fact]
+        public void BaselinePredictDeltaTest()
         {
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(filePath);
 
             var index = 0;
-            foreach (var item in goldMiner.BaselinePredictDelta())
+            var a= goldMiner.BaselinePredictDelta();
+            foreach (var item in a.Dusts)
             {
                 testOutputHelper.WriteLine($"Index {index++}: {item}");
             }
@@ -169,6 +173,7 @@ namespace KetoCtaTest
             }
 
         }
+
         [Fact]
         public void GoldDustRegressionTest()
         {
@@ -214,5 +219,7 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine(
                 $"Total Log Mismatch: {logMismatch} out of {index + logMismatch} charts generated.");
         }
+
+
     }
 }
