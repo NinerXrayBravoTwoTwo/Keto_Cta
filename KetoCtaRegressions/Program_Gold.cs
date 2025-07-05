@@ -3,18 +3,13 @@
 using DataMiner;
 using Keto_Cta;
 using LinearRegression;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
-
-
-var Dust = new List<Dust>();
 var MyMine = new GoldMiner(ctaDataPath);
 var logMismatch = 0;
-
+var Dust = new List<Dust>();
 
 #region Load dust  Element Delta vs. Element Delta
 
@@ -57,6 +52,7 @@ for (var x = 0; x < visit.Length; x++)
 }
 
 #endregion
+
 #region dust Baseline vs. Year delta
 var eDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
@@ -76,6 +72,14 @@ foreach (var visit0 in visit)
 
         Dust.AddRange(MyMine.GoldDust(chart));
     }
+}
+#endregion
+
+#region Add regression charts
+
+foreach (var chart in MyMine.RatioCharts())
+{
+    Dust.AddRange(MyMine.GoldDust(chart));
 }
 
 #endregion
@@ -163,10 +167,10 @@ foreach (var item in dataPoints)
 
 const int chartIdx = 366;// 374; // 3,6,7Example index for the regression you want to print
 
-ChartARegressionExcel(subsetRegressions, SetName.Theta);
-ChartARegressionExcel(subsetRegressions, SetName.Eta);
-ChartARegressionExcel(subsetRegressions, SetName.Alpha);
-ChartARegressionExcel(subsetRegressions, SetName.Zeta);
+//ChartARegressionExcel(subsetRegressions, SetName.Theta);
+//ChartARegressionExcel(subsetRegressions, SetName.Eta);
+//ChartARegressionExcel(subsetRegressions, SetName.Alpha);
+//ChartARegressionExcel(subsetRegressions, SetName.Zeta);
 
 
 void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)

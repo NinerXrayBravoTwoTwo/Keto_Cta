@@ -35,15 +35,6 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void BaselinePredictDelta_GeneratesRegressions()
-        {
-            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            var result = miner.BaselinePredictDelta();
-            Assert.NotEmpty(result.Dusts);
-            Assert.True(result.Dusts.Length <= 90, "Should skip some combinations");
-            Assert.All(result.Dusts, d => Assert.True(d.Regression.DataPointsCount() >= 3));
-        }
-        [Fact]
         public void SelectorXySimpleTest()
         {
             var result = new CreateSelector("DNcpv vs. DCac");

@@ -137,7 +137,7 @@ public class GoldMiner
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
-    public (Dust[] Dusts, Dictionary<SetName, int[]> Histograms) BaselinePredictDelta()
+    public List<string> ChartsPredictDelta()
     {
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
         var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
@@ -145,149 +145,145 @@ public class GoldMiner
         Console.WriteLine("Index, Title, Set, Slope, P-value, Correlation");
         Console.WriteLine($"Processing {visitBaseline.Length * elementDelta.Length} combinations...");
 
-        var dusts = new List<Dust>();
-        var skipped = new List<(string chart, string reason)>();
-        var histograms = new Dictionary<SetName, int[]>
-        {
-            { SetName.Omega, new int[5] },
-            { SetName.Alpha, new int[5] },
-            { SetName.Beta, new int[5] },
-            { SetName.Zeta, new int[5] },
-            { SetName.Gamma, new int[5] },
-            { SetName.Theta, new int[5] },
-            { SetName.Eta, new int[5] },
-            { SetName.BetaUZeta, new int [5]}    
-        };
-        _processedRatios.Clear();
+        List<string> chartList = new List<string>();
 
         for (var x = 0; x < visitBaseline.Length; x++)
         {
             for (var y = 0; y < elementDelta.Length; y++)
             {
                 if (x == y && !visitBaseline[x].StartsWith("Ln") && !elementDelta[y].StartsWith("Ln")) continue;
-
-                var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
-                try
                 {
-                    if (!_selectorCache.TryGetValue(chart, out var selector))
-                    {
-                        selector = new CreateSelector(chart);
-                        _selectorCache[chart] = selector;
-                    }
-
-                    if (selector.IsLogMismatch)
-                    {
-                        skipped.Add((chart, "Logarithmic mismatch"));
-                        continue;
-                    }
-
-                    var dust = Dust(SetName.Omega, chart);
-                    if (dust != null)
-                    {
-                        dusts.Add(dust);
-                        Console.WriteLine($"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
-
-                        // Add to histogram
-                        var pValue = dust.Regression.PValue();
-                        if (!double.IsNaN(pValue) && pValue >= 0 && pValue <= 1)
-                        {
-                            var bucket = Math.Min((int)(pValue * 5), 4); // Clamp to 0-4
-                            histograms[dust.SetName][bucket]++;
-                        }
-                    }
-                    else
-                    {
-                        skipped.Add((chart, "Null dust (insufficient data points)"));
-                    }
+                    chartList.Add($"{x} vs. {y}");
                 }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
-                    skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
-                    skipped.Add((chart, $"Unexpected error: {ex.Message}"));
-                }
+
             }
         }
-
-        // Process ratio charts
-        var ratioCombinations = new List<(string num, string denom)>();
-        foreach (var num in visitBaseline.Concat(elementDelta))
-        {
-            foreach (var denom in visitBaseline.Concat(elementDelta))
-            {
-                if (num != denom) ratioCombinations.Add((num, denom));
-            }
-        }
-
-        foreach (var (num, denom) in ratioCombinations)
-        {
-            foreach (var dep in elementDelta)
-            {
-                var ratio = $"{num}/{denom}";
-                var inverseRatio = $"{denom}/{num}";
-                var chart = $"{ratio} vs. {dep}";
-
-                if (_processedRatios.Contains(inverseRatio))
-                {
-                    skipped.Add((chart, "Inverse ratio already processed"));
-                    continue;
-                }
-
-                try
-                {
-                    if (!_selectorCache.TryGetValue(chart, out var selector))
-                    {
-                        selector = new CreateSelector(chart);
-                        _selectorCache[chart] = selector;
-                    }
-
-                    _processedRatios.Add(ratio);
-
-                    if (selector.IsLogMismatch)
-                    {
-                        skipped.Add((chart, "Logarithmic mismatch"));
-                        continue;
-                    }
-
-                    var dust = Dust(SetName.Omega, chart);
-                    if (dust != null)
-                    {
-                        dusts.Add(dust);
-                        Console.WriteLine($"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
-
-                        // Add to histogram
-                        var pValue = dust.Regression.PValue();
-                        if (!double.IsNaN(pValue) && pValue >= 0 && pValue <= 1)
-                        {
-                            var bucket = Math.Min((int)(pValue * 5), 4); // Clamp to 0-4
-                            histograms[dust.SetName][bucket]++;
-                        }
-                    }
-                    else
-                    {
-                        skipped.Add((chart, "Null dust (insufficient data points)"));
-                    }
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
-                    skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
-                    skipped.Add((chart, $"Unexpected error: {ex.Message}"));
-                }
-            }
-        }
-
-        Console.WriteLine($"Generated {dusts.Count} regressions, skipped {skipped.Count}: {string.Join("; ", skipped.Select(s => $"{s.chart} ({s.reason})"))}");
-        return (dusts.ToArray(), histograms);
+        return chartList;
     }
+
+    public List<string> RatioCharts()
+    {
+        var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
+        var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
+
+        var bothVisits = new List<string>();
+        foreach (var visit in visitAttributes)
+        {
+            bothVisits.Add($"{visit}0");
+            bothVisits.Add($"{visit}1");
+        }
+        var allAttributes = elementAttributes.Concat(bothVisits).ToList();
+
+        Dictionary<string, string> chartMap = new Dictionary<string, string>();
+        var inverseDetected = 0;
+        var dependentInRatio = 0;
+        var numEqualDenom = 0;
+
+        foreach (var numerator in allAttributes)
+        {
+            foreach (var denominator in allAttributes)
+            {
+                if (numerator != denominator)
+                {
+                    foreach (var dependent in allAttributes)
+                    {
+                        // no ratios with dependent in regressor
+                        if (dependent == numerator || dependent == denominator)
+                        {
+                            dependentInRatio++;
+                            continue;
+                        }
+
+                        if (numerator.Equals(denominator))
+                        {
+                            numEqualDenom++;
+                            continue; // skip self-ratio of identity
+                        }
+
+                        var chart = $"{numerator} / {denominator} vs. {dependent}";
+                        string[] reg = [numerator, denominator];
+                        var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
+
+                        if (!chartMap.TryAdd(key, chart))
+                            inverseDetected++;
+                    }
+                }
+
+            }
+        }
+
+        return chartMap.Select(kvp => kvp.Value).ToList();
+
+    }
+
+    //    // Process ratio charts
+    //    var ratioCombinations = new List<(string num, string denom)>();
+    //    foreach (var num in visitBaseline.Concat(elementDelta))
+    //    {
+    //        foreach (var denom in visitBaseline.Concat(elementDelta))
+    //        {
+    //            if (num != denom) ratioCombinations.Add((num, denom));
+    //        }
+    //    }
+
+    //    foreach (var (num, denom) in ratioCombinations)
+    //    {
+    //        foreach (var dep in elementDelta)
+    //        {
+    //            var ratio = $"{num}/{denom}";
+    //            var inverseRatio = $"{denom}/{num}";
+    //            var chart = $"{ratio} vs. {dep}";
+
+    //            if (_processedRatios.Contains(inverseRatio))
+    //            {
+    //                skipped.Add((chart, "Inverse ratio already processed"));
+    //                continue;
+    //            }
+
+    //            try
+    //            {
+    //                if (!_selectorCache.TryGetValue(chart, out var selector))
+    //                {
+    //                    selector = new CreateSelector(chart);
+    //                    _selectorCache[chart] = selector;
+    //                }
+
+    //                _processedRatios.Add(ratio);
+
+    //                if (selector.IsLogMismatch)
+    //                {
+    //                    skipped.Add((chart, "Logarithmic mismatch"));
+    //                    continue;
+    //                }
+
+    //                var dust = Dust(SetName.Omega, chart);
+    //                if (dust != null)
+    //                {
+    //                    dusts.Add(dust);
+    //                    Console.WriteLine(
+    //                        $"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
+    //                }
+    //                else
+    //                {
+    //                    skipped.Add((chart, "Null dust (insufficient data points)"));
+    //                }
+    //            }
+    //            catch (ArgumentException ex)
+    //            {
+    //                Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
+    //                skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
+    //                skipped.Add((chart, $"Unexpected error: {ex.Message}"));
+    //            }
+    //        }
+    //    }
+
+    //    Console.WriteLine($"Generated {dusts.Count} regressions, skipped {skipped.Count}: {string.Join("; ", skipped.Select(s => $"{s.chart} ({s.reason})"))}");
+    //    return dusts.ToArray();
+    //}
 
     public Dust? Dust(SetName setName, string chartTitle)
     {

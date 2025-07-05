@@ -79,34 +79,6 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine($"Eta Count: {goldMiner.Eta.Length}");
         }
 
-        [Fact]
-        public void HistogramTest()
-        {
-            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            var (dusts, histograms) = goldMiner.BaselinePredictDelta();
-
-            foreach (var setName in new[] { SetName.Omega, SetName.Alpha, SetName.Beta, SetName.Zeta, SetName.Gamma, SetName.Theta, SetName.Eta })
-            {
-                Assert.True(histograms.ContainsKey(setName), $"Histogram missing for {setName}");
-                var hist = histograms[setName];
-                Assert.Equal(5, hist.Length);
-                Assert.True(hist.All(count => count >= 0), $"Negative counts in histogram for {setName}");
-                testOutputHelper.WriteLine($"Histogram for {setName}: [{string.Join(", ", hist)}]");
-            }
-        }
-        [Fact]
-        public void BaselinePredictDeltaTest()
-        {
-            const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
-            var goldMiner = new GoldMiner(filePath);
-
-            var index = 0;
-            var a= goldMiner.BaselinePredictDelta();
-            foreach (var item in a.Dusts)
-            {
-                testOutputHelper.WriteLine($"Index {index++}: {item}");
-            }
-        }
 
         [Fact]
         public void CreateSingleGoldDust()
