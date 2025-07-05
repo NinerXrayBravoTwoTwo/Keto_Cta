@@ -5,9 +5,16 @@ namespace DataMiner;
 
 public class CreateSelector
 {
-    public bool IsLogMismatch => RegressorDicer is SimpleVariableDicer simpleRegressor
-        ? simpleRegressor.IsLogarithmic != DependantDicer.IsLogarithmic && !(simpleRegressor.IsLogarithmic && DependantDicer.IsDelta)
-        : false; // Ratios don't check log mismatch
+    public bool IsLogMismatch => (RegressorDicer is SimpleVariableDicer simpleRegressor && DependantDicer is SimpleVariableDicer simpleDependant)
+        ? simpleRegressor.IsLogarithmic != simpleDependant.IsLogarithmic
+        : IsRatio && (Numerator?.IsLogarithmic != Denominator?.IsLogarithmic ||
+                      (Numerator?.IsLogarithmic != DependantDicer.IsLogarithmic && !DependantDicer.IsDelta) ||
+                      (Denominator?.IsLogarithmic != DependantDicer.IsLogarithmic && !DependantDicer.IsDelta));
+    public bool IsUninteresting => HasComponentOverlap || IsLogMismatch;
+    public bool HasComponentOverlap =>
+        !IsRatio && RegressorDicer.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) ||
+        IsRatio && (Numerator?.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) == true ||
+                    Denominator?.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) == true);
     public bool IsRatio => RegressorDicer is RatioVariableDicer;
     public SimpleVariableDicer? Numerator => (RegressorDicer as RatioVariableDicer)?.Numerator;
     public SimpleVariableDicer? Denominator => (RegressorDicer as RatioVariableDicer)?.Denominator;

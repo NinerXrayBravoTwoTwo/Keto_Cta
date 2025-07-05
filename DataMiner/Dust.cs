@@ -22,7 +22,7 @@ public class Dust
     public readonly SetName SetName;
     public readonly string ChartTitle;
     public RegressionPvalue Regression;
-    public bool IsInteresting => Regression.N >= 2 && Regression.PValue() < 0.2 && Regression.Slope() != 0;
+    public bool IsInteresting => Regression.N >= 2 && Regression.PValue() > 0.1 && Regression.PValue() < 0.4 && Regression.Slope() != 0;
 
     public override string ToString()
     {
