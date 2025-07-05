@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace DataMiner;
+﻿namespace DataMiner;
 
 public abstract class BaseVariableDicer
 {

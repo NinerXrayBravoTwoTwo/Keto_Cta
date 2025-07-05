@@ -1,6 +1,5 @@
 ﻿using Keto_Cta;
 using LinearRegression;
-using System.Collections.Generic;
 
 namespace DataMiner;
 

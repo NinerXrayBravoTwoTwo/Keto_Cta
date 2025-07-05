@@ -1,9 +1,6 @@
 ﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 class HistogramTool
 {

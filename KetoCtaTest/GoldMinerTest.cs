@@ -31,7 +31,7 @@ namespace KetoCtaTest
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
             var result = miner.Dust(SetName.Omega, "Tps0");
-            Assert.Null( result);
+            Assert.Null(result);
         }
 
         [Fact]
