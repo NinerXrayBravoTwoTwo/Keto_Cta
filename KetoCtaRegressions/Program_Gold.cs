@@ -78,14 +78,25 @@ Console.WriteLine($"In Order of PValue:");
 Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
+int dustsWithLowPValueNonZeroRegressorVariance = 0;
 foreach (var dust in sortedDust)
 {
     var reg = dust.Regression;
-    Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
-                      + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                      + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
+    //if (dust.SetName == SetName.Omega  && reg.PValue() >= 0.2 && reg.PValue() < 0.8 && dust.IsIntresting) //second bucket
+
+    if (dust.IsIntresting)
+        Console.WriteLine($"{index}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
+                          + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
+                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
+    if (dust.IsIntresting)
+        dustsWithLowPValueNonZeroRegressorVariance++;
+    index++;
 }
-Console.WriteLine($"\nLog mismatch skipped: {logMismatch}");
+
+Console.WriteLine( $"\nTotal regressions: {index}");
+Console.WriteLine($"Log mismatch skipped: {logMismatch}");
+Console.WriteLine($"Dusts with low p-value and interesting regressor variance: {dustsWithLowPValueNonZeroRegressorVariance}");
+
 #endregion
 
 #region Set Order regression
@@ -134,33 +145,35 @@ foreach (var item in dataPoints)
 #endregion
 
 #region Chart Specific Regression
-
-void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
-{
-    var target = setRegressions[set];
-    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-    Console.WriteLine($"p-value, p-value SD");
-    foreach (var point in target.DataPoints)
-    {
-        Console.WriteLine($"{point.x}, {point.y}");
-    }
-}
+//void ChartToExcel( Dust dust, SetName set){
+//    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
+//    Console.WriteLine($"p-value, p-value SD");
+//}
+//void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
+//{
+//    var target = setRegressions[set];
+//    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
+//    Console.WriteLine($"p-value, p-value SD");
+//    foreach (var point in target.DataPoints)
+//    {
+//        Console.WriteLine($"{point.x}, {point.y}");
+//    }
+//}
 #endregion
 
 #region burn a graph please :)
 
-ChartARegressionExcel(subsetRegressions, SetName.Alpha);
-ChartARegressionExcel(subsetRegressions, SetName.Theta);
-ChartARegressionExcel(subsetRegressions, SetName.Eta);
+IEnumerable<Dust> dustTarget = Dust.Where(d => d.ChartTitle.Equals("LnDNcpv / Ncpv1 vs. Ncpv0") && d.SetName == SetName.Theta);
+
+//ChartToExcell(Dust.Where(d => d.ChartTitle.Equals("LnDNcpv / Ncpv1 vs. Ncpv0") && d.SetName == SetName.Theta));
+//ChartARegressionExcel(subsetRegressions, SetName.Alpha);
+//ChartARegressionExcel(subsetRegressions, SetName.Theta);
+//ChartARegressionExcel(subsetRegressions, SetName.Eta);
 
 
 // Print the regression data points for a specific regression
 // Change the chartIdx to the index of the regression you want to print
 //*****
-
-
-
-
 
 
 void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<string> list,
