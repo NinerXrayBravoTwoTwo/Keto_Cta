@@ -8,24 +8,24 @@ public class Dust
     public Dust(SetName set, string title, RegressionPvalue regression)
     {
         SetName = set;
-        Title = title;
+        ChartTitle = title;
         Regression = regression ?? throw new ArgumentNullException(nameof(regression));
     }
 
     public Dust(SetName set, string title, CreateSelector selector)
     {
         SetName = set;
-        Title = title;
+        ChartTitle = title;
         Regression = new RegressionPvalue(); // Initialize with a default value
     }
 
     public readonly SetName SetName;
-    public readonly string Title;
+    public readonly string ChartTitle;
     public RegressionPvalue Regression;
 
     public override string ToString()
     {
-        return $"{SetName}, {Title}, Slope {Regression.Slope():F5}, "
+        return $"{SetName}, {ChartTitle}, Slope {Regression.Slope():F5}, "
                + $"N={Regression.N}, p-value: {Regression.PValue():F3}";
     }
 }

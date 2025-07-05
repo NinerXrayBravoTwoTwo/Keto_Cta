@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using DataMiner;
+﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
 using System.Text.Json;
@@ -12,7 +10,6 @@ var logMismatch = 0;
 var Dust = new List<Dust>();
 
 #region Load dust  Element Delta vs. Element Delta
-
 var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
 for (var x = 0; x < elementDelta.Length; x++)
@@ -32,11 +29,10 @@ for (var x = 0; x < elementDelta.Length; x++)
                 }
                 Dust.AddRange(MyMine.GoldDust(chart));
             }
-            catch (ArgumentException error)
+            catch (ArgumentException)
             {
                 logMismatch++; // technically this is a regression against self error  
             }
-
         }
     }
 }
@@ -47,10 +43,8 @@ var visit = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
 for (var x = 0; x < visit.Length; x++)
 {
     var chart = $"{visit[x]}0 vs. {visit[x]}1";
-    //r selector = new CreateSelector(chart);
     Dust.AddRange(MyMine.GoldDust(chart));
 }
-
 #endregion
 
 #region dust Baseline vs. Year delta
@@ -61,58 +55,42 @@ foreach (var visit0 in visit)
     foreach (var delta in eDelta)
     {
         var chart = $"{visit0}0 vs. {delta}";
-
-
         var selector = new CreateSelector(chart);
         if (selector.IsLogMismatch)
         {
             logMismatch++;
             continue;
         }
-
         Dust.AddRange(MyMine.GoldDust(chart));
     }
 }
 #endregion
 
 #region Add regression charts
-
 foreach (var chart in MyMine.RatioCharts())
 {
     Dust.AddRange(MyMine.GoldDust(chart));
 }
-
 #endregion
 
-#region Print regession Csv table
-// header
+#region Print regression Csv table
 Console.WriteLine($"In Order of PValue:");
 Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
-// Print the regression data points
-
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
-
 foreach (var dust in sortedDust)
 {
     var reg = dust.Regression;
-    Console.WriteLine($"{index++}, {dust.Title}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
-                       + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                       + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
+    Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
+                      + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
+                      + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
 }
-
 Console.WriteLine($"\nLog mismatch skipped: {logMismatch}");
 #endregion
 
-
-#region Set Order regression 
-
-// Create a regression for each subset p-value to get mean p-value and count of regressions in each subset.
-
+#region Set Order regression
 var histograms = new Dictionary<SetName, int[]>
 {
-    // This is a five bin histogram for p-values, each bucket represents a range of p-values,
-    // the sixth bucket is for p-values that are 1.0, not predictive, typically NaN.
     { SetName.Omega, new int[6] },
     { SetName.Alpha, new int[6] },
     { SetName.Beta, new int[6] },
@@ -120,77 +98,70 @@ var histograms = new Dictionary<SetName, int[]>
     { SetName.Gamma, new int[6] },
     { SetName.Theta, new int[6] },
     { SetName.Eta, new int[6] },
-    { SetName.BetaUZeta, new int [6]}
+    { SetName.BetaUZeta, new int[6] }
 };
 
 var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
 {
-    // This is a five bin histogram for p-values, each bucket represents a range of p-values,
-    // the sixth bucket is for p-values that are 1.0, not predictive, typically NaN.
-    { SetName.Omega, [] },
-    { SetName.Alpha, [] },
-    { SetName.Beta, [] },
-    { SetName.Zeta, [] },
-    { SetName.Gamma, [] },
-    { SetName.Theta, [] },
-    { SetName.Eta, [] },
-    { SetName.BetaUZeta, []}
+    { SetName.Omega, new List<(double, double)>() },
+    { SetName.Alpha, new List<(double, double)>() },
+    { SetName.Beta, new List<(double, double)>() },
+    { SetName.Zeta, new List<(double, double)>() },
+    { SetName.Gamma, new List<(double, double)>() },
+    { SetName.Theta, new List<(double, double)>() },
+    { SetName.Eta, new List<(double, double)>() },
+    { SetName.BetaUZeta, new List<(double, double)>() }
 };
 
 foreach (var dust in Dust)
 {
-    dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.Qx())); // Changed to AddDataPoint to match the method in PValueStat
-    histograms[dust.SetName][(int)(dust.Regression.PValue() * 5)]++; // Increment the count for this bucket
+    dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.Qx()));
+    var bucket = (int)(dust.Regression.PValue() * 5);
+    histograms[dust.SetName][Math.Min(bucket, 5)]++; // Clamp to 5 for NaN bin
 }
 
-Dictionary<SetName, RegressionPvalue> subsetRegressions = new();
-
+var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
 Console.WriteLine("\nSubset Regressions:\nSet, N regressions=, Average p-value, subset-regressions p-value, Slope, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
 foreach (var item in dataPoints)
 {
     var data = dataPoints[item.Key];
     var regression = new RegressionPvalue(data);
-    subsetRegressions.Add(item.Key, regression);
-    
+    subsetRegressions[item.Key] = regression;
     var hist = histograms[item.Key];
     Console.WriteLine(
-        $"{item.Key}, {regression.N}, {regression.MeanX():F6}, {regression.PValue():F6}, {regression.Slope():F4}, {string.Join(", ", hist)}");
+        $"{item.Key}, {regression.N}, {regression.MeanX():F6}, {regression.PValue():F6}, {regression.Slope():F4}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
 }
-
 #endregion
 
-#region burn a graph please :)
-
-// Print the regression data points for a specific regression
-// Change the chartIdx to the index of the regression you want to print
-//*****
-
-const int chartIdx = 366;// 374; // 3,6,7Example index for the regression you want to print
-
-//ChartARegressionExcel(subsetRegressions, SetName.Theta);
-//ChartARegressionExcel(subsetRegressions, SetName.Eta);
-//ChartARegressionExcel(subsetRegressions, SetName.Alpha);
-//ChartARegressionExcel(subsetRegressions, SetName.Zeta);
-
+#region Chart Specific Regression
 
 void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
 {
     var target = setRegressions[set];
-
-//    Console.WriteLine($"\n-,-,Regression: {set} slope: {target.Slope():F4}");
-
     Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-
-    var xxx = "p-value";
-    var yyy = "p-value SD";
-
-    Console.WriteLine($"{xxx}, {yyy}"); // not log-log split
-
+    Console.WriteLine($"p-value, p-value SD");
     foreach (var point in target.DataPoints)
     {
         Console.WriteLine($"{point.x}, {point.y}");
     }
 }
+#endregion
+
+#region burn a graph please :)
+
+ChartARegressionExcel(subsetRegressions, SetName.Alpha);
+ChartARegressionExcel(subsetRegressions, SetName.Theta);
+ChartARegressionExcel(subsetRegressions, SetName.Eta);
+
+
+// Print the regression data points for a specific regression
+// Change the chartIdx to the index of the regression you want to print
+//*****
+
+
+
+
+
 
 void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<string> list,
     List<string> allSetNames1)
@@ -250,7 +221,6 @@ void ChartARegressionGrok(List<RegressionPvalue> regressionPvalues, int i, List<
 }
 
 #endregion
-
 
 // Wait for user input before closing the console window
 Console.ReadLine();

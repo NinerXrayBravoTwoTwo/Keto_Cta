@@ -22,7 +22,7 @@ namespace KetoCtaTest
             var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
             Assert.NotNull(dust);
             Assert.Equal(SetName.Omega, dust.SetName);
-            Assert.Equal("Tps0 vs. DTps", dust.Title);
+            Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
             Assert.True(dust.Regression.DataPointsCount() >= 3);
         }
 

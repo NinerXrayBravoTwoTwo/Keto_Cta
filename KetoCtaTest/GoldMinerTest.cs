@@ -15,7 +15,7 @@ namespace KetoCtaTest
             var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
             Assert.NotNull(dust);
             Assert.Equal(SetName.Omega, dust.SetName);
-            Assert.Equal("Tps0 vs. DTps", dust.Title);
+            Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace KetoCtaTest
                         var result = goldMiner.Dust(SetName.Omega, chart);
                         var reg = result.Regression;
                         testOutputHelper.WriteLine(
-                            $"{index++}, {result.Title}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
+                            $"{index++}, {result.ChartTitle}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
                     }
                 }
             }
