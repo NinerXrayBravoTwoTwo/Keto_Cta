@@ -1,8 +1,7 @@
 ﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
-using System.Text.Json;
-using MathNet.Numerics;
+using System.Text.RegularExpressions;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -115,19 +114,26 @@ foreach (var chart in MyMine.RatioCharts())
 #region Print regression Csv table
 Console.WriteLine($"In Order of PValue (Interesting Regressions Highlighted):");
 Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC, IsInteresting");
+var totalRegressions = 0;
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
 foreach (var dust in sortedDust)
 {
-    var reg = dust.Regression;
+    totalRegressions++;
     if (dust.IsInteresting)
+    {
+        var reg = dust.Regression;
+        var interestingString = dust.IsInteresting ? "Yes" : "-";
         Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                           + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}, {dust.IsInteresting}");
+                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}, {interestingString}");
+    }
 }
-Console.WriteLine($"\nTotal regressions: {index}");
-Console.WriteLine($"Log mismatch skipped: {logMismatch}");
-Console.WriteLine($"Uninteresting regressions skipped: {uninterestingSkip}");
+Console.WriteLine($"\nTotal regressions calculated {totalRegressions}");
+Console.WriteLine($"Log mismatch regressions skipped: {logMismatch}");
+Console.WriteLine($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {uninterestingSkip}");
+Console.WriteLine($"Total interesting regressions: {Dust.Count(d => d.IsInteresting)}");
+Console.WriteLine($"Interesting remaining regressions: {index}");
 #endregion
 
 #region Set Order regression
@@ -155,7 +161,7 @@ var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
     { SetName.BetaUZeta, new List<(double, double)>() }
 };
 
-foreach (var dust in Dust.Where(d => d.IsInteresting)) // Only interesting regressions
+foreach (var dust in Dust)
 {
     dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.Qx()));
     var bucket = (int)(dust.Regression.PValue() * 5);
@@ -163,34 +169,31 @@ foreach (var dust in Dust.Where(d => d.IsInteresting)) // Only interesting regre
 }
 
 var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
-Console.WriteLine("\nSubset Regressions (Interesting Only):\nSet, N regressions=, Average p-value, subset-regressions p-value, Slope, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
+Console.WriteLine("\nCalculated Subset Regressions:\nN regressions=, p-value, SD x, Slope, Set, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
 foreach (var item in dataPoints)
 {
     var data = dataPoints[item.Key];
-    if (data.Any())
+    if (data.Count != 0)
     {
         var regression = new RegressionPvalue(data);
         subsetRegressions[item.Key] = regression;
         var hist = histograms[item.Key];
         Console.WriteLine(
-            $"{item.Key}, {regression.N}, {regression.MeanX():F6}, {regression.PValue():F6}, {regression.Slope():F4}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
+            $"{regression.N}, {regression.MeanX():F6}, {regression.PValue():F6}, {regression.Slope():F4}, {item.Key}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
     }
 }
 #endregion
 
 #region Chart Specific Regression
-
-
 void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
 {
-    if (setRegressions.TryGetValue(set, out var target) && target.DataPoints.Any())
+    if (!setRegressions.TryGetValue(set, out var target) || !target.DataPoints.Any()) return;
+
+    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
+    Console.WriteLine($"p-value, p-value SD");
+    foreach (var point in target.DataPoints)
     {
-        Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-        Console.WriteLine($"p-value, p-value SD");
-        foreach (var point in target.DataPoints)
-        {
-            Console.WriteLine($"{point.x}, {point.y}");
-        }
+        Console.WriteLine($"{point.x}, {point.y}");
     }
 }
 
@@ -199,53 +202,45 @@ void ChartToCvs(IEnumerable<Dust> dust)
     foreach (var dust1 in dust)
     {
         var target = dust1.Regression;
+        var parts = Split(dust1.ChartTitle, @"\s+vs.\s*");
+        if (parts.Length < 2) continue; // Handle invalid titles
+        var regressor = parts[0];
+        var dependent = parts[1];
 
-        Console.WriteLine($"\n-,-,'{dust1.ChartTitle}' -- '{dust1.SetName}'" +
-                          $"\n-,-,Slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}");
-        var regressorDependent = dust1.ChartTitle.Split(@" vs. ");
-
-        Console.WriteLine($"{regressorDependent[0]}, {regressorDependent[1]}");
+        Console.WriteLine($"\n-,-,{dust1.ChartTitle} -- {dust1.SetName}" +
+                          $"\n-,-,Slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
+        Console.WriteLine($"{regressor}, {dependent}");
         foreach (var point in target.DataPoints)
         {
             Console.WriteLine($"{point.x}, {point.y}");
         }
     }
 }
-
-//void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
-//{
-//    var target = setRegressions[set];
-//    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-//    Console.WriteLine($"p-value, p-value SD");
-//    foreach (var point in target.DataPoints)
-//    {
-//        Console.WriteLine($"{point.x}, {point.y}");
-//    }
-//}
 #endregion
-//ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim())));
-//ChartARegressionExcel(subsetRegressions, SetName.Alpha);
-//ChartARegressionExcel(subsetRegressions, SetName.Theta);
-//ChartARegressionExcel(subsetRegressions, SetName.Eta);
+
+//ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
 
 // Wait for user input before closing the console window
-Console.WriteLine("\nPress Enter to exit or type 'exit' to quit.");
+Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'LnDPav vs. DPav'):");
 
 while (true)
 {
-    var command = Console.ReadLine();
+    var command = Console.ReadLine()?.Trim();
 
-    // Corrected usage of Regex.IsMatch
-    if (string.IsNullOrEmpty(command) || IsMatch(command, @"(exit|quit|end|\n|\r\n)"))
+    if (string.IsNullOrEmpty(command) || IsMatch(command, @"^(exit|quit|end)$", RegexOptions.IgnoreCase))
         break;
 
     if (!string.IsNullOrWhiteSpace(command))
     {
-        var dust = Dust.Where(d => d.ChartTitle.Equals(command.Trim()));
-
-        ChartToCvs(dust);
-
-        Console.WriteLine("exit to quit, or Chart Title?");
-      
+        var dust = Dust.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase));
+        if (dust.Any())
+        {
+            ChartToCvs(dust);
+            Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
+        }
+        else
+        {
+            Console.WriteLine($"Chart '{command}' not found. Try again or 'exit' to quit:");
+        }
     }
 }
