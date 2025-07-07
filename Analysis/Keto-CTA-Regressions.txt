@@ -4656,11 +4656,31 @@ Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, 
 4653, LnDCac / LnCac0 vs. LnTcpv0, Eta, 17, -2.7328, 0.5998, 0.2456, 5.9381, 0.7331, 3.9346, 0.0377, -0.4956, Yes
 4654, LnDTcpv / LnPav1 vs. LnPav0, Theta, 23, -0.0004, 0.5999, 0.2371, 0.0491, 33.9990, 0.0365, 7.0012, -0.4869, Yes
 4655, Tps0 / Tps1 vs. Tcpv0, BetaUZeta, 52, 57.0881, 0.6000, 0.2246, -0.7566, 0.6400, 35.7808, 0.0532, 0.4739, Yes
+4656, LnDTps vs. LnDPav, Alpha, 88, 0.0113, 0.6001, 0.2208, 0.0082, 0.3305, 0.0119, 0.0521, 0.4699, Yes
+4657, LnDPav vs. LnDTps, Alpha, 88, 19.5410, 0.6001, 0.2208, 0.0979, 0.0119, 0.3305, 0.0013, 0.4699, Yes
+4658, DTcpv / Cac0 vs. Tcpv0, Eta, 17, -227.6229, 0.6001, 0.2454, 95.7783, 0.1249, 67.3471, 0.0281, -0.4953, Yes
+4659, LnCac1 / LnNcpv1 vs. LnDNcpv, Alpha, 88, 1.2368, 0.6001, 0.2208, 2.5851, 0.3388, 3.0042, 0.0455, 0.4699, Yes
+4660, LnDCac / LnCac1 vs. LnDPav, Alpha, 88, 0.0151, 0.6002, 0.2206, 0.0075, 0.2917, 0.0119, 0.0390, 0.4697, Yes
+4661, Tps0 / Tps1 vs. Tcpv1, BetaUZeta, 52, 63.8066, 0.6003, 0.2244, 2.3895, 0.6400, 43.2269, 0.0532, 0.4737, Yes
+4662, LnCac0 / LnCac1 vs. LnDNcpv, Alpha, 88, 1.1569, 0.6004, 0.2205, 2.5937, 0.3548, 3.0042, 0.0487, 0.4696, Yes
+4663, Cac0 / Tcpv1 vs. Tps0, Omega, 100, 0.6035, 0.6004, 0.2199, 1.0240, 1.0538, 1.6600, 0.2038, 0.4689, Yes
+4664, LnDNcpv / LnPav0 vs. LnTcpv0, Beta, 40, -0.0050, 0.6004, 0.2270, 3.3726, 120.6810, 2.7684, 23.3505, -0.4765, Yes
+4665, Tps0 / Tps1 vs. Tcpv0, Gamma, 48, 1.4261, 0.6004, 0.2250, 0.1239, 0.0417, 0.1833, 0.0295, 0.4743, Yes
+4666, LnCac0 / LnNcpv1 vs. LnDPav, Alpha, 88, 0.0133, 0.6005, 0.2204, 0.0079, 0.3035, 0.0119, 0.0441, 0.4695, Yes
+4667, LnNcpv0 / LnPav0 vs. LnDPav, Omega, 100, -0.0000, 0.6005, 0.2198, 0.0170, 353.6064, 0.0121, 38.5152, -0.4688, Yes
+4668, LnNcpv0 / LnPav0 vs. DPav, Eta, 17, -0.0002, 0.6005, 0.2449, 0.0358, 81.7868, 0.0231, 10.4528, -0.4949, Yes
+4669, LnPav0 vs. LnDTps, Theta, 23, 10.2052, 0.6006, 0.2363, 0.2976, 0.0365, 0.6704, 0.0053, 0.4861, Yes
+4670, LnNcpv0 / LnPav1 vs. LnDTcpv, Zeta, 12, -0.0092, 0.6007, 0.2596, 1.9188, 102.0069, 0.9847, 17.2136, -0.5095, Yes
+4671, LnNcpv1 / LnPav0 vs. LnTcpv1, Zeta, 12, -0.0063, 0.6007, 0.2596, 3.2836, 177.6970, 2.1580, 48.7077, -0.5095, Yes
+4672, Tcpv0 / Tcpv1 vs. DNcpv, Alpha, 88, 38.7353, 0.6008, 0.2201, 17.5728, 0.3882, 32.6114, 0.0424, 0.4692, Yes
+4673, LnTps1 / LnCac0 vs. DTps, Eta, 17, 8.0869, 0.6008, 0.2446, -1.9807, 0.3904, 1.1765, 0.0243, 0.4946, Yes
+4674, LnDPav / LnNcpv1 vs. LnNcpv0, Alpha, 88, 334.3844, 0.6010, 0.2200, 2.6148, 0.0026, 3.4708, 0.0002, 0.4690, Yes
+4675, DNcpv / Tps0 vs. LnDNcpv, Zeta, 12, 0.0317, 0.6010, 0.2592, 2.5263, 11.6812, 2.8963, 4.4188, 0.5092, Yes
 
 Total regressions calculated 30480
 Log mismatch regressions skipped: 8500
 Uninteresting regressions included in calculated (See Dust.IsInteresting flag): 8570
-Total interesting regressions: 4656
+Total interesting regressions: 4676
 
 Calculated Subset Regressions:
 N regressions=, p-value, SD x, Slope, Set, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN
@@ -4673,4 +4693,4 @@ N regressions=, p-value, SD x, Slope, Set, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8
 3810, 0.766783, 0.975133, 9.7052, Eta, 71, 205, 298, 1205, 2031, 0
 3810, 0.812933, 0.942951, -19.6757, BetaUZeta, 42, 86, 280, 902, 2500, 0
 
-Press Enter to exit or type a Chart Title to view its regression data (e.g., 'LnDPav vs. DPav'):
+Press Enter to exit or type a Chart Title to view its regression data (e.g., 'Cac0 vs. Cac1'):
