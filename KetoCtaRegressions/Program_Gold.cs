@@ -221,7 +221,7 @@ void ChartToCvs(IEnumerable<Dust> dust)
 //ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
 
 // Wait for user input before closing the console window
-Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'LnDPav vs. DPav'):");
+Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'Cac0 vs. Cac1'):");
 
 while (true)
 {

@@ -4672,3 +4672,5 @@ N regressions=, p-value, SD x, Slope, Set, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8
 3810, 0.792738, 0.978567, 7.7564, Theta, 31, 104, 355, 1083, 2237, 0
 3810, 0.766783, 0.975133, 9.7052, Eta, 71, 205, 298, 1205, 2031, 0
 3810, 0.812933, 0.942951, -19.6757, BetaUZeta, 42, 86, 280, 902, 2500, 0
+
+Press Enter to exit or type a Chart Title to view its regression data (e.g., 'LnDPav vs. DPav'):
