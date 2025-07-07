@@ -1,10 +1,14 @@
 ﻿using Keto_Cta;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
 public class CreateSelector
 {
+    private static readonly Regex _propertyRegex = new(@"([a-zA-Z_][a-zA-Z0-9_]*)(\[(\d+)\])?", RegexOptions.Compiled);
+    private static readonly Dictionary<string, PropertyInfo> _propertyCache = new();
+
     public bool IsLogMismatch => (RegressorDicer is SimpleVariableDicer simpleRegressor && DependantDicer is SimpleVariableDicer simpleDependant)
         ? simpleRegressor.IsLogarithmic != simpleDependant.IsLogarithmic
         : IsRatio && (Numerator?.IsLogarithmic != Denominator?.IsLogarithmic ||
@@ -73,7 +77,7 @@ public class CreateSelector
         return e => Convert.ToDouble(GetNestedPropertyValue(e, dependentTarget));
     }
 
-    public Func<Element, (double x, double y)> Selector 
+    public Func<Element, (double x, double y)> Selector
     {
         get
         {
@@ -103,35 +107,56 @@ public class CreateSelector
         if (string.IsNullOrEmpty(propertyPath) || obj == null)
             return null;
 
-        var regex = new Regex(@"([a-zA-Z_][a-zA-Z0-9_]*)(\[(\d+)\])?");
         var properties = propertyPath.Split('.');
 
         if (properties.Length == 1)
         {
-            var propInfo = obj.GetType().GetProperty(propertyPath);
-            return propInfo?.GetValue(obj);
-        }
-
-        foreach (var property in properties)
-        {
-            if (obj == null) return null;
-
-            var match = regex.Match(property);
+            var match = _propertyRegex.Match(properties[0]);
             if (!match.Success) return null;
 
             var propName = match.Groups[1].Value;
-            var propInfo = obj.GetType().GetProperty(propName);
+            var cacheKey = $"{obj.GetType().FullName}.{propName}";
+            if (!_propertyCache.TryGetValue(cacheKey, out var propInfo))
+            {
+                propInfo = obj.GetType().GetProperty(propName);
+                _propertyCache[cacheKey] = propInfo;
+            }
             if (propInfo == null) return null;
 
-            obj = propInfo.GetValue(obj);
-
-            if (match.Groups[2].Success && obj is System.Collections.IList list)
+            var value = propInfo.GetValue(obj);
+            if (match.Groups[2].Success && value is System.Collections.IList list)
             {
                 int index = int.Parse(match.Groups[3].Value);
-                if (index < 0 || index >= list.Count) return null;
-                obj = list[index];
+                return index >= 0 && index < list.Count ? list[index] : null;
+            }
+            return value;
+        }
+
+        object? current = obj;
+        foreach (var property in properties)
+        {
+            if (current == null) return null;
+
+            var match = _propertyRegex.Match(property);
+            if (!match.Success) return null;
+
+            var propName = match.Groups[1].Value;
+            var cacheKey = $"{current.GetType().FullName}.{propName}";
+            if (!_propertyCache.TryGetValue(cacheKey, out var propInfo))
+            {
+                propInfo = current.GetType().GetProperty(propName);
+                _propertyCache[cacheKey] = propInfo;
+            }
+            if (propInfo == null) return null;
+
+            current = propInfo.GetValue(current);
+
+            if (match.Groups[2].Success && current is System.Collections.IList list)
+            {
+                int index = int.Parse(match.Groups[3].Value);
+                current = index >= 0 && index < list.Count ? list[index] : null;
             }
         }
-        return obj;
+        return current;
     }
 }
