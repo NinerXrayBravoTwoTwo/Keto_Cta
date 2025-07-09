@@ -113,7 +113,7 @@ foreach (var chart in MyMine.RatioCharts())
 
 #region Print regression Csv table
 Console.WriteLine($"In Order of PValue (Interesting Regressions Highlighted):");
-Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC, IsInteresting");
+Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 var totalRegressions = 0;
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
@@ -126,7 +126,7 @@ foreach (var dust in sortedDust)
         var interestingString = dust.IsInteresting ? "Yes" : "-";
         Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                           + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}, {interestingString}");
+                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
     }
 }
 Console.WriteLine($"\nTotal regressions calculated {totalRegressions}");
@@ -232,7 +232,7 @@ while (true)
 
     if (!string.IsNullOrWhiteSpace(command))
     {
-        var dust = Dust.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase));
+        var dust = Dust.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase)).ToArray();
         if (dust.Any())
         {
             ChartToCvs(dust);
