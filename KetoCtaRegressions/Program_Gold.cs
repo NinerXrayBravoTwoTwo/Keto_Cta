@@ -169,7 +169,7 @@ foreach (var dust in Dust)
 }
 
 var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
-Console.WriteLine("\nCalculated Subset Regressions:\nN regressions=, p-value, SD x, Slope, Set, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
+Console.WriteLine("\nCalculated Subset Regressions:\nSet, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
 foreach (var item in dataPoints)
 {
     var data = dataPoints[item.Key];
@@ -179,7 +179,7 @@ foreach (var item in dataPoints)
         subsetRegressions[item.Key] = regression;
         var hist = histograms[item.Key];
         Console.WriteLine(
-            $"{regression.N}, {regression.MeanX():F6}, {regression.PValue():F6}, {regression.Slope():F4}, {item.Key}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
+            $"{item.Key}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
     }
 }
 #endregion
