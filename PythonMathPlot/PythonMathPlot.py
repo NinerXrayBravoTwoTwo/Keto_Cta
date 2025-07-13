@@ -1,6 +1,7 @@
 ﻿import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.patches import Patch
 
 # Original β Group (N=40)
 x = np.array([0, 0, 0, 0, 0, 0.35285263872984957, 0.9647593924678355, 0.877286031413336, 0.8688607994125579, 1.0411460407002446, 0.3255009363788492, 0, 0.7724007307085876, 0.6036728262897569, 0.27144150822594215, 0.45205229008535625, 0.8318813233527058, 0.22164943200951182, 0.6604399736330077, 1.0630901185378252, 0.9961730542492246, 0.8175811528613812, 0.9622938095066099, 0.8607555653155671, 0.9631345449908901, 1.0484241406252823, 0.7062302027241281, 0.9822425957367792, 0.9072391782794026, 1.0010636260309163, 0.8193105055662985, 1.1930588223437388, 0.9175571828446315, 1.0281475831090183, 0.9334484316946257, 1.1395504941992651, 0.8289472102329216, 1.0525373565090204, 1.229792181584599, 0.883830680147293])
@@ -18,7 +19,7 @@ z = np.array([
 
 # Intersecting Zeta Group (N=12)
 x_zeta_full = np.array([0, 0.6432141900737977, 0.26231517988512754, 0, 0, 0.9710033899612511, 0.1461889298737325, 0.9015366321328295, 1.1394427589104996, 1.2745596383334394, 1.0980360579681494, 1.1997997113370333])
-y_zeta_full = np.array([0, 0.5173641628202729, 0.25902561920545197, 0, 0, 0.9253378102738982, 0.1360779687331669, 0.8506729246131384, 1.100342686869395, 1.3085760744476183, 1.0311375010237032, 1.1388484961156078])
+y_zeta_full = np.array([0, 0.5173641628202729, 0.25902561928345197, 0, 0, 0.9253378102738982, 0.1360779687331669, 0.8506729246131384, 1.100342686869395, 1.3085760744476183, 1.0311375010237032, 1.1388484961156078])
 z_zeta_full = np.array([0, 0, 0, 0, 0, 4.143134726391533, 0, 3.6888794541139363, 5.869296913133774, 4.912654885736052, 5.863631175598097, 5.267858159063328])
 
 # Optional mask (comment out to use full N=12)
@@ -26,6 +27,10 @@ mask = (x_zeta_full > 0) & (y_zeta_full > 0) & (z_zeta_full > 0)
 x_zeta = x_zeta_full[mask]
 y_zeta = y_zeta_full[mask]
 z_zeta = z_zeta_full[mask]
+
+# Toggles
+show_zeta = True  # Set to False to hide Zeta points and plane
+zoom_to_beta = True  # Set to True to zoom to beta data range (may clip zeta if shown)
 
 # Create Plot
 fig = plt.figure(figsize=(10, 8))
@@ -39,24 +44,54 @@ user_x = 0.772404
 user_index = np.argmin(np.abs(x - user_x))
 ax.scatter(x[user_index], y[user_index], z[user_index], c='magenta', marker='o', s=100, label='Your Point')
 
-# Plot Zeta in orange diamonds
-ax.scatter(x_zeta, y_zeta, z_zeta, c='orange', marker='D', s=70, label='ζ (Reversing, N=' + str(len(x_zeta)) + ')')
+# Plot Zeta if toggled on
+if show_zeta:
+    ax.scatter(x_zeta, y_zeta, z_zeta, c='orange', marker='D', s=70, label='ζ (Reversing, N=' + str(len(x_zeta)) + ')')
+
+# Define meshgrid ranges
+min_x = min(np.min(x), np.min(x_zeta)) if show_zeta else np.min(x)
+max_x = max(np.max(x), np.max(x_zeta)) if show_zeta else np.max(x)
+min_y = min(np.min(y), np.min(y_zeta)) if show_zeta else np.min(y)
+max_y = max(np.max(y), np.max(y_zeta)) if show_zeta else np.max(y)
+xx, yy = np.meshgrid(np.linspace(min_x, max_x, 10), np.linspace(min_y, max_y, 10))
 
 # Beta regression plane (green)
-xx, yy = np.meshgrid(np.linspace(min(np.min(x), np.min(x_zeta)), max(np.max(x), np.max(x_zeta)), 10),
-                     np.linspace(min(np.min(y), np.min(y_zeta)), max(np.max(y), np.max(y_zeta)), 10))
 zz_beta = 0.7396 - 3.7836 * xx + 8.5982 * yy
-ax.plot_surface(xx, yy, zz_beta, alpha=0.3, color='green', label='β Plane')
+ax.plot_surface(xx, yy, zz_beta, alpha=0.3, color='green')
 
-# Zeta multivariate plane (orange)
-zz_zeta = -2.624 + 21.614 * xx - 15.236 * yy
-ax.plot_surface(xx, yy, zz_zeta, alpha=0.3, color='orange', label='ζ Plane')
+# Zeta multivariate plane if toggled on
+if show_zeta:
+    zz_zeta = -2.624 + 21.622 * xx - 15.244 * yy
+    ax.plot_surface(xx, yy, zz_zeta, alpha=0.3, color='orange')
+
+# Optional zoom to beta
+if zoom_to_beta:
+    ax.set_xlim(np.min(x), np.max(x))
+    ax.set_ylim(np.min(y), np.max(y))
+    ax.set_zlim(np.min(z), np.max(z))
+
+# Add proxies for planes to legend
+beta_plane_proxy = Patch(color='green', alpha=0.3, label='β Plane')
+plane_proxies = [beta_plane_proxy]
+if show_zeta:
+    zeta_plane_proxy = Patch(color='orange', alpha=0.3, label='ζ Plane')
+    plane_proxies.append(zeta_plane_proxy)
+
+# Get handles and labels from scatters
+handles, labels = ax.get_legend_handles_labels()
+
+# Combine with plane proxies
+handles += plane_proxies
+labels += [p.get_label() for p in plane_proxies]
+
+# Create legend
+ax.legend(handles, labels)
 
 ax.set_xlabel('ln(CAC0 + 1) / ln(NCPV0 + 1)')
 ax.set_ylabel('ln(CAC0 + 1) / ln(NCPV1 + 1)')
 ax.set_zlabel('ln(CAC1 + 1)')
-ax.set_title('3D Scatter of CAC and NCPV Ratios: β ∪ ζ (N=' + str(len(x) + len(x_zeta)) + ')\nwith Group-Specific Regression Planes')
-ax.legend()
+title_suffix = 'β ∪ ζ (N=' + str(len(x) + (len(x_zeta) if show_zeta else 0)) + ')' if show_zeta else 'β (N=40)'
+ax.set_title('3D Scatter of CAC and NCPV Ratios: ' + title_suffix + '\nwith Group-Specific Regression Planes')
 
 plt.tight_layout()
 plt.show()
