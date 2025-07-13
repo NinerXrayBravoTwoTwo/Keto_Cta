@@ -24,7 +24,13 @@ user_x = 0.772404
 user_index = np.argmin(np.abs(x - user_x))
 ax.scatter(x[user_index], y[user_index], z[user_index], c='magenta', marker='o', s=100, label='Your Point')
 
-# Add regression plane
+# Plot Zeta group in orange diamonds
+ax.scatter(x_zeta, y_zeta, z_zeta, c='orange', marker='D', s=70, label=' β U ζ  Intersecting Set (N=12)')
+
+# --------------------------
+# Regression Planes
+# --------------------------
+# Global regression plane (original)
 xx, yy = np.meshgrid(np.linspace(min(x), max(x), 10), np.linspace(min(y), max(y), 10))
 zz = 0.7396 - 3.7836 * xx + 8.5982 * yy
 ax.plot_surface(xx, yy, zz, alpha=0.3, color='green')
