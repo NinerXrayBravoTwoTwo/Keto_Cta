@@ -30,7 +30,7 @@ z_zeta = z_zeta_full[mask]
 
 # Toggles
 show_zeta = True  # Set to False to hide Zeta points and plane
-zoom_to_beta = True  # Set to True to zoom to beta data range (may clip zeta if shown)
+zoom_to_beta = False  # Set to True to zoom to beta data range (may clip zeta if shown)
 
 # Create Plot
 fig = plt.figure(figsize=(10, 8))
