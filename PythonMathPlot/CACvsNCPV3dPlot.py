@@ -29,7 +29,7 @@ ax = fig.add_subplot(111, projection='3d')
 ax.scatter(x_zeta, y_zeta, z_zeta, c='orange', marker='D', s=70, label='ζ (Reversing, N=6)')
 
 # Plot Theta (purple circles)
-ax.scatter(x_theta, y_theta, z_theta, c='purple', marker='o', label='θ (Smaller CAC increase, N=17)')
+ax.scatter(x_theta, y_theta, z_theta, c='purple', marker='o', label='θ (Smaller CAC increase, N=23)')
 
 # Plot Eta (green squares)
 ax.scatter(x_eta, y_eta, z_eta, c='green', marker='s', label='η (Larger CAC increase, N=17)')

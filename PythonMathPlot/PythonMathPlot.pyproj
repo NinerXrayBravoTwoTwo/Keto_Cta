@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>813e816b-12d3-4b4f-affa-e7ea0db73ce4</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PythonMathPlot.py</StartupFile>
+    <StartupFile>CACvsNCPV3dPlot.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,7 +22,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DeltaVsDeltaRegression.py" />
-    <Compile Include="PythonMathPlot.py" />
+    <Compile Include="CACvsNCPV3dPlot.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
