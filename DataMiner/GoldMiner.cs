@@ -1,4 +1,5 @@
-﻿using Keto_Cta;
+﻿using System.Text;
+using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -9,14 +10,14 @@ public class GoldMiner
     {
         var elements = ReadCsvFile(path) ?? throw new ArgumentException("CSV file returned null elements.", nameof(path));
 
-        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
-        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray() ?? Array.Empty<Element>();
-        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
-        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray() ?? Array.Empty<Element>();
-        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray() ?? Array.Empty<Element>();
-        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray() ?? Array.Empty<Element>();
-        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray() ?? Array.Empty<Element>();
-        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray() ?? Array.Empty<Element>();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
+        Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
+        Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
+        Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
+        Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
+        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
 
         _setNameToData = new Dictionary<SetName, Element[]>
         {
@@ -311,5 +312,25 @@ public class GoldMiner
             : CalculateRegression(data, chartTitle, selector.Selector);
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
+    }
+
+    public string[] PrintBetaUZetaElements()
+    {
+        List<string> myData = new List<string>();
+
+        myData.Add("index, DCac, DNCpv, LnDCac, LnDNcpv, " +
+                    "Cac0, Cac1, LnCac0, LnCac1, " +
+                    "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, Set"
+                                   );
+        foreach (var item in BetaUZeta)
+        {
+            myData.Add(
+                $"{item.Id}, {item.DCac}, {item.DNcpv}, {item.LnDCac}, {item.LnDNcpv}, " +
+                $"{item.Visits[0].Cac}, {item.Visits[1].Cac}, {item.Visits[0].LnCac}, {item.Visits[1].LnCac}, " +
+                $"{item.Visits[0].Ncpv}, {item.Visits[1].Ncpv}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
+                $"{item.MemberSet}"
+                    );
+        }
+        return myData.ToArray();
     }
 }
