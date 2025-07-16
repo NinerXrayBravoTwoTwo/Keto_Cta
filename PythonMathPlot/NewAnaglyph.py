@@ -1,0 +1,63 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+
+# Data from your document (unmasked, including zeros for boundaries)
+# Zeta
+ratio0_zeta = np.array([0, 0.6432141900737977, 0.26231517988512754, 0, 0, 0.9710033899612511, 0.1461889298737325, 0.9015366321328295, 1.1394427589104996, 1.2745596383334394, 1.0980360579681494, 1.1997997113370333])
+ratio1_zeta = np.array([0, 0.5173641628202729, 0.25902561928345197, 0, 0, 0.9253378102738982, 0.1360779687331669, 0.8506729246131384, 1.100342686869395, 1.3085760744476183, 1.0311375010237032, 1.1388484961156078])
+ln_cac1_zeta = np.array([0, 0, 0, 0, 0, 4.143134726391533, 0, 3.6888794541139363, 5.869296913133774, 4.912654885736052, 5.863631175598097, 5.267858159063328])
+
+# Theta
+ratio0_theta = np.array([0, 0, 0, 0, 0, 0.35285263872984957, 0.9647593924678355, 0.877286031413336, 1.0411460407002446, 0.3255009363788492, 0, 0.7724007307085876, 0.6036728262897569, 0.27144150822594215, 0.45205229008535625, 0.8318813233527058, 0.22164943200951182, 0.6604399736330077, 0.8607555653155671, 1.0010636260309163, 0.9175571828446315, 1.0281475831090183, 0.8289472102329216])
+ratio1_theta = np.array([0, 0, 0, 0, 0, 0.3297159881728276, 0.8691756693182583, 0.8267776654084305, 0.8923483493991499, 0.31927963388710684, 0, 0.6707750237222871, 0.5776613396057578, 0.25680855464584623, 0.4491694490897574, 0.8033125469454092, 0.20896115182777275, 0.6485015093091424, 0.7963474917371539, 0.8893916599278506, 0.891574050402815, 0.9861109838733201, 0.7557726453415707])
+ln_cac1_theta = np.array([0.6931471805599453, 1.0986122886681098, 0.6931471805599453, 0.6931471805599453, 0.6931471805599453, 1.9459101490553132, 3.6375861597263857, 2.6390573296152584, 4.219507705176107, 2.1972245773362196, 1.3862943611198906, 3.091042453358316, 2.9444389791664403, 1.791759469228055, 2.8903717578961645, 3.912023005428146, 2.0794415416798357, 3.4657359027997265, 4.406719247264253, 4.6443908991413725, 4.8283137373023015, 5.707110264748875, 4.007333185232471])
+
+# Eta
+ratio0_eta = np.array([0.8688607994125579, 1.0630901185378252, 0.9961730542492246, 0.8175811528613812, 0.9622938095066099, 0.9631345449908901, 1.0484241406252823, 0.7062302027241281, 0.9822425957367792, 0.9072391782794026, 0.8193105055662985, 1.1930588223437388, 0.9334484316946257, 1.1395504941992651, 1.0525373565090204, 1.229792181584599, 0.883830680147293])
+ratio1_eta = np.array([0.8408890290104237, 0.8983622221657899, 0.8586308679540858, 0.7681527424747342, 0.9330379097641369, 0.8989095019787317, 1.033377601382106, 0.664608080850563, 0.9191112554962112, 0.8835428801490052, 0.7832104228023535, 1.130087818908135, 0.8919864268699415, 1.0594671601894434, 0.9933697952812031, 1.1339433933635201, 0.842936576767417])
+ln_cac1_eta = np.array([3.7376696182833684, 4.663439094112067, 4.584967478670572, 4.6443908991413725, 4.584967478670572, 5.389071729816501, 5.5053315359323625, 3.58351893845611, 5.537334267018537, 5.541263545158426, 4.61512051684126, 5.993961427306569, 5.442417710521793, 6.645090969505644, 5.777652323222656, 5.60947179518496, 5.54907608489522])
+
+# Function to plot 2D regression view
+def plot_view(ratio, ln_cac1, color, marker, label, ax, offset=0):
+    ax.scatter(ratio + offset, ln_cac1, c=color, marker=marker, label=label)
+    ax.set_xlim(-0.1, 1.4)
+    ax.set_ylim(-0.1, 7)
+    ax.axis('off')
+
+# Create left view (ratio0 vs. ln_cac1)
+fig_left, ax_left = plt.subplots()
+plot_view(ratio0_zeta, ln_cac1_zeta, 'orange', 'D', 'Zeta', ax_left)
+plot_view(ratio0_theta, ln_cac1_theta, 'purple', 'o', 'Theta', ax_left)
+plot_view(ratio0_eta, ln_cac1_eta, 'green', 's', 'Eta', ax_left)
+fig_left.savefig('left.png', bbox_inches='tight', pad_inches=0)
+plt.close(fig_left)
+
+# Create right view (ratio1 vs. ln_cac1, with disparity offset)
+disparity_scale = 0.05  # Adjust for depth effect (smaller = subtler stereo)
+fig_right, ax_right = plt.subplots()
+plot_view(ratio1_zeta, ln_cac1_zeta, 'orange', 'D', 'Zeta', ax_right, offset=-disparity_scale)
+plot_view(ratio1_theta, ln_cac1_theta, 'purple', 'o', 'Theta', ax_right, offset=-disparity_scale)
+plot_view(ratio1_eta, ln_cac1_eta, 'green', 's', 'Eta', ax_right, offset=-disparity_scale)
+fig_right.savefig('right.png', bbox_inches='tight', pad_inches=0)
+plt.close(fig_right)
+
+# Create anaglyph (red-cyan)
+left_img = Image.open('left.png').convert('RGB')
+right_img = Image.open('right.png').convert('RGB')
+left_img = left_img.resize(right_img.size)  # Ensure same size
+anaglyph = Image.new('RGB', left_img.size)
+for i in range(left_img.size[0]):
+    for j in range(left_img.size[1]):
+        r, g, b = left_img.getpixel((i, j))
+        _, g2, b2 = right_img.getpixel((i, j))
+        anaglyph.putpixel((i, j), (r, g2, b2))
+anaglyph.save('anaglyph.png')
+
+# Create cross-eyed pair (side-by-side)
+cross_eyed = Image.new('RGB', (left_img.size[0] * 2, left_img.size[1]))
+cross_eyed.paste(right_img, (0, 0))
+cross_eyed.paste(left_img, (left_img.size[0], 0))
+cross_eyed.save('cross_eyed.png')
+
+print("Generated 'anaglyph.png' (view with red-cyan glasses) and 'cross_eyed.png' (cross your eyes to merge).")
