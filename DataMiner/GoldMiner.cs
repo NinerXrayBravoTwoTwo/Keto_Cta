@@ -320,7 +320,9 @@ public class GoldMiner
 
         myData.Add("index, DCac, DNCpv, LnDCac, LnDNcpv, " +
                     "Cac0, Cac1, LnCac0, LnCac1, " +
-                    "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, Set"
+                    "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, " +
+                    "Cac0/Ncpv0, Cac0/Ncpv1, " +
+                    "LnCac0/LnNcpv0, LnCac0/LnNcpv1, Set"
                                    );
         foreach (var item in BetaUZeta)
         {
@@ -328,7 +330,8 @@ public class GoldMiner
                 $"{item.Id}, {item.DCac}, {item.DNcpv}, {item.LnDCac}, {item.LnDNcpv}, " +
                 $"{item.Visits[0].Cac}, {item.Visits[1].Cac}, {item.Visits[0].LnCac}, {item.Visits[1].LnCac}, " +
                 $"{item.Visits[0].Ncpv}, {item.Visits[1].Ncpv}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
-                $"{item.MemberSet}"
+                $"{item.Visits[0].Cac / item.Visits[0].Ncpv},  {item.Visits[0].Cac / item.Visits[1].Ncpv}, " +
+                $"{item.Visits[0].LnCac / item.Visits[0].LnNcpv},  {item.Visits[0].LnCac / item.Visits[1].LnNcpv}, {item.MemberSet}"
                     );
         }
         return myData.ToArray();
