@@ -17,62 +17,69 @@ ratio0_eta = np.array([0.8688607994125579, 1.0630901185378252, 0.996173054249224
 ratio1_eta = np.array([0.8408890290104237, 0.8983622221657899, 0.8586308679540858, 0.7681527424747342, 0.9330379097641369, 0.8989095019787317, 1.033377601382106, 0.664608080850563, 0.9191112554962112, 0.8835428801490052, 0.7832104228023535, 1.130087818908135, 0.8919864268699415, 1.0594671601894434, 0.9933697952812031, 1.1339433933635201, 0.842936576767417])
 ln_cac1_eta = np.array([3.7376696182833684, 4.663439094112067, 4.584967478670572, 4.6443908991413725, 4.584967478670572, 5.389071729816501, 5.5053315359323625, 3.58351893845611, 5.537334267018537, 5.541263545158426, 4.61512051684126, 5.993961427306569, 5.442417710521793, 6.645090969505644, 5.777652323222656, 5.60947179518496, 5.54907608489522])
 
-# Function to compute stereo 3D points
-def compute_stereo_3d(ratio0, ratio1, ln_cac1, k=40.0):
-    disparity = ratio0 - ratio1
-    depth = k * disparity
-    x_3d = (ratio0 + ratio1) / 2
-    y_3d = ln_cac1
-    z_3d = depth
-    return x_3d, y_3d, z_3d, disparity
+# Matrix transform 
+def matrix_project(left_x, right_x, y, b=0.5):
+    disparity = left_x - right_x
+    proj_matrix = np.array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, -1/b, 1]
+    ])
+    disparity =left_x-right_x;
+    point_left = np.array([left_x, y, 0, 1])
+    projected = proj_matrix @ point_left
+    projected[2] += disparity * 40  # Adjust depth with disparity
+    return projected[0], projected[1], projected[2], disparity
 
-# Compute for each subset
-x_zeta_3d, y_zeta_3d, z_zeta_3d, disparity_zeta = compute_stereo_3d(ratio0_zeta, ratio1_zeta, ln_cac1_zeta)
-x_theta_3d, y_theta_3d, z_theta_3d, disparity_theta = compute_stereo_3d(ratio0_theta, ratio1_theta, ln_cac1_theta)
-x_eta_3d, y_eta_3d, z_eta_3d, disparity_eta = compute_stereo_3d(ratio0_eta, ratio1_eta, ln_cac1_eta)
+# Transform data to 3D points
+x_zeta_proj, y_zeta_proj, z_zeta_proj, disparity_zeta = np.vectorize(matrix_project)(ratio0_zeta, ratio1_zeta, ln_cac1_zeta)
+x_theta_proj, y_theta_proj, z_theta_proj, disparity_theta = np.vectorize(matrix_project)(ratio0_theta, ratio1_theta, ln_cac1_theta)
+x_eta_proj, y_eta_proj, z_eta_proj, disparity_eta = np.vectorize(matrix_project)(ratio0_eta, ratio1_eta, ln_cac1_eta)
 
-# Plot
+# Plot without masking zeros (points at Z=0 if disparity=0)
 fig = plt.figure(figsize=(12, 10))
 ax = fig.add_subplot(111, projection='3d')
 
 # Plot Zeta
-ax.scatter(x_zeta_3d, y_zeta_3d, z_zeta_3d, c='orange', marker='D', label='Zeta')
+ax.scatter(x_zeta_proj, y_zeta_proj, z_zeta_proj, c='orange', marker='D', label='ζ Zeta (Reversing, N=12)')
 
 # Plot Theta
-ax.scatter(x_theta_3d, y_theta_3d, z_theta_3d, c='purple', marker='o', label='Theta')
+ax.scatter(x_theta_proj, y_theta_proj, z_theta_proj, c='purple', marker='o', label='θ Theta (Smaller CAC increase, N=23)')
 
 # Plot Eta
-ax.scatter(x_eta_3d, y_eta_3d, z_eta_3d, c='green', marker='s', label='Eta')
+ax.scatter(x_eta_proj, y_eta_proj, z_eta_proj, c='green', marker='s', label='η Eta (Larger CAC increase, N=17)')
 
-# Highlight your point
+# Highlight your point (in Theta)
 user_x = 0.772404
 user_index_theta = np.argmin(np.abs(ratio0_theta - user_x))
-ax.scatter(x_theta_3d[user_index_theta], y_theta_3d[user_index_theta], z_theta_3d[user_index_theta], c='magenta', marker='*', s=150, label='Your Point')
+ax.scatter(x_theta_proj[user_index_theta], y_theta_proj[user_index_theta], z_theta_proj[user_index_theta], c='magenta', marker='*', s=150, label='Your Point')
+
 
 # Add vectors for movement (length determined by magnitude of U,V,W; no 'length' param)
 arrow_length_scale = 0.5  # Adjust to make arrows shorter/longer
 mask_theta = disparity_theta != 0  # Skip zeros
-ax.quiver(x_theta_3d[mask_theta], y_theta_3d[mask_theta], z_theta_3d[mask_theta],
+ax.quiver(x_theta_proj[mask_theta], y_theta_proj[mask_theta], z_theta_proj[mask_theta],
           disparity_theta[mask_theta] * arrow_length_scale, 0, disparity_theta[mask_theta] * arrow_length_scale, 
           color='purple', arrow_length_ratio=0.3)
 
 # Repeat for Eta
 mask_eta = disparity_eta != 0
-ax.quiver(x_eta_3d[mask_eta], y_eta_3d[mask_eta], z_eta_3d[mask_eta],
+ax.quiver(x_eta_proj[mask_eta], y_eta_proj[mask_eta], z_eta_proj[mask_eta],
           disparity_eta[mask_eta] * arrow_length_scale, 0, disparity_eta[mask_eta] * arrow_length_scale, 
           color='green', arrow_length_ratio=0.3)
 
 # Repeat for Zeta
 mask_zeta = disparity_zeta != 0
-ax.quiver(x_zeta_3d[mask_zeta], y_zeta_3d[mask_zeta], z_zeta_3d[mask_zeta],
+ax.quiver(x_zeta_proj[mask_zeta], y_zeta_proj[mask_zeta], z_zeta_proj[mask_zeta],
           disparity_zeta[mask_zeta] * arrow_length_scale, 0, disparity_zeta[mask_zeta] * arrow_length_scale, 
           color='orange', arrow_length_ratio=0.3)
+
 
 ax.set_xlabel('Average Ratio')
 ax.set_ylabel('ln(CAC1 + 1)')
 ax.set_zlabel('Stereo Depth (Disparity x40)')
-ax.set_title('Stereo-Projected 3D Plot with Variable Vectors (Direction/Length by Disparity)')
+ax.set_title('Stereo-Projected 3D Plot of Plaque Regressions (Time Shift as Depth)')
 ax.legend()
-
 
 plt.show()

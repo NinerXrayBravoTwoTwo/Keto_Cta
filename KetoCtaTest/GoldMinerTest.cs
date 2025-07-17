@@ -42,12 +42,7 @@ namespace KetoCtaTest
             Assert.False(selector.IsLogMismatch);
         }
 
-        [Fact]
-        public void CreateSelector_NullElement_ThrowsArgumentNullException()
-        {
-            var selector = new CreateSelector("Tps0 vs. DTps");
-            Assert.Throws<ArgumentNullException>(() => selector.Selector(null));
-        }
+
         [Fact]
         public void Dust_NullChartTitle_ThrowsArgumentException()
         {

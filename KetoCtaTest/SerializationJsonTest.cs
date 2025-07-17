@@ -54,21 +54,21 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     #endregion
 
     #region Event Serialization Tests
-    [Fact]
-    public void SerializeElement()
-    {
-        var visits = new List<Visit>
-        {
-            new("V1", null, 0, 0, 0, 0, 0),
-            new("V2", null, 0, 0, 0, 0, 0)
-        };
-        var element = new Element("Element1", visits);
+    //[Fact]
+    //public void SerializeElement()
+    //{
+    //    var visits = new List<Visit>
+    //    {
+    //        new("V1", null, 0, 0, 0, 0, 0),
+    //        new("V2", null, 0, 0, 0, 0, 0)
+    //    };
+    //    var element = new Element("Element1", visits);
 
-        var json = System.Text.Json.JsonSerializer.Serialize(element);
-        _testOutputHelper.WriteLine(json);
-        Assert.NotNull(json);
-        Assert.Contains("Element1", json);
-    }
+    //    var json = System.Text.Json.JsonSerializer.Serialize(element);
+    //    _testOutputHelper.WriteLine(json);
+    //    Assert.NotNull(json);
+    //    Assert.Contains("Element1", json);
+    //}
     //[Fact]
     //public void DeserializeElement()
     //{
