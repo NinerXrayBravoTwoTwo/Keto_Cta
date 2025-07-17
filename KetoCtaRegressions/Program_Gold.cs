@@ -228,7 +228,7 @@ while (true)
 {
     var command = Console.ReadLine()?.Trim();
 
-    if (string.IsNullOrEmpty(command) || IsMatch(command, @"^(exit|quit|end)$", RegexOptions.IgnoreCase))
+    if (string.IsNullOrEmpty(command) || IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
         break;
 
     if (!string.IsNullOrWhiteSpace(command))
