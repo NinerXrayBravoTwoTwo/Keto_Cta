@@ -2,6 +2,7 @@
 using Keto_Cta;
 using LinearRegression;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -93,7 +94,7 @@ foreach (var visit0 in visit)
 #region Add regression charts
 
 var inverseRatiosIncluded = 0;
-foreach (var chart in MyMine.RatioCharts(out  inverseRatiosIncluded))
+foreach (var chart in MyMine.RatioCharts(out inverseRatiosIncluded))
 {
     try
     {
@@ -244,9 +245,25 @@ while (true)
                 Console.WriteLine(item);
             }
         }
-        if (IsMatch(command, @"print\s*gamma", RegexOptions.IgnoreCase))
+        else if (IsMatch(command, @"print\s*gamma", RegexOptions.IgnoreCase))
         {
             var myData = MyMine.PrintOmegaElements(SetName.Omega);
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+        }
+        else if (IsMatch(command, @"print\s*matrix", RegexOptions.IgnoreCase))
+        {
+            var myData = MyMine.PrintStatisticMatrix(SetName.Omega);
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+        }
+        else if (IsMatch(command, @"print\s*all\s*matrix", RegexOptions.IgnoreCase))
+        {
+            var myData = MyMine.PrintAllSetMatrix();
             foreach (var item in myData)
             {
                 Console.WriteLine(item);

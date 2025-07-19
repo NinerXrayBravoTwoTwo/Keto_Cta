@@ -227,78 +227,10 @@ public class GoldMiner
 
     }
 
-    //    // Process ratio charts
-    //    var ratioCombinations = new List<(string num, string denom)>();
-    //    foreach (var num in visitBaseline.Concat(elementDelta))
-    //    {
-    //        foreach (var denom in visitBaseline.Concat(elementDelta))
-    //        {
-    //            if (num != denom) ratioCombinations.Add((num, denom));
-    //        }
-    //    }
-
-    //    foreach (var (num, denom) in ratioCombinations)
-    //    {
-    //        foreach (var dep in elementDelta)
-    //        {
-    //            var ratio = $"{num}/{denom}";
-    //            var inverseRatio = $"{denom}/{num}";
-    //            var chart = $"{ratio} vs. {dep}";
-
-    //            if (_processedRatios.Contains(inverseRatio))
-    //            {
-    //                skipped.Add((chart, "Inverse ratio already processed"));
-    //                continue;
-    //            }
-
-    //            try
-    //            {
-    //                if (!_selectorCache.TryGetValue(chart, out var selector))
-    //                {
-    //                    selector = new CreateSelector(chart);
-    //                    _selectorCache[chart] = selector;
-    //                }
-
-    //                _processedRatios.Add(ratio);
-
-    //                if (selector.IsLogMismatch)
-    //                {
-    //                    skipped.Add((chart, "Logarithmic mismatch"));
-    //                    continue;
-    //                }
-
-    //                var dust = Dust(SetName.Omega, chart);
-    //                if (dust != null)
-    //                {
-    //                    dusts.Add(dust);
-    //                    Console.WriteLine(
-    //                        $"Generated: {chart}, Set: {dust.SetName}, Slope: {dust.Regression.Slope:F2}, P-value: {dust.Regression.PValue():F4}, DataPoints: {dust.Regression.DataPointsCount()}");
-    //                }
-    //                else
-    //                {
-    //                    skipped.Add((chart, "Null dust (insufficient data points)"));
-    //                }
-    //            }
-    //            catch (ArgumentException ex)
-    //            {
-    //                Console.WriteLine($"Failed to create Dust for {chart}: {ex.Message}");
-    //                skipped.Add((chart, $"Invalid chart title: {ex.Message}"));
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                Console.WriteLine($"Unexpected error for {chart}: {ex.Message}");
-    //                skipped.Add((chart, $"Unexpected error: {ex.Message}"));
-    //            }
-    //        }
-    //    }
-
-    //    Console.WriteLine($"Generated {dusts.Count} regressions, skipped {skipped.Count}: {string.Join("; ", skipped.Select(s => $"{s.chart} ({s.reason})"))}");
-    //    return dusts.ToArray();
-    //}
 
     public Dust? Dust(SetName setName, string chartTitle)
     {
-        if (!_setNameToData.TryGetValue(setName, out var data) || data == null || data.Length == 0)
+        if (!_setNameToData.TryGetValue(setName, out var data) || data.Length == 0)
         {
             Console.WriteLine($"No data for set {setName} in chart {chartTitle}");
             return null;
@@ -330,16 +262,18 @@ public class GoldMiner
 
         if (!_setNameToData.TryGetValue(setName, out var elements))
         {
-            return Array.Empty<string>();
+            return [];
         }
-        List<string> myData = new List<string>
-        {
+
+        List<string> myData =
+        [
             "index, DCac, DNCpv, LnDCac, LnDNcpv, " +
             "Cac0, Cac1, LnCac0, LnCac1, " +
             "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, " +
             "Cac0/Ncpv0, Cac0/Ncpv1, " +
             "Ln/LnNcpv0, LnCac0/LnNcpv1, Set"
-        };
+        ];
+
         foreach (var item in elements)
         {
             myData.Add(
@@ -364,25 +298,95 @@ public class GoldMiner
 
         if (!_setNameToData.TryGetValue(setName, out var elements))
         {
-            return Array.Empty<string>();
+            return [];
         }
 
-        List<string> myData = new List<string>();
+        List<string> myData =
+        [
+            "index, DPav, LnDPav, LnPav0, LnPav1, LnNcpv0, LnNcpv1, " +
+            "LnPav0/LnNcpv0, LnPav0/LnNcpv1, LnPav1/LnNcpv1, Set"
+        ];
 
-        myData.Add("index, DPav, LnDPav, LnPav0, LnPav1, LnNcpv0, LnNcpv1, " +
-                   "LnPav0/LnNcpv0, LnPav0/LnNcpv1, LnPav1/LnNcp1, " +
-                   "Set"
-                                   );
 
-        myData.AddRange(elements.Select(item => $"{item.Id}, {item.DPav}, {item.LnDPav}, {item.Visits[0].LnPav}, {item.Visits[1].LnPav}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
-                                             $"{item.Visits[0].Pav / item.Visits[0].Ncpv}, {item.Visits[0].Pav / item.Visits[1].Ncpv}, " +
-                                             $"{item.Visits[1].LnPav / item.Visits[1].LnNcpv}, {item.MemberSet}"));
+        myData.AddRange(elements.Select(item =>
+            $"{item.Id}, {item.DPav}, {item.LnDPav}, {item.Visits[0].LnPav}, {item.Visits[1].LnPav}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
+            $"{item.Visits[0].Pav / item.Visits[0].Ncpv}, {item.Visits[0].Pav / item.Visits[1].Ncpv}, " +
+            $"{item.Visits[1].LnPav / item.Visits[1].LnNcpv}, {item.MemberSet}"));
+        return myData.ToArray();
+    }
+
+    public string[] PrintAllSetMatrix()
+    {
+        List<string> myData = [];
+
+        myData.AddRange(PrintStatisticMatrix(SetName.Omega, true));
+        myData.AddRange(PrintStatisticMatrix(SetName.Eta, false));
+        myData.AddRange(PrintStatisticMatrix(SetName.Theta, false));
+        myData.AddRange(PrintStatisticMatrix(SetName.Gamma, false));
+        myData.AddRange(PrintStatisticMatrix(SetName.Zeta, false));
+
+        return myData.ToArray();
+    }
+
+    public string[] PrintStatisticMatrix(SetName setName, bool header = true)
+    {
+
+        if (!_setNameToData.TryGetValue(setName, out var elements))
+        {
+            return [];
+        }
+        // if header is true, add header row
+        List<string> myData = header
+            ?
+            [
+                "Chart, Set, N=, Mean X, Mean Y, SD X, SD Y, " +
+                "Annual Change (Slope), Y-Intercept, Max X, Max Y, Min X, Min Y, p-value"
+            ]
+            : [];
+
+
+        string[] chartTitles = ["Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1"];
+
+        RegressionPvalue regression;
+        foreach (var chart in chartTitles)
+        {
+
+            switch (chart)
+            {
+                case "Cac0 vs. Cac1":
+                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Cac, e.Visits[1].Cac));
+                    break;
+                case "Tps0 vs. Tps1":
+                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Tps, e.Visits[1].Tps));
+                    break;
+                case "Ncpv0 vs. Ncpv1":
+                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Ncpv, e.Visits[1].Ncpv));
+                    break;
+                case "Tcpv0 vs. Tcpv1":
+                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Tcpv, e.Visits[1].Tcpv));
+                    break;
+                case "Pav0 vs. Pav1":
+                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Pav, e.Visits[1].Pav));
+                    break;
+                default:
+                    regression = new RegressionPvalue(); // Default empty regression
+                    break;
+
+            }
+            
+
+            myData.Add($"{chart}, {setName}, {regression.N}, {regression.MeanX():F5}, {regression.MeanY():F5}, {regression.Qx():F5},  {regression.Qy():F5}, " +
+                       $"{regression.Slope():F5}, {regression.YIntercept():F5}, " +
+                       $"{regression.MaxX:F5}, {regression.MaxY:F5}, {regression.MinX:F5}, {regression.MinY:F5}, {regression.PValue():F5}");
+        }
+
+
+
         return myData.ToArray();
     }
 
     public IEnumerable<string> RatioCharts()
     {
-        var throwawaymetric = 0;
-        return RatioCharts(out throwawaymetric);
+        return RatioCharts(out _);
     }
 }
