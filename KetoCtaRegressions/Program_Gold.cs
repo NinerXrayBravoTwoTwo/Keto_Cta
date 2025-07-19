@@ -91,7 +91,9 @@ foreach (var visit0 in visit)
 #endregion
 
 #region Add regression charts
-foreach (var chart in MyMine.RatioCharts())
+
+var inverseRatiosIncluded = 0;
+foreach (var chart in MyMine.RatioCharts(out  inverseRatiosIncluded))
 {
     try
     {
@@ -131,6 +133,7 @@ foreach (var dust in sortedDust)
 }
 Console.WriteLine($"\nTotal regressions calculated {totalRegressions}");
 Console.WriteLine($"Log mismatch regressions skipped: {logMismatch}");
+Console.WriteLine($"Inverse Ratio regressions included: {inverseRatiosIncluded}");
 Console.WriteLine($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {uninterestingSkip}");
 Console.WriteLine($"Total interesting regressions: {Dust.Count(d => d.IsInteresting)}");
 Console.WriteLine($"Interesting remaining regressions: {index}");
@@ -233,9 +236,17 @@ while (true)
 
     if (!string.IsNullOrWhiteSpace(command))
     {
-        if (IsMatch(command, @"print", RegexOptions.IgnoreCase))
+        if (IsMatch(command, @"print\s*cac", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintBetaUZetaElements();
+            var myData = MyMine.PrintBetaUZetaElements(SetName.BetaUZeta);
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+        }
+        if (IsMatch(command, @"print\s*gamma", RegexOptions.IgnoreCase))
+        {
+            var myData = MyMine.PrintOmegaElements(SetName.Omega);
             foreach (var item in myData)
             {
                 Console.WriteLine(item);

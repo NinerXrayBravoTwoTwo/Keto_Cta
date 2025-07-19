@@ -1,7 +1,8 @@
-﻿using System.Text;
+﻿using DataMiner;
+using Keto_Cta;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
-
-namespace DataMiner;
 
 public class SimpleVariableDicer : BaseVariableDicer
 {
@@ -26,17 +27,14 @@ public class SimpleVariableDicer : BaseVariableDicer
         {
             varSb.Append("Ln");
             IsLogarithmic = true;
-            if (isDelta)
-                sbRoot.Append("LnD"); // For LnDCac, RootAttribute is LnDCac
-            else
-                sbRoot.Append("Ln");
+            sbRoot.Append(isDelta ? "LnD" : "Ln");
         }
 
         if (isDelta)
         {
             varSb.Append('D');
             if (!IsLogarithmic)
-                sbRoot.Append('D'); // For DCac, RootAttribute is DCac
+                sbRoot.Append('D');
             IsDelta = true;
         }
 
@@ -47,10 +45,9 @@ public class SimpleVariableDicer : BaseVariableDicer
         }
 
         IsVisit = match.Groups[4].Success && !string.IsNullOrEmpty(match.Groups[4].Value);
-        var visitIndex = IsVisit ? match.Groups[4].Value : "0"; // Default to Visits[0] if no index
+        var visitIndex = IsVisit ? match.Groups[4].Value : "0";
 
-        // Delta properties (D or LnD) are on Element, not Visit
-        if (isDelta || IsLogarithmic && varSb.ToString().StartsWith("LnD"))
+        if (isDelta && !IsVisit || IsLogarithmic && varSb.ToString().StartsWith("LnD") && !IsVisit)
         {
             Target = varSb.ToString();
             RootAttribute = sbRoot.ToString();

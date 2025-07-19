@@ -8,9 +8,11 @@ public class GoldMiner
 {
     public GoldMiner(string path)
     {
-        var elements = ReadCsvFile(path) ?? throw new ArgumentException("CSV file returned null elements.", nameof(path));
+        var elements = ReadCsvFile(path) ??
+                       throw new ArgumentException("CSV file returned null elements.", nameof(path));
 
-        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Omega = elements.Where(e =>
+            e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
         Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
@@ -74,6 +76,7 @@ public class GoldMiner
                 Console.WriteLine($"Skipping line {index + 1}: invalid number format ({ex.Message}).");
             }
         }
+
         return list;
     }
 
@@ -96,6 +99,7 @@ public class GoldMiner
                 continue;
             }
         }
+
         return new RegressionPvalue(dataPoints);
     }
 
@@ -119,6 +123,7 @@ public class GoldMiner
                 continue;
             }
         }
+
         return new RegressionPvalue(dataPoints);
     }
 
@@ -158,10 +163,11 @@ public class GoldMiner
 
             }
         }
+
         return chartList;
     }
 
-    public List<string> RatioCharts()
+    public List<string> RatioCharts(out int inverseIncluded)
     {
         var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
         var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
@@ -172,46 +178,51 @@ public class GoldMiner
             bothVisits.Add($"{visit}0");
             bothVisits.Add($"{visit}1");
         }
+
         var allAttributes = elementAttributes.Concat(bothVisits).ToList();
 
         Dictionary<string, string> chartMap = new Dictionary<string, string>();
         var inverseDetected = 0;
         var dependentInRatio = 0;
         var numEqualDenom = 0;
+        bool isSkipInverse = true;
 
         foreach (var numerator in allAttributes)
         {
             foreach (var denominator in allAttributes)
             {
-                if (numerator != denominator)
+                if (numerator == denominator) continue; // skip 
+
+                foreach (var dependent in allAttributes)
                 {
-                    foreach (var dependent in allAttributes)
-                    {
-                        // no ratios with dependent in regressor
-                        if (dependent == numerator || dependent == denominator)
-                        {
-                            dependentInRatio++;
-                            continue;
-                        }
+                    // no ratios with dependent in regressor
+                    //if (dependent == numerator || dependent == denominator)
+                    //{
+                    //    dependentInRatio++;
+                    //    continue;
+                    //}
 
-                        if (numerator.Equals(denominator))
-                        {
-                            numEqualDenom++;
-                            continue; // skip self-ratio of identity
-                        }
+                    //if (numerator.Equals(denominator))
+                    //{
+                    //    numEqualDenom++;
+                    //    continue; // skip self-ratio of identity
+                    //}
 
-                        var chart = $"{numerator} / {denominator} vs. {dependent}";
-                        string[] reg = [numerator, denominator];
-                        var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
+                    var chart = $"{numerator} / {denominator} vs. {dependent}";
+                    string[] reg = [numerator, denominator];
+                    var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
 
-                        if (!chartMap.TryAdd(key, chart))
-                            inverseDetected++;
-                    }
+                    if (chartMap.TryAdd(key, chart)) continue;
+
+                    inverseDetected++;
+                    chartMap.TryAdd(string.Join(',', reg) + $",{dependent}", chart);
                 }
-
             }
+
         }
 
+
+        inverseIncluded = inverseDetected;
         return chartMap.Select(kvp => kvp.Value).ToList();
 
     }
@@ -314,17 +325,22 @@ public class GoldMiner
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
 
-    public string[] PrintBetaUZetaElements()
+    public string[] PrintBetaUZetaElements(SetName setName)
     {
-        List<string> myData = new List<string>();
 
-        myData.Add("index, DCac, DNCpv, LnDCac, LnDNcpv, " +
-                    "Cac0, Cac1, LnCac0, LnCac1, " +
-                    "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, " +
-                    "Cac0/Ncpv0, Cac0/Ncpv1, " +
-                    "LnCac0/LnNcpv0, LnCac0/LnNcpv1, Set"
-                                   );
-        foreach (var item in BetaUZeta)
+        if (!_setNameToData.TryGetValue(setName, out var elements))
+        {
+            return Array.Empty<string>();
+        }
+        List<string> myData = new List<string>
+        {
+            "index, DCac, DNCpv, LnDCac, LnDNcpv, " +
+            "Cac0, Cac1, LnCac0, LnCac1, " +
+            "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, " +
+            "Cac0/Ncpv0, Cac0/Ncpv1, " +
+            "Ln/LnNcpv0, LnCac0/LnNcpv1, Set"
+        };
+        foreach (var item in elements)
         {
             myData.Add(
                 $"{item.Id}, {item.DCac}, {item.DNcpv}, {item.LnDCac}, {item.LnDNcpv}, " +
@@ -332,8 +348,41 @@ public class GoldMiner
                 $"{item.Visits[0].Ncpv}, {item.Visits[1].Ncpv}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
                 $"{item.Visits[0].Cac / item.Visits[0].Ncpv},  {item.Visits[0].Cac / item.Visits[1].Ncpv}, " +
                 $"{item.Visits[0].LnCac / item.Visits[0].LnNcpv},  {item.Visits[0].LnCac / item.Visits[1].LnNcpv}, {item.MemberSet}"
-                    );
+            );
         }
         return myData.ToArray();
+    }
+
+    public string[] PrintOmegaElements(SetName setName)
+    {
+        // LnPav0 / LnNcpv0 vs. LnDPav -- Alpha
+        // LnPav0 / LnNcpv1 vs. LnDPav -- Alpha
+        // LnPav1 / LnNcpv1 vs. LnDPav -- Alpha
+
+        // LnPav0 / LnNcpv0 vs. LnPav1 -- Alpha
+        // LnPav0 / LnNcpv1 vs. LnPav1 -- Alpha
+
+        if (!_setNameToData.TryGetValue(setName, out var elements))
+        {
+            return Array.Empty<string>();
+        }
+
+        List<string> myData = new List<string>();
+
+        myData.Add("index, DPav, LnDPav, LnPav0, LnPav1, LnNcpv0, LnNcpv1, " +
+                   "LnPav0/LnNcpv0, LnPav0/LnNcpv1, LnPav1/LnNcp1, " +
+                   "Set"
+                                   );
+
+        myData.AddRange(elements.Select(item => $"{item.Id}, {item.DPav}, {item.LnDPav}, {item.Visits[0].LnPav}, {item.Visits[1].LnPav}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
+                                             $"{item.Visits[0].Pav / item.Visits[0].Ncpv}, {item.Visits[0].Pav / item.Visits[1].Ncpv}, " +
+                                             $"{item.Visits[1].LnPav / item.Visits[1].LnNcpv}, {item.MemberSet}"));
+        return myData.ToArray();
+    }
+
+    public IEnumerable<string> RatioCharts()
+    {
+        var throwawaymetric = 0;
+        return RatioCharts(out throwawaymetric);
     }
 }

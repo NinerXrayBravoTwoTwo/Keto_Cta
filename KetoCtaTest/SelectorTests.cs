@@ -7,6 +7,59 @@ namespace KetoCtaTest
 {
     public class SelectorTest(ITestOutputHelper testOutputHelper)
     {
+
+
+        [Fact]
+        public void CreateSelector_ValidRatio_SetsProperties()
+        {
+            var selector = new CreateSelector("Cac0/Ncpv0 vs. LnCac1");
+            Assert.True(selector.IsRatio);
+            Assert.Equal("Cac0", selector.Numerator?.VariableName);
+            Assert.Equal("Ncpv0", selector.Denominator?.VariableName);
+            Assert.Equal("LnCac1", selector.DependantDicer.VariableName);
+            Assert.False(selector.IsLogMismatch);
+        }
+
+        [Fact]
+        public void CreateSelector_LogMismatch_Detected()
+        {
+            var selector = new CreateSelector("LnCac0/Ncpv0 vs. Cac1");
+            Assert.True(selector.IsLogMismatch);
+        }
+
+        [Fact]
+        public void CreateSelector_SameVariables_Throws()
+        {
+            Assert.Throws<ArgumentException>(() => new CreateSelector("Cac0 vs. Cac0"));
+        }
+
+        [Fact]
+        public void SimpleVariableDicer_ValidInput_SetsProperties()
+        {
+            var dicer = new SimpleVariableDicer("LnDCac1");
+            Assert.Equal("LnDCac", dicer.RootAttribute);
+            Assert.Equal("LnDCac", dicer.Target);
+            Assert.True(dicer.IsLogarithmic);
+            Assert.True(dicer.IsDelta);
+            Assert.True(dicer.IsVisit);
+        }
+        [Fact]
+        public void RatioVariableDicer_ValidInput_SetsProperties()
+        {
+            var dicer = new RatioVariableDicer("LnDCac1 / LnNcvp1");
+            Assert.Equal("LnDCac    ", dicer.Target);
+            Assert.Equal("LnDCac", dicer.RootAttribute);
+            Assert.True(dicer.IsLogarithmic);
+            Assert.True(dicer.IsDelta);
+            Assert.True(dicer.IsVisit);
+        }
+
+
+        [Fact]
+        public void SimpleVariableDicer_InvalidInput_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SimpleVariableDicer("InvalidVariable"));
+        }
         [Fact]
         public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
         {
