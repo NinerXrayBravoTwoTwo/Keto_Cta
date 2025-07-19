@@ -25,21 +25,11 @@ public record Visit
         Tcpv = tcpv;
         Pav = pav;
 
-        LnTps = Ln(Tps);
-        LnCac = Ln(Cac);
-        LnNcpv = Ln(Ncpv);
-        LnTcpv = Ln(Tcpv);
-        LnPav = Ln(Pav);
-
-        if (Ncpv == 0)
-        {
-            RatioCacNcpv = LnRatioCacNcpv = double.NaN;
-        }
-        else
-        {
-            RatioCacNcpv = cac / ncpv;
-            LnRatioCacNcpv = Ln(RatioCacNcpv);
-        }
+        LnTps = Ln(tps);
+        LnCac = Ln(cac);
+        LnNcpv = Ln(ncpv);
+        LnTcpv = Ln(tcpv);
+        LnPav = Ln(pav);
     }
 
     internal static double Ln(double value)
@@ -61,10 +51,6 @@ public record Visit
     public double LnTcpv { get; init; }
     public double LnPav { get; init; }
 
-
-    public double RatioCacNcpv { get; init; }
-    public double LnRatioCacNcpv { get; init; }
-    
     public override string ToString()
     {
         return
