@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Keto_Cta;
+﻿using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -147,7 +146,7 @@ public class GoldMiner
         var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
         var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
-        Console.WriteLine("Index, Title, Set, Slope, P-value, Correlation");
+        Console.WriteLine("Index,Title,Set,Slope,P-value,Correlation");
         Console.WriteLine($"Processing {visitBaseline.Length * elementDelta.Length} combinations...");
 
         List<string> chartList = new List<string>();
@@ -267,27 +266,22 @@ public class GoldMiner
 
         List<string> myData =
         [
-            "index, DCac, DNCpv, LnDCac, LnDNcpv, " +
-            "Cac0, Cac1, LnCac0, LnCac1, " +
-            "Ncpv0, Ncpv1, LnNcpv0, LnNcpv1, " +
-            "Cac0/Ncpv0, Cac0/Ncpv1, " +
-            "Ln/LnNcpv0, LnCac0/LnNcpv1, Set"
+            "index,DCac,DNCpv,LnDCac,LnDNcpv," +
+            "Cac0,Cac1,LnCac0,LnCac1," +
+            "Ncpv0,Ncpv1,LnNcpv0,LnNcpv1," +
+            "Cac0/Ncpv0,Cac0/Ncpv1," +
+            "Ln/LnNcpv0,LnCac0/LnNcpv1,Set"
         ];
+        myData.AddRange(elements.Select(item => $"{item.Id},{item.DCac},{item.DNcpv},{item.LnDCac},{item.LnDNcpv},"
+                    + $"{item.Visits[0].Cac},{item.Visits[1].Cac},{item.Visits[0].LnCac},{item.Visits[1].LnCac},"
+                    + $"{item.Visits[0].Ncpv},{item.Visits[1].Ncpv},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},"
+                    + $"{item.Visits[0].Cac / item.Visits[0].Ncpv},{item.Visits[0].Cac / item.Visits[1].Ncpv},"
+                    + $"{item.Visits[0].LnCac / item.Visits[0].LnNcpv},{item.Visits[0].LnCac / item.Visits[1].LnNcpv},{item.MemberSet}"));
 
-        foreach (var item in elements)
-        {
-            myData.Add(
-                $"{item.Id}, {item.DCac}, {item.DNcpv}, {item.LnDCac}, {item.LnDNcpv}, " +
-                $"{item.Visits[0].Cac}, {item.Visits[1].Cac}, {item.Visits[0].LnCac}, {item.Visits[1].LnCac}, " +
-                $"{item.Visits[0].Ncpv}, {item.Visits[1].Ncpv}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
-                $"{item.Visits[0].Cac / item.Visits[0].Ncpv},  {item.Visits[0].Cac / item.Visits[1].Ncpv}, " +
-                $"{item.Visits[0].LnCac / item.Visits[0].LnNcpv},  {item.Visits[0].LnCac / item.Visits[1].LnNcpv}, {item.MemberSet}"
-            );
-        }
         return myData.ToArray();
     }
 
-    public string[] PrintOmegaElements(SetName setName)
+    public string[] PrintOmegaElementsFor3DGammaStudy(SetName setName)
     {
         // LnPav0 / LnNcpv0 vs. LnDPav -- Alpha
         // LnPav0 / LnNcpv1 vs. LnDPav -- Alpha
@@ -303,15 +297,146 @@ public class GoldMiner
 
         List<string> myData =
         [
-            "index, DPav, LnDPav, LnPav0, LnPav1, LnNcpv0, LnNcpv1, " +
-            "LnPav0/LnNcpv0, LnPav0/LnNcpv1, LnPav1/LnNcpv1, Set"
+            "index,DPav,LnDPav,LnPav0,LnPav1,LnNcpv0,LnNcpv1," +
+            "LnPav0/LnNcpv0,LnPav0/LnNcpv1,LnPav1/LnNcpv1,Set"
         ];
 
 
         myData.AddRange(elements.Select(item =>
-            $"{item.Id}, {item.DPav}, {item.LnDPav}, {item.Visits[0].LnPav}, {item.Visits[1].LnPav}, {item.Visits[0].LnNcpv}, {item.Visits[1].LnNcpv}, " +
-            $"{item.Visits[0].Pav / item.Visits[0].Ncpv}, {item.Visits[0].Pav / item.Visits[1].Ncpv}, " +
-            $"{item.Visits[1].LnPav / item.Visits[1].LnNcpv}, {item.MemberSet}"));
+            $"{item.Id},{item.DPav},{item.LnDPav},{item.Visits[0].LnPav},{item.Visits[1].LnPav},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv}," +
+            $"{item.Visits[0].Pav / item.Visits[0].Ncpv},{item.Visits[0].Pav / item.Visits[1].Ncpv}," +
+            $"{item.Visits[1].LnPav / item.Visits[1].LnNcpv},{item.MemberSet}"));
+
+        var ratio0_gamma = new List<string>();
+        var ratio1_gamma = new List<string>();
+        var ln_pav1_gamma = new List<string>();
+        var x_gamma = new List<string>();
+        var y_gamma = new List<string>();
+        var z_gamma = new List<string>();
+
+        var ratio0_theta = new List<string>();
+        var ratio1_theta = new List<string>();
+        var ln_pav1_theta = new List<string>();
+        var x_theta = new List<string>();
+        var y_theta = new List<string>();
+        var z_theta = new List<string>();
+
+        var ratio0_eta = new List<string>();
+        var ratio1_eta = new List<string>();
+        var ln_pav1_eta = new List<string>();
+        var x_eta = new List<string>();
+        var y_eta = new List<string>();
+        var z_eta = new List<string>();
+
+        var ratio0_zeta = new List<string>();
+        var ratio1_zeta = new List<string>();
+        var ln_pav1_zeta = new List<string>();
+        var x_zeta = new List<string>();
+        var y_zeta = new List<string>();
+        var z_zeta = new List<string>();
+
+
+
+        // Build 3D graphic
+        //
+        // # LnPav0 / LnNcpv0 vs. LnPav1 -- Alpha
+        // # Slope; 6.7999 N=88 R^2: 0.9575 p-value: 0.000010 y-int -0.0016
+        // 
+        // # LnPav0 / LnNcpv1 vs. LnPav1 -- Alpha
+        // # Slope; 7.0345 N=88 R^2: 0.9490 p-value: 0.000051 y-int 0.0004
+        //
+        //  Gamma data
+        //# ratio0_gamma = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
+        //# ratio1_gamma = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
+        //# ln_pav1_gamma = np.array([1.0, 1.5, 2.0, 2.5, 3.0])  # Example data for Gamma
+        foreach (var item in elements)
+        {
+            if (item.IsGamma)
+            {
+                ratio0_gamma.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                ratio1_gamma.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                ln_pav1_gamma.Add($"{item.Visits[1].LnPav:F8}");
+                x_gamma.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                y_gamma.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                z_gamma.Add($"{item.Visits[1].LnPav:F8}");
+
+                continue;
+            }
+
+            if (item.IsTheta)
+            {
+                ratio0_theta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                ratio1_theta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                ln_pav1_theta.Add($"{item.Visits[1].LnPav:F8}");
+                x_theta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                y_theta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                z_theta.Add($"{item.Visits[1].LnPav:F8}");
+
+                continue;
+            }
+            if (item.IsEta)
+            {
+                ratio0_eta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                ratio1_eta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                ln_pav1_eta.Add($"{item.Visits[1].LnPav:F8}");
+                x_eta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                y_eta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                z_eta.Add($"{item.Visits[1].LnPav:F8}");
+                continue;
+            }
+            if (item.IsZeta)
+            {
+                ratio0_zeta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                ratio1_zeta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                ln_pav1_zeta.Add($"{item.Visits[1].LnPav:F8}");
+                x_zeta.Add($"{item.Visits[0].LnPav / item.Visits[0].LnNcpv:F8}");
+                y_zeta.Add($"{item.Visits[0].LnPav / item.Visits[1].LnNcpv:F8}");
+                z_zeta.Add($"{item.Visits[1].LnPav:F8}");
+                continue;
+            }
+
+        }
+        myData.Add("\n# 3D Gamma data");
+        myData.Add($"x_gamma = np.array([" + string.Join(", ", x_gamma) + "])");
+        myData.Add($"y_gamma = np.array([" + string.Join(", ", y_gamma) + "])");
+        myData.Add($"z_gamma = np.array([" + string.Join(", ", z_gamma) + "])");
+
+        myData.Add("\n# 3D Theta data");
+        myData.Add($"x_theta = np.array([" + string.Join(", ", x_theta) + "])");
+        myData.Add($"y_theta = np.array([" + string.Join(", ", y_theta) + "])");
+        myData.Add($"z_theta = np.array([" + string.Join(", ", z_theta) + "])");
+
+        myData.Add("\n# 3D Eta data");
+        myData.Add($"x_eta = np.array([" + string.Join(", ", x_eta) + "])");
+        myData.Add($"y_eta = np.array([" + string.Join(", ", y_eta) + "])");
+        myData.Add($"z_eta = np.array([" + string.Join(", ", z_eta) + "])");
+
+        myData.Add("\n# 3D Zeta data");
+        myData.Add($"x_zeta = np.array([" + string.Join(", ", x_zeta) + "])");
+        myData.Add($"y_zeta = np.array([" + string.Join(", ", y_zeta) + "])");
+        myData.Add($"z_zeta = np.array([" + string.Join(", ", z_zeta) + "])");
+
+        // add Gamma data
+        myData.Add("\n# Gamma data");
+        myData.Add($"ratio0_gamma = np.array([" + string.Join(", ", ratio0_gamma) + "])");
+        myData.Add($"ratio1_gamma = np.array([" + string.Join(", ", ratio1_gamma) + "])");
+        myData.Add($"ln_pav1_gamma = np.array([" + string.Join(", ", ln_pav1_gamma) + "])");
+
+        myData.Add("\n# Theta data");
+        myData.Add($"ratio0_theta = np.array([" + string.Join(", ", ratio0_theta) + "])");
+        myData.Add($"ratio1_theta = np.array([" + string.Join(", ", ratio1_theta) + "])");
+        myData.Add($"ln_pav1_theta = np.array([" + string.Join(", ", ln_pav1_theta) + "])");
+
+        myData.Add("\n# Eta data");
+        myData.Add($"ratio0_eta = np.array([" + string.Join(", ", ratio0_eta) + "])");
+        myData.Add($"ratio1_eta = np.array([" + string.Join(", ", ratio1_eta) + "])");
+        myData.Add($"ln_pav1_eta = np.array([" + string.Join(", ", ln_pav1_eta) + "])");
+
+        myData.Add("\n# Zeta data");
+        myData.Add($"ratio0_zeta = np.array([" + string.Join(", ", ratio0_zeta) + "])");
+        myData.Add($"ratio1_zeta = np.array([" + string.Join(", ", ratio1_zeta) + "])");
+        myData.Add($"ln_pav1_zeta = np.array([" + string.Join(", ", ln_pav1_zeta) + "])");
+
         return myData.ToArray();
     }
 
@@ -339,8 +464,8 @@ public class GoldMiner
         List<string> myData = header
             ?
             [
-                "Chart, Set, N=, Mean X, Mean Y, SD X, SD Y, " +
-                "Annual Change (Slope), Y-Intercept, Max X, Max Y, Min X, Min Y, p-value"
+                "Chart,Set,N,Mean X,Mean Y,SD X,SD Y," +
+                "Annual Change (Slope),Y-Intercept,Max X,Max Y,Min X,Min Y,p-value"
             ]
             : [];
 
@@ -373,13 +498,41 @@ public class GoldMiner
                     break;
 
             }
-            
 
-            myData.Add($"{chart}, {setName}, {regression.N}, {regression.MeanX():F5}, {regression.MeanY():F5}, {regression.Qx():F5},  {regression.Qy():F5}, " +
-                       $"{regression.Slope():F5}, {regression.YIntercept():F5}, " +
-                       $"{regression.MaxX:F5}, {regression.MaxY:F5}, {regression.MinX:F5}, {regression.MinY:F5}, {regression.PValue():F5}");
+
+            myData.Add($"{chart},{setName},{regression.N},{regression.MeanX():F5},{regression.MeanY():F5},{regression.Qx():F5},  {regression.Qy():F5}, " +
+                       $"{regression.Slope():F5},{regression.YIntercept():F5}, " +
+                       $"{regression.MaxX:F5},{regression.MaxY:F5},{regression.MinX:F5},{regression.MinY:F5},{regression.PValue():F5}");
         }
 
+
+
+        return myData.ToArray();
+    }
+
+    public string[] PrintKetoCta(bool header = true)
+    {
+        if (!_setNameToData.TryGetValue(SetName.Omega, out var elements))
+        {
+            return [];
+        }
+        //V1_Total_Plaque_Score,V2_Total_Plaque_Score,V1_CAC,V2_CAC,V1_Non_Calcified_Plaque_Volume,V2_Non_Calcified_Plaque_Volume,V1_Total_Calcified_Plaque_Volume,V2_Total_Calcified_Plaque_Volume,V1_Percent_Atheroma_Volume,V2_Percent_Atheroma_Volume
+        // 
+        List<string> myData = header
+            ?
+            [
+                "Index,Set,"+
+                "Tps0,Tps1,Cac0,Cac1,Ncpv0,Ncpv1,Tcpv0,Tcpv1,Pav0,Pav1," +
+                "LnTps0,LnTps1,LnCac0,LnCac1,LnNcpv0,LnNcpv1,LnTcpv0,LnTcpv1,LnPav0,LnPav1," +
+                "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav"
+            ]
+            : [];
+
+        myData.AddRange(elements.Select(item =>
+            $"{item.Id},{item.MemberSet}," +
+            $"{item.Visits[0].Tps},{item.Visits[1].Tps},{item.Visits[0].Cac},{item.Visits[1].Cac},{item.Visits[0].Ncpv},{item.Visits[1].Ncpv},{item.Visits[0].Tcpv},{item.Visits[1].Tcpv},{item.Visits[0].Pav},{item.Visits[1].Pav}," +
+            $"{item.Visits[0].LnTps},{item.Visits[1].LnTps},{item.Visits[0].LnCac},{item.Visits[1].LnCac},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},{item.Visits[0].Pav},{item.Visits[0].LnTcpv},{item.Visits[1].LnTcpv},{item.Visits[0].LnPav},{item.Visits[1].LnPav}" +
+            $"{item.DTps},{item.DCac},{item.DNcpv},{item.DTcpv},{item.DPav},{item.LnDTps},{item.LnDCac},{item.LnDNcpv},{item.LnDTcpv},{item.LnDPav}"));
 
 
         return myData.ToArray();

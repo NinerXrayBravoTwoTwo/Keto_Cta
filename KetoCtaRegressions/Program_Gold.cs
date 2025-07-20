@@ -116,7 +116,7 @@ foreach (var chart in MyMine.RatioCharts(out inverseRatiosIncluded))
 
 #region Print regression Csv table
 Console.WriteLine($"In Order of PValue (Interesting Regressions Highlighted):");
-Console.WriteLine($"Index, Chart, Subset, N=, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
+Console.WriteLine($"Index, Chart, Subset, N, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
 var totalRegressions = 0;
 var index = 0;
 var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
@@ -212,7 +212,7 @@ void ChartToCvs(IEnumerable<Dust> dust)
         var dependent = parts[1];
 
         Console.WriteLine($"\n-,-,{dust1.ChartTitle} -- {dust1.SetName}" +
-                          $"\n-,-,Slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
+                          $"\n-,-,Slope: {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
         Console.WriteLine($"{regressor}, {dependent}");
         foreach (var point in target.DataPoints)
         {
@@ -247,7 +247,7 @@ while (true)
         }
         else if (IsMatch(command, @"print\s*gamma", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintOmegaElements(SetName.Omega);
+            var myData = MyMine.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
@@ -268,6 +268,15 @@ while (true)
             {
                 Console.WriteLine(item);
             }
+        }
+        else if (IsMatch(command, @"print\s*keto.*", RegexOptions.IgnoreCase))
+        {
+            var myData = MyMine.PrintKetoCta();
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+
         }
         else
         {
