@@ -12,7 +12,7 @@ public class Dust
         Regression = regression ?? throw new ArgumentNullException(nameof(regression));
     }
 
-    public Dust(SetName set, string title, CreateSelector selector)
+    public Dust(SetName set, string title)
     {
         SetName = set;
         ChartTitle = title;
