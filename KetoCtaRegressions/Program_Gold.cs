@@ -32,7 +32,7 @@ for (var x = 0; x < elementDelta.Length; x++)
                 }
                 Dust.AddRange(MyMine.GoldDust(chart));
             }
-            catch (ArgumentException error)
+            catch (ArgumentException)
             {
                 logMismatch++; // technically this is a regression against self error  
             }
@@ -57,7 +57,7 @@ for (var x = 0; x < visit.Length; x++)
         }
         Dust.AddRange(MyMine.GoldDust(chart));
     }
-    catch (ArgumentException error)
+    catch (ArgumentException)
     {
         logMismatch++;
     }
@@ -83,7 +83,7 @@ foreach (var visit0 in visit)
             }
             Dust.AddRange(MyMine.GoldDust(chart));
         }
-        catch (ArgumentException error)
+        catch (ArgumentException)
         {
             logMismatch++;
         }
@@ -107,7 +107,7 @@ foreach (var chart in MyMine.RatioCharts(out inverseRatiosIncluded))
         }
         Dust.AddRange(MyMine.GoldDust(chart));
     }
-    catch (ArgumentException error)
+    catch (ArgumentException)
     {
         logMismatch++;
     }
@@ -126,7 +126,6 @@ foreach (var dust in sortedDust)
     if (dust.IsInteresting)
     {
         var reg = dust.Regression;
-        var interestingString = dust.IsInteresting ? "Yes" : "-";
         Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                           + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
                           + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
@@ -155,14 +154,14 @@ var histograms = new Dictionary<SetName, int[]>
 
 var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
 {
-    { SetName.Omega, new List<(double, double)>() },
-    { SetName.Alpha, new List<(double, double)>() },
-    { SetName.Beta, new List<(double, double)>() },
-    { SetName.Zeta, new List<(double, double)>() },
-    { SetName.Gamma, new List<(double, double)>() },
-    { SetName.Theta, new List<(double, double)>() },
-    { SetName.Eta, new List<(double, double)>() },
-    { SetName.BetaUZeta, new List<(double, double)>() }
+    { SetName.Omega, [] },
+    { SetName.Alpha, [] },
+    { SetName.Beta, [] },
+    { SetName.Zeta, [] },
+    { SetName.Gamma, [] },
+    { SetName.Theta, [] },
+    { SetName.Eta, [] },
+    { SetName.BetaUZeta, [] }
 };
 
 foreach (var dust in Dust)

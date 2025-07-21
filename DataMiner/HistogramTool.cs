@@ -7,15 +7,15 @@ class HistogramTool
     static void Main(string[] args)
     {
         var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
-        var MyMine = new GoldMiner(ctaDataPath);
-        var Dust = new List<Dust>();
+        var myMine = new GoldMiner(ctaDataPath);
+        var dusts = new List<Dust>();
 
         // Load all charts (example using Element Delta vs. Element Delta)
         var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
         for (int x = 0; x < elementDelta.Length; x++)
             for (int y = 0; y < elementDelta.Length; y++)
                 if (x != y)
-                    Dust.AddRange(MyMine.GoldDust($"{elementDelta[x]} vs. {elementDelta[y]}"));
+                    dusts.AddRange(myMine.GoldDust($"{elementDelta[x]} vs. {elementDelta[y]}"));
 
         // Histograms
         var histograms = new Dictionary<SetName, int[]>
@@ -31,21 +31,21 @@ class HistogramTool
         };
         var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
         {
-            { SetName.Omega, new List<(double, double)>() },
-            { SetName.Alpha, new List<(double, double)>() },
-            { SetName.Beta, new List<(double, double)>() },
-            { SetName.Zeta, new List<(double, double)>() },
-            { SetName.Gamma, new List<(double, double)>() },
-            { SetName.Theta, new List<(double, double)>() },
-            { SetName.Eta, new List<(double, double)>() },
-            { SetName.BetaUZeta, new List<(double, double)>() }
+            { SetName.Omega, [] },
+            { SetName.Alpha, [] },
+            { SetName.Beta, [] },
+            { SetName.Zeta, [] },
+            { SetName.Gamma, [] },
+            { SetName.Theta, [] },
+            { SetName.Eta, [] },
+            { SetName.BetaUZeta, [] }
         };
 
-        foreach (var dust in Dust)
+        foreach (var item in dusts)
         {
-            dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.Qx()));
-            var bucket = (int)(dust.Regression.PValue() * 5);
-            histograms[dust.SetName][Math.Min(bucket, 5)]++;
+            dataPoints[item.SetName].Add((item.Regression.PValue(), item.Regression.Qx()));
+            var bucket = (int)(item.Regression.PValue() * 5);
+            histograms[item.SetName][Math.Min(bucket, 5)]++;
         }
 
         // Export histograms to CSV
