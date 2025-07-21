@@ -1,31 +1,33 @@
 namespace Keto_Cta;
 
-/// <summary>
-///     The four current leaf sets of the Keto CTA data set in this subset partition
-///     set definitions
-/// 
-///       isZeta = v2.Tps < v1.Tps
-///            or v2.Cac < v1.Cac
-///            or v2.Ncpv < v1.Ncpv
-///            or v2.Tcpv < v1.Tcpv
-///            or v2.Pav < v1.Pav;
-///
-/// Definitions based on the provided sets and conditions:
-///     • Ω : All participants
-///     ◦ 100 participants
-///     • α : { x ∈ Ω | ¬isZeta(x) }
-///     ◦ 88 participants (CAC and TPS stable or increasing)
-///     • ζ : { x ∈ Ω | isZeta(x) }
-///     ◦ 12 participants (CAC or TPS decrease, “Unicorns”)
-///     • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
-///     ◦ 40 participants (non-zero CAC in α)
-///     • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
-///     ◦ 4 participants (zero CAC in α)
-///     • η : { x ∈ β | Δcac(x) &gt; 10 }
-///     ◦ 17 participants (larger CAC increase)
-///     • θ : { x ∈ β | Δcac(x) ≤ 10 }
-///     ◦ 23 participants (smaller CAC increase)
-/// </summary>
+
+
+// <summary>
+//     The four current leaf sets of the Keto CTA data set in this subset partition
+//     set definitions
+// 
+//       isZeta = v2.Tps < v1.Tps
+//            or v2.Cac < v1.Cac
+//            or v2.Ncpv < v1.Ncpv
+//            or v2.Tcpv < v1.Tcpv
+//            or v2.Pav < v1.Pav;
+//
+// Definitions based on the provided sets and conditions:
+//     • Ω : All participants
+//     ◦ 100 participants
+//     • α : { x ∈ Ω | ¬isZeta(x) }
+//     ◦ 88 participants (CAC and TPS stable or increasing)
+//     • ζ : { x ∈ Ω | isZeta(x) }
+//     ◦ 12 participants (CAC or TPS decrease, “Unicorns”)
+//     • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
+//     ◦ 40 participants (non-zero CAC in α)
+//     • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
+//     ◦ 4 participants (zero CAC in α)
+//     • η : { x ∈ β | Δcac(x) &gt; 10 }
+//     ◦ 17 participants (larger CAC increase)
+//     • θ : { x ∈ β | Δcac(x) ≤ 10 }
+//     ◦ 23 participants (smaller CAC increase)
+// </summary>
 public enum LeafSetName
 {
     Zeta = 1, // Unicorns
@@ -46,16 +48,16 @@ public enum SetName
     BetaUZeta = 7  // Beta union Zeta Eta and Theta are closely related to the Zeta set in terms of CAC
 }
 
-/// <summary>
-///     “Element”
-///     It depersonalizes the data, avoids implying transactional state,
-///     and aligns with the mathematical framework of your subset partition.
-///     The updated code reflects this change while maintaining the same
-///     functionality, ensuring clarity and precision in your terminology.
-///     I think this will make your project easier to reason about as it grows.
-///     It also avoids the potential confusion of using a term like "Participant" when the
-///     data does not actually contain personal information.
-/// </summary>
+// <summary>
+//     “Element”
+//     It depersonalizes the data, avoids implying transactional state,
+//     and aligns with the mathematical framework of your subset partition.
+//     The updated code reflects this change while maintaining the same
+//     functionality, ensuring clarity and precision in your terminology.
+//     I think this will make your project easier to reason about as it grows.
+//     It also avoids the potential confusion of using a term like "Participant" when the
+//     data does not actually contain personal information.
+// </summary>
 public class Element
 {
     /// <summary>
@@ -121,7 +123,8 @@ public class Element
         return (v2.Cac - v1.Cac) switch // Delta CAC
         {
             > 10 => LeafSetName.Eta,
-            <= 10 => LeafSetName.Theta
+            <= 10 => LeafSetName.Theta,
+            _ => throw new NotImplementedException()
         };
     }
 
