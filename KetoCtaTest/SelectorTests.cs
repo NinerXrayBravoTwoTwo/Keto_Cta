@@ -8,7 +8,6 @@ namespace KetoCtaTest
     public class SelectorTest(ITestOutputHelper testOutputHelper)
     {
 
-
         [Fact]
         public void CreateSelector_ValidRatio_SetsProperties()
         {
@@ -17,7 +16,7 @@ namespace KetoCtaTest
             Assert.Equal("Cac0", selector.Numerator?.VariableName);
             Assert.Equal("Ncpv0", selector.Denominator?.VariableName);
             Assert.Equal("LnCac1", selector.DependantDicer.VariableName);
-            Assert.False(selector.IsLogMismatch);
+            Assert.True(selector.IsLogMismatch);
         }
 
         [Fact]
@@ -37,8 +36,8 @@ namespace KetoCtaTest
         public void SimpleVariableDicer_ValidInput_SetsProperties()
         {
             var dicer = new SimpleVariableDicer("LnDCac1");
-            Assert.Equal("LnDCac", dicer.RootAttribute);
-            Assert.Equal("LnDCac", dicer.Target);
+            Assert.Equal("Visits[1].LnDCac", dicer.RootAttribute);
+            Assert.Equal("Visits[1].LnDCac", dicer.Target);
             Assert.True(dicer.IsLogarithmic);
             Assert.True(dicer.IsDelta);
             Assert.True(dicer.IsVisit);
@@ -46,9 +45,9 @@ namespace KetoCtaTest
         [Fact]
         public void RatioVariableDicer_ValidInput_SetsProperties()
         {
-            var dicer = new RatioVariableDicer("LnDCac1 / LnNcvp1");
-            Assert.Equal("LnDCac    ", dicer.Target);
-            Assert.Equal("LnDCac", dicer.RootAttribute);
+            var dicer = new RatioVariableDicer("LnDCac1 / LnNcpv1");
+            Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.Target);
+            Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.RootAttribute);
             Assert.True(dicer.IsLogarithmic);
             Assert.True(dicer.IsDelta);
             Assert.True(dicer.IsVisit);
@@ -72,7 +71,7 @@ namespace KetoCtaTest
         public void Dust_ValidSetNameAndChartTitle_ReturnsDust()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Assume test.csv populates datasets
-            var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
+            var dust = miner.AuDust(SetName.Omega, "Tps0 vs. DTps");
             Assert.NotNull(dust);
             Assert.Equal(SetName.Omega, dust.SetName);
             Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
@@ -83,7 +82,7 @@ namespace KetoCtaTest
         public void Dust_InvalidChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            var result = miner.Dust(SetName.Alpha, "Cac0");
+            var result = miner.AuDust(SetName.Alpha, "Cac0");
             Assert.Null(result);
         }
 
@@ -154,7 +153,7 @@ namespace KetoCtaTest
                                 continue;
                             }
 
-                            var result = goldMiner.Dust(SetName.Omega, chart);
+                            var result = goldMiner.AuDust(SetName.Omega, chart);
                             testOutputHelper.WriteLine($"{index++}; {result}");
                         }
                         catch (ArgumentException er)
@@ -197,7 +196,7 @@ namespace KetoCtaTest
                                             continue;
                                         }
 
-                                        var result = goldMiner.Dust(SetName.Omega, chart);
+                                        var result = goldMiner.AuDust(SetName.Omega, chart);
                                         index++;
                                         if (result.Regression.PValue() < 0.5)
                                             testOutputHelper.WriteLine($"{index}; {result}");
@@ -255,7 +254,7 @@ namespace KetoCtaTest
                 if (selector.IsRatio)
                 {
                     var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-                    var dust = goldMiner.Dust(SetName.Beta, chart);
+                    var dust = goldMiner.AuDust(SetName.Beta, chart);
 
                     var regression = dust.Regression;
                     testOutputHelper.WriteLine($"Regression for {chart}: {regression.PValue():F6}, {regression.Slope():F3}, {regression.N}");
@@ -289,41 +288,40 @@ namespace KetoCtaTest
             Dictionary<string, string> chartMap = new Dictionary<string, string>();
             var inverseDetected = 0;
             var dependentInRatio = 0;
-            var numEqualDenom = 0;
+            var numEqualDenominator = 0;
 
             foreach (var numerator in allAttributes)
             {
                 foreach (var denominator in allAttributes)
                 {
-                    if (numerator != denominator)
+                    if (numerator == denominator) continue; //Todo: Evaluate if bothneeded  
+
+                    foreach (var dependent in allAttributes)
                     {
-                        foreach (var dependent in allAttributes)
+                        // no ratios with dependent in regressor
+                        if (dependent == numerator || dependent == denominator)
                         {
-                            // no ratios with dependent in regressor
-                            if (dependent == numerator || dependent == denominator)
-                            {
-                                dependentInRatio++;
-                                continue;
-                            }
-
-                            if (numerator.Equals(denominator))
-                            {
-                                numEqualDenom++;
-                                continue; // skip self-ratio of identity
-                            }
-
-                            var chart = $"{numerator} / {denominator} vs. {dependent}";
-                            string[] reg = [numerator, denominator];
-                            var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
-
-                            if (!chartMap.TryAdd(key, chart))
-                                inverseDetected++;
+                            dependentInRatio++;
+                            continue;
                         }
+
+                        if (numerator.Equals(denominator)) //Todo
+                        {
+                            numEqualDenominator++;
+                            continue; // skip self-ratio of identity
+                        }
+
+                        var chart = $"{numerator} / {denominator} vs. {dependent}";
+                        string[] reg = [numerator, denominator];
+                        var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
+
+                        if (!chartMap.TryAdd(key, chart))
+                            inverseDetected++;
                     }
 
                 }
             }
-            testOutputHelper.WriteLine($"Charts with inverse ratio skipped: {inverseDetected}\nDependent in Ratio skipped: {dependentInRatio}\nNumerator equal denominator: {numEqualDenom}");
+            testOutputHelper.WriteLine($"Charts with inverse ratio skipped: {inverseDetected}\nDependent in Ratio skipped: {dependentInRatio}\nNumerator equal denominator: {numEqualDenominator}");
             testOutputHelper.WriteLine($"Total unique charts: {chartMap.Count}");
 
             foreach (var chart in chartMap.Values)
