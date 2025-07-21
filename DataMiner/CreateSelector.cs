@@ -1,6 +1,6 @@
-﻿using Keto_Cta;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
+using Keto_Cta;
 
 namespace DataMiner;
 
@@ -9,11 +9,23 @@ public class CreateSelector
     private static readonly Regex PropertyRegex = new(@"([a-zA-Z_][a-zA-Z0-9_]*)(\[(\d+)\])?", RegexOptions.Compiled);
     private static readonly Dictionary<string, PropertyInfo?> PropertyCache = new();
 
-    public bool IsLogMismatch => (RegressorDicer is SimpleVariableDicer simpleRegressor)
-        ? simpleRegressor.IsLogarithmic != DependantDicer.IsLogarithmic
-        : IsRatio && (Numerator?.IsLogarithmic != Denominator?.IsLogarithmic ||
-                      (Numerator?.IsLogarithmic != DependantDicer.IsLogarithmic && !DependantDicer.IsDelta) ||
-                      (Denominator?.IsLogarithmic != DependantDicer.IsLogarithmic && !DependantDicer.IsDelta));
+    public bool IsLogMismatch
+    {
+        get
+        {
+            if (RegressorDicer is SimpleVariableDicer simpleRegressor)
+                return simpleRegressor.IsLogarithmic != DependantDicer.IsLogarithmic;
+            if (IsRatio)
+            {
+                var numLog = Numerator?.IsLogarithmic ?? false;
+                var denLog = Denominator?.IsLogarithmic ?? false;
+                var depLog = DependantDicer.IsLogarithmic;
+                return numLog != denLog || (numLog != depLog && !DependantDicer.IsDelta);
+            }
+            return false;
+        }
+    }
+
     public bool IsUninteresting => HasComponentOverlap || IsLogMismatch;
     public bool HasComponentOverlap =>
         !IsRatio && RegressorDicer.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) ||
@@ -154,5 +166,11 @@ public class CreateSelector
             current = index >= 0 && index < list.Count ? list[index] : null;
         }
         return current;
+    }
+
+    public string ToCsvRow(Element element)
+    {
+        var (x, y) = Selector(element);
+        return $"{RegressorDicer.VariableName},{DependantDicer.VariableName},{x},{y}";
     }
 }
