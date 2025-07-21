@@ -119,7 +119,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
-    public void ElementIsBetaSetIfAllCleeryValuesAreZero()
+    public void ElementIsBetaSetIfAllCleerlyValuesAreZero()
     {
         // Arrange
         var visits = new List<Visit>
