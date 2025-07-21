@@ -44,7 +44,7 @@ public class GoldMiner
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
-    private readonly HashSet<string> _processedRatios = new();
+    // private readonly HashSet<string> _processedRatios = [];
 
     private static List<Element> ReadCsvFile(string path)
     {
@@ -130,40 +130,15 @@ public class GoldMiner
     {
         return new List<Dust?>
         {
-            Dust(SetName.Omega, chartTitle),
-            Dust(SetName.Alpha, chartTitle),
-            Dust(SetName.Zeta, chartTitle),
-            Dust(SetName.Beta, chartTitle),
-            Dust(SetName.Gamma, chartTitle),
-            Dust(SetName.Theta, chartTitle),
-            Dust(SetName.Eta, chartTitle),
-            Dust(SetName.BetaUZeta, chartTitle)
+            AuDust(SetName.Omega, chartTitle),
+            AuDust(SetName.Alpha, chartTitle),
+            AuDust(SetName.Zeta, chartTitle),
+            AuDust(SetName.Beta, chartTitle),
+            AuDust(SetName.Gamma, chartTitle),
+            AuDust(SetName.Theta, chartTitle),
+            AuDust(SetName.Eta, chartTitle),
+            AuDust(SetName.BetaUZeta, chartTitle)
         }.Where(d => d != null).Cast<Dust>().ToArray();
-    }
-
-    public List<string> ChartsPredictDelta()
-    {
-        var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
-        var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
-
-        Console.WriteLine("Index,Title,Set,Slope,P-value,Correlation");
-        Console.WriteLine($"Processing {visitBaseline.Length * elementDelta.Length} combinations...");
-
-        List<string> chartList = new List<string>();
-
-        for (var x = 0; x < visitBaseline.Length; x++)
-        {
-            for (var y = 0; y < elementDelta.Length; y++)
-            {
-                if (x == y && !visitBaseline[x].StartsWith("Ln") && !elementDelta[y].StartsWith("Ln")) continue;
-                {
-                    chartList.Add($"{x} vs. {y}");
-                }
-
-            }
-        }
-
-        return chartList;
     }
 
     public List<string> RatioCharts(out int inverseIncluded)
@@ -194,19 +169,6 @@ public class GoldMiner
 
                 foreach (var dependent in allAttributes)
                 {
-                    // no ratios with dependent in regressor
-                    //if (dependent == numerator || dependent == denominator)
-                    //{
-                    //    dependentInRatio++;
-                    //    continue;
-                    //}
-
-                    //if (numerator.Equals(denominator))
-                    //{
-                    //    numEqualDenom++;
-                    //    continue; // skip self-ratio of identity
-                    //}
-
                     var chart = $"{numerator} / {denominator} vs. {dependent}";
                     string[] reg = [numerator, denominator];
                     var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
@@ -227,7 +189,7 @@ public class GoldMiner
     }
 
 
-    public Dust? Dust(SetName setName, string chartTitle)
+    public Dust? AuDust(SetName setName, string chartTitle)
     {
         if (!_setNameToData.TryGetValue(setName, out var data) || data.Length == 0)
         {
@@ -397,45 +359,45 @@ public class GoldMiner
 
         }
         myData.Add("\n# 3D Gamma data");
-        myData.Add($"x_gamma = np.array([" + string.Join(", ", x_gamma) + "])");
-        myData.Add($"y_gamma = np.array([" + string.Join(", ", y_gamma) + "])");
-        myData.Add($"z_gamma = np.array([" + string.Join(", ", z_gamma) + "])");
+        myData.Add("x_gamma = np.array([" + string.Join(", ", x_gamma) + "])");
+        myData.Add("y_gamma = np.array([" + string.Join(", ", y_gamma) + "])");
+        myData.Add("z_gamma = np.array([" + string.Join(", ", z_gamma) + "])");
 
         myData.Add("\n# 3D Theta data");
-        myData.Add($"x_theta = np.array([" + string.Join(", ", x_theta) + "])");
-        myData.Add($"y_theta = np.array([" + string.Join(", ", y_theta) + "])");
-        myData.Add($"z_theta = np.array([" + string.Join(", ", z_theta) + "])");
+        myData.Add("x_theta = np.array([" + string.Join(", ", x_theta) + "])");
+        myData.Add("y_theta = np.array([" + string.Join(", ", y_theta) + "])");
+        myData.Add("z_theta = np.array([" + string.Join(", ", z_theta) + "])");
 
         myData.Add("\n# 3D Eta data");
-        myData.Add($"x_eta = np.array([" + string.Join(", ", x_eta) + "])");
-        myData.Add($"y_eta = np.array([" + string.Join(", ", y_eta) + "])");
-        myData.Add($"z_eta = np.array([" + string.Join(", ", z_eta) + "])");
+        myData.Add("x_eta = np.array([" + string.Join(", ", x_eta) + "])");
+        myData.Add("y_eta = np.array([" + string.Join(", ", y_eta) + "])");
+        myData.Add("z_eta = np.array([" + string.Join(", ", z_eta) + "])");
 
         myData.Add("\n# 3D Zeta data");
-        myData.Add($"x_zeta = np.array([" + string.Join(", ", x_zeta) + "])");
-        myData.Add($"y_zeta = np.array([" + string.Join(", ", y_zeta) + "])");
-        myData.Add($"z_zeta = np.array([" + string.Join(", ", z_zeta) + "])");
+        myData.Add("x_zeta = np.array([" + string.Join(", ", x_zeta) + "])");
+        myData.Add("y_zeta = np.array([" + string.Join(", ", y_zeta) + "])");
+        myData.Add("z_zeta = np.array([" + string.Join(", ", z_zeta) + "])");
 
         // add Gamma data
         myData.Add("\n# Gamma data");
-        myData.Add($"ratio0_gamma = np.array([" + string.Join(", ", ratio0_gamma) + "])");
-        myData.Add($"ratio1_gamma = np.array([" + string.Join(", ", ratio1_gamma) + "])");
-        myData.Add($"ln_pav1_gamma = np.array([" + string.Join(", ", ln_pav1_gamma) + "])");
+        myData.Add("ratio0_gamma = np.array([" + string.Join(", ", ratio0_gamma) + "])");
+        myData.Add("ratio1_gamma = np.array([" + string.Join(", ", ratio1_gamma) + "])");
+        myData.Add("ln_pav1_gamma = np.array([" + string.Join(", ", ln_pav1_gamma) + "])");
 
         myData.Add("\n# Theta data");
-        myData.Add($"ratio0_theta = np.array([" + string.Join(", ", ratio0_theta) + "])");
-        myData.Add($"ratio1_theta = np.array([" + string.Join(", ", ratio1_theta) + "])");
-        myData.Add($"ln_pav1_theta = np.array([" + string.Join(", ", ln_pav1_theta) + "])");
+        myData.Add("ratio0_theta = np.array([" + string.Join(", ", ratio0_theta) + "])");
+        myData.Add("ratio1_theta = np.array([" + string.Join(", ", ratio1_theta) + "])");
+        myData.Add("ln_pav1_theta = np.array([" + string.Join(", ", ln_pav1_theta) + "])");
 
         myData.Add("\n# Eta data");
-        myData.Add($"ratio0_eta = np.array([" + string.Join(", ", ratio0_eta) + "])");
-        myData.Add($"ratio1_eta = np.array([" + string.Join(", ", ratio1_eta) + "])");
-        myData.Add($"ln_pav1_eta = np.array([" + string.Join(", ", ln_pav1_eta) + "])");
+        myData.Add("ratio0_eta = np.array([" + string.Join(", ", ratio0_eta) + "])");
+        myData.Add("ratio1_eta = np.array([" + string.Join(", ", ratio1_eta) + "])");
+        myData.Add("ln_pav1_eta = np.array([" + string.Join(", ", ln_pav1_eta) + "])");
 
         myData.Add("\n# Zeta data");
-        myData.Add($"ratio0_zeta = np.array([" + string.Join(", ", ratio0_zeta) + "])");
-        myData.Add($"ratio1_zeta = np.array([" + string.Join(", ", ratio1_zeta) + "])");
-        myData.Add($"ln_pav1_zeta = np.array([" + string.Join(", ", ln_pav1_zeta) + "])");
+        myData.Add("ratio0_zeta = np.array([" + string.Join(", ", ratio0_zeta) + "])");
+        myData.Add("ratio1_zeta = np.array([" + string.Join(", ", ratio1_zeta) + "])");
+        myData.Add("ln_pav1_zeta = np.array([" + string.Join(", ", ln_pav1_zeta) + "])");
 
         return myData.ToArray();
     }
@@ -472,10 +434,9 @@ public class GoldMiner
 
         string[] chartTitles = ["Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1"];
 
-        RegressionPvalue regression;
         foreach (var chart in chartTitles)
         {
-
+            RegressionPvalue regression;
             switch (chart)
             {
                 case "Cac0 vs. Cac1":
@@ -534,12 +495,6 @@ public class GoldMiner
             $"{item.Visits[0].LnTps},{item.Visits[1].LnTps},{item.Visits[0].LnCac},{item.Visits[1].LnCac},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},{item.Visits[0].Pav},{item.Visits[0].LnTcpv},{item.Visits[1].LnTcpv},{item.Visits[0].LnPav},{item.Visits[1].LnPav}" +
             $"{item.DTps},{item.DCac},{item.DNcpv},{item.DTcpv},{item.DPav},{item.LnDTps},{item.LnDCac},{item.LnDNcpv},{item.LnDTcpv},{item.LnDPav}"));
 
-
         return myData.ToArray();
-    }
-
-    public IEnumerable<string> RatioCharts()
-    {
-        return RatioCharts(out _);
     }
 }
