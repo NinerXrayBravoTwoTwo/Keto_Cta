@@ -12,7 +12,7 @@ namespace KetoCtaTest
         public void Dust_ValidSetNameAndChartTitle_ReturnsDust()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Assume test.csv populates datasets
-            var dust = miner.Dust(SetName.Omega, "Tps0 vs. DTps");
+            var dust = miner.AuDust(SetName.Omega, "Tps0 vs. DTps");
             Assert.NotNull(dust);
             Assert.Equal(SetName.Omega, dust.SetName);
             Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
@@ -22,7 +22,7 @@ namespace KetoCtaTest
         public void Dust_UnsupportedSetName_ReturnsNull()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            var dust = miner.Dust((SetName)999, "Tps0 vs. DTps");
+            var dust = miner.AuDust((SetName)999, "Tps0 vs. DTps");
             Assert.Null(dust);
         }
 
@@ -30,7 +30,7 @@ namespace KetoCtaTest
         public void Dust_InvalidChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            var result = miner.Dust(SetName.Omega, "Tps0");
+            var result = miner.AuDust(SetName.Omega, "Tps0");
             Assert.Null(result);
         }
 
@@ -47,7 +47,7 @@ namespace KetoCtaTest
         public void Dust_NullChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            Assert.Throws<ArgumentNullException>(() => miner.Dust(SetName.Omega, null));
+            Assert.Throws<ArgumentNullException>(() => miner.AuDust(SetName.Omega, null));
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace KetoCtaTest
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(filePath);
 
-            var result = goldMiner.Dust(SetName.Omega, "DNcpv vs. DCac");
+            var result = goldMiner.AuDust(SetName.Omega, "DNcpv vs. DCac");
             testOutputHelper.WriteLine(result.Regression.ToString());
         }
 
@@ -112,7 +112,7 @@ namespace KetoCtaTest
                             continue;
                         }
 
-                        var result = goldMiner.Dust(SetName.Omega, chart);
+                        var result = goldMiner.AuDust(SetName.Omega, chart);
                         var reg = result.Regression;
                         testOutputHelper.WriteLine(
                             $"{index++}, {result.ChartTitle}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");

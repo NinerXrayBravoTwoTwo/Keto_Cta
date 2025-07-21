@@ -172,19 +172,19 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
             out var etas);
 
         testOutputHelper.WriteLine($"\nLnNcpv vs LnCac\n");
-        var rOmega = RegressionLnNcpvLnDcac(omegas, "Omega");
-        var rAlphas = RegressionLnNcpvLnDcac(alphas, "Alpha");
-        var rZeta = RegressionLnNcpvLnDcac(zetas, "Zeta");
-        var rGamma = RegressionLnNcpvLnDcac(gammas, "Gamma");
-        var rTheta = RegressionLnNcpvLnDcac(thetas, "Theta");
-        var rEta = RegressionLnNcpvLnDcac(etas, "Etas");
+        var rOmega = RegressionLnNcpvLnDCac(omegas, "Omega");
+        var rAlphas = RegressionLnNcpvLnDCac(alphas, "Alpha");
+        var rZeta = RegressionLnNcpvLnDCac(zetas, "Zeta");
+        var rGamma = RegressionLnNcpvLnDCac(gammas, "Gamma");
+        var rTheta = RegressionLnNcpvLnDCac(thetas, "Theta");
+        var rEta = RegressionLnNcpvLnDCac(etas, "Etas");
 
         PrintTable(thetas, "Set Theta");
         PrintTable(etas, "Set Eta");
 
         return;
 
-        RegressionPvalue RegressionLnNcpvLnDcac(IEnumerable<Element> targetElements, string label)
+        RegressionPvalue RegressionLnNcpvLnDCac(IEnumerable<Element> targetElements, string label)
         {
             var dataPoints = new List<(double x, double y)>();
 
@@ -224,7 +224,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
         // X= col 1 - id + v1.ncpv +v2.deltaNcpv 
 
         //// Stacked NCPV bar graph dumper
-        //testOutputHelper.WriteLine("\n\nindex, v1.Ncpv, DNcpv,v1.LnNcpv, LnDNcpv");
+        //testOutputHelper.WriteLine("\n\index, v1.Ncpv, DNcpv,v1.LnNcpv, LnDNcpv");
         //foreach (var item in omegas)
         //    testOutputHelper.WriteLine($"{item.Id},{item.Visits[0].Ncpv:F4}, {item.DNcpv:F4}, {item.Ln(item.Visits[0].Ncpv):F4}, {item.LnDNcpv:F4}");
 
