@@ -460,10 +460,13 @@ public class GoldMiner
 
             }
 
+            var confidenceInterval = regression.ConfidenceIntervalPlus();
+
 
             myData.Add($"{chart},{setName},{regression.N},{regression.MeanX():F5},{regression.MeanY():F5},{regression.Qx():F5},  {regression.Qy():F5}, " +
                        $"{regression.Slope():F5},{regression.YIntercept():F5}, " +
-                       $"{regression.MaxX:F5},{regression.MaxY:F5},{regression.MinX:F5},{regression.MinY:F5},{regression.PValue():F5}");
+                       $"{regression.MaxX:F5},{regression.MaxY:F5},{regression.MinX:F5},{regression.MinY:F5},{regression.PValue():F5}," +
+                       $"{confidenceInterval.Lower:F4},{confidenceInterval.Upper:F4},{confidenceInterval.Slope:F4},{confidenceInterval.StandardError:F4}");
         }
 
 
