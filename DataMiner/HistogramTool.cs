@@ -43,7 +43,7 @@ class HistogramTool
 
         foreach (var item in dusts)
         {
-            dataPoints[item.SetName].Add((item.Regression.PValue(), item.Regression.Qx()));
+            dataPoints[item.SetName].Add((item.Regression.PValue(), item.Regression.StdDevX()));
             var bucket = (int)(item.Regression.PValue() * 5);
             histograms[item.SetName][Math.Min(bucket, 5)]++;
         }

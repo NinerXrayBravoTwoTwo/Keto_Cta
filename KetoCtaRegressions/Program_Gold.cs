@@ -128,7 +128,7 @@ foreach (var dust in sortedDust)
         var reg = dust.Regression;
         Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
                           + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.Qx():F4}, {reg.Correlation():F4}");
+                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.StdDevX():F4}, {reg.Correlation():F4}");
     }
 }
 Console.WriteLine($"\nTotal regressions calculated {totalRegressions}");
@@ -166,7 +166,7 @@ var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
 
 foreach (var dust in Dust)
 {
-    dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.Qx()));
+    dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.StdDevX()));
     var bucket = (int)(dust.Regression.PValue() * 5);
     histograms[dust.SetName][Math.Min(bucket, 5)]++; // Clamp to 5 for NaN bin
 }
