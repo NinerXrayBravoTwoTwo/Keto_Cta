@@ -9,43 +9,55 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 ---
 
 ## Overview
+### There are Two main components to this project both of which are highly dependent on Linear Regressions
+1. Data Mining, creating an exhaustive list of all possible linear relationships between the variables in the dataset.
+2. Ketone and Glucose data analysis, which plots ketone and glucose for participants
+### Top Level Data transformation 
+a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
+b. Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
+c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data
+the logarithmic relationship between the variables in the dataset.
+d. Preliminary analysis also reveled the presence of clear divisions in the data based on 
+NCPV and CAC and their change (Deltas)between visits.
+**Element** and **Visit**.
+### Data Classes
+- **Element**
+	1. **Sub Set** - The subset of the dataset that this element belongs to, based on the presence of plaque reversal and CAC scores. Zeta, Gamma, Theta, and Alpha are the leaf sets.
+	2. **Id** - The original keto-cta-quant dataset does not have a unique key, so we create one based on the row number of the source dataset.
+	3. An array of **Visit[]** indexed from 0. There are currently two visits for each element.  
+	4. **DCac** - One year change in Coronary Artery Calcium
+	5. **DNcpv** - One year change in Non-Calcified Plaque Volume
+	6. **DTps** - One year change in Total Plaque Score
+	7. **DTcpv** - One year change in Total Calcified Plaque Volume
+	8. **DPav** - One year change in Percent Atheroma Volume
+	9. **LnDCac, LnDNcpv, LnTcpv, LnDPav**, Logarithmic transformations of the above values to improve linear relationships and handle
+exponential distributions of these root values.
 
-This project analyzes the **keto-cta-quant-and-semi-quant 2.txt.csv** dataset, which includes Coronary Computed Tomography Angiography (CTA) data related to the ketogenic diet and cardiovascular health. The dataset consists of 100 paired measurements (Visit 1 and Visit 2) for five key metrics:
-
-- Coronary Artery Calcium (CAC)
-- Non-Calcified Plaque Volume (NCPV)
-- Total Plaque Score (TPS)
-- Total Calcified Plaque Volume (TCPV)
-- Percent Atheroma Volume (PAV)
-
-The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project also functions as a prototype **software design and engineering specification** for a medical research data analysis platform.
+- **Visit** 
+	1. **Id** - Visit number, starting from 0, also called 'baseline'
+	2. **VisitDate** - Currently not popilated but we do need this data to see if there are group changes related to enviromental data like seasons or the Covid Pandemic
+	3. **Tps** - Total Plaque Score
+	4. **Cac** - Coronary Artery Calcium score
+	5. **Ncpv** - Non-Calcified Plaque Volume
+	6. **Tcpv** - Total Calcified Plaque Volume
+	7. **Pav** - Percent Atheroma Volume
+	8. **LnTps, LnCac, LnNcpv, LnTcpv, LnPav** - Logarithmic transformations of the above values to improve linear relationships.
+	Delta values are not applickable to individual Visit data.
 
 ---
 
-## Dataset Description
 
-- **Source**: Citizen Science Foundation  
-- **Format**: CSV (.txt extension)  
-- **Rows**: 100 (plus header)  
-- **Columns**:
-  - `V1_Total_Plaque_Score`, `V2_Total_Plaque_Score`: Integer (0–14)
-  - `V1_CAC`, `V2_CAC`: Integer (0–400)
-  - `V1_Non_Calcified_Plaque_Volume`, `V2_Non_Calcified_Plaque_Volume`: Float (0–606.5)
-  - `V1_Total_Calcified_Plaque_Volume`, `V2_Total_Calcified_Plaque_Volume`: Float (0–215.4)
-  - `V1_Percent_Atheroma_Volume`, `V2_Percent_Atheroma_Volume`: Float (0–0.2)
-
-> **Note**: Logarithmic transformation using `ln(|value| + 1)` improves linear relationships and handles skewed distributions with zero values.
-
-
-### Omega Set Hierarchy
-- This Omega set hierarchy was used to categorize Participants based in the presence of  Plaque reversal and their CAC scores.
-
+### Set Hierarchy
+- In set mathmatics theory it is traditonal to name sets using greek letters, typically the superset is given the label Omega to represent everything.
+- This Omega set hierarchy was used to categorize Participant based in the presence of  Plaque reversal and their CAC scores.
+- This is the most important part of the analysis, as it allows us to see how the participants are divided based on their CAC and TPS scores.
 ![Set division tree](./Analysis/Keto-CTA-SubsetDivisionTree.png)
-![Set division graph](./Analysis/Omega-SetDivisionGraph.png)
+![Set division pie chart](./Analysis/setdivisioncharts.png)
+
 
 - The hierarchy is based on the presence of plaque reversal and CAC scores, with the following categories:
 **Definitions based on the provided sets and conditions:**
-- **isZeta** = 
+- **isZeta** = (This set contains participants with oulier CAC or Cleerly decreases))
 	- v2.Tps < v1.Tps
 	- or v2.Cac < v1.Cac
 	- or v2.Ncpv < v1.Ncpv
@@ -101,21 +113,15 @@ The data is sorted by `V1_Total_Plaque_Score` in ascending order. This project a
 
 The following modules define the prototype platform for dataset ingestion, analysis, and visualization:
 
-### 1. Data Ingestion & Validation
-- Parse CSV files with optional `.txt` suffix.
-- Validate dimensions (100 rows × 10 columns).
-- Support alternative input methods for limited environments (e.g., mobile ZIP uploads).
+### 1. Data Miner
+- Focus is to create an exhaustive list of all.
 
 ### 2. Statistical Analysis
 - Correlation and \( R^2 \) computation for raw and log-transformed data.
 - Ensure invariance to input row order.
 - Handle zero values with `ln(value + 0.1)` transform.
 
-### 3. Schema Generation
-- JSON output for column metadata (name, type, range).
-- Reusable for similar studies.
-
-### 4. Visualization (Planned)
+### 4. Visualization with CSV exports for Excel, and Graphics matrixes for Python plotting
 - Scatter plots (raw/log) with labeled axes and trendlines.
 - Color-coded metrics for comparative insight.
 
@@ -163,11 +169,8 @@ Licensed under the [Affero General Public License (AGPL-3.0)](./LICENSE).
 **Jillian England**  
 📧 jill.england@comcast.net  
 
-For dataset inquiries, contact the Citizen Science Foundation or join discussion on social media (e.g., #KetoCTA, #CitizenScience).
+For dataset inquiries, contact the Citizen Science Foundation or join discussion on social media (e.g., #KetoCTA, #CitizenScience, FB: LMHR).
 
 > This is a living document. Please report errors or suggest improvements for the benefit of the research community.
 
 ---
-
-*Generated: May 30, 2025 at 09:42 AM PDT*  
-*Last Edited: May 30, 2025 at 09:43 AM PDT*
