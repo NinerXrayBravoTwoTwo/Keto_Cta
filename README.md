@@ -51,6 +51,8 @@ exponential distributions of these root values.
 - In set mathmatics theory it is traditonal to name sets using greek letters, typically the superset is given the label Omega to represent everything.
 - This Omega set hierarchy was used to categorize Participant based in the presence of  Plaque reversal and their CAC scores.
 - This is the most important part of the analysis, as it allows us to see how the participants are divided based on their CAC and TPS scores.
+- **This IS the root of this project.**
+
 ![Set division tree](./Analysis/Keto-CTA-SubsetDivisionTree.png)
 ![Set division pie chart](./Analysis/setdivisioncharts.png)
 
@@ -81,15 +83,15 @@ exponential distributions of these root values.
 
 ---
 
-## Analyses Performed
+## Data Mining and Analysis Summary
 
 ### 1. Logarithmic Relationship Verification
-- Computed Pearson correlations and \( R^2 \) values between V1 and V2 metrics (both raw and log-transformed).
+- Computed Pearson correlations and \( R^2^ and p-values \) values between V1 and V2 metrics (both raw and log-transformed).
 - Found consistent improvement in linearity after log transformation.
 
-### 2. \( R^2 \) Summary Table (Top Results)
+### 2. Summary Table (Key attribute results)
 
-| Index | Metric | Type | Slope | N | R² | P-Value | Y-Intercept |
+| Index | Metric | Type | Slope | N | R^2^ | P-Value | Y-Intercept |
 |-------|--------|------|-------|----|------|----------|-------------|
 | 89    | TCPV (raw)       | Omega | 1.128 | 100 | 0.9819 | 0          | 1.6216 |
 | 97    | CAC (raw)        | Omega | 1.180 | 100 | 0.9780 | ~0         | -0.555 |
