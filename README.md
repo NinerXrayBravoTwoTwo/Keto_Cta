@@ -12,8 +12,10 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 ### There are Two main components to this project both of which are highly dependent on Linear Regressions
 1. Data Mining, creating an exhaustive list of all possible linear relationships between the variables in the dataset.
 2. Ketone and Glucose data analysis, which plots ketone and glucose for participants
+
 ### Top Level Data transformation 
 a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
+[*See Keto-CTA Enhanced Data set*](./Analysis/Keto-CTA-EnhancedDataSet.txt).
 b. Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
 c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data
 the logarithmic relationship between the variables in the dataset.

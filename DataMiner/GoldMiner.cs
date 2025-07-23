@@ -426,14 +426,14 @@ public class GoldMiner
         List<string> myData = header
             ?
             [
-                "Chart,Set,N,Mean X,Mean Y,SD X,SD Y," +
-                "Annual Change (Slope),Y-Intercept,Max X,Max Y,Min X,Min Y,p-value"
+                "Regression,Set,Mean X CAC,+/-,Mean Y CAC,+/-," +
+                "Slope,p-value"
             ]
             : [];
 
 
         string[] chartTitles = ["Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1"];
-
+        var localDust = new List<Dust>();
         foreach (var chart in chartTitles)
         {
             RegressionPvalue regression;
@@ -461,15 +461,19 @@ public class GoldMiner
             }
 
             var confidenceInterval = regression.ConfidenceIntervalPlus();
-
-
-            myData.Add($"{chart},{setName},{regression.N},{regression.MeanX():F5},{regression.MeanY():F5},{regression.StdDevX():F5},  {regression.StdDevY():F5}, " +
-                       $"{regression.Slope():F5},{regression.YIntercept():F5}, " +
-                       $"{regression.MaxX:F5},{regression.MaxY:F5},{regression.MinX:F5},{regression.MinY:F5},{regression.PValue():F5}," +
-                       $"{confidenceInterval.Lower:F4},{confidenceInterval.Upper:F4},{confidenceInterval.Slope:F4},{confidenceInterval.StandardError:F4}");
+            localDust.Add(new Dust(setName,chart,regression));
         }
+        var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
+        
+        foreach (var dust in sortedDust)
+        {
+            var moeX = dust.Regression.MarginOfError();
+            var moeY = dust.Regression.MarginOfError(true);
 
-
+            myData.Add(
+                $"{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
+                $"{dust.Regression.Slope():F5},{dust.Regression.PValue():F5}");
+        }
 
         return myData.ToArray();
     }
