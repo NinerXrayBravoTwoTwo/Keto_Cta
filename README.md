@@ -91,23 +91,19 @@ exponential distributions of these root values.
 
 ### 2. Summary Table (Key attribute results)
 
-| Index | Metric | Type | Slope | N | R^2^ | P-Value | Y-Intercept |
-|-------|--------|------|-------|----|------|----------|-------------|
-| 89    | TCPV (raw)       | Omega | 1.128 | 100 | 0.9819 | 0          | 1.6216 |
-| 97    | CAC (raw)        | Omega | 1.180 | 100 | 0.9780 | ~0         | -0.555 |
-| 137   | CAC (log-log)    | Omega | 1.012 | 100 | 0.9731 | ~0         | 0.0818 |
-| 129   | TCPV (log-log)   | Omega | 1.002 | 100 | 0.9675 | 0.00046    | 0.2178 |
-| 121   | PAV (log-log)    | Omega | 1.157 | 100 | 0.9498 | 0.000039   | 0.0062 |
-| ...   | [*See full table in analysis folder*](./Analysis/Keto-CTA-Regressions.txt).|
 
-> Lower correlations were observed in delta (D) vs. delta comparisons, reflecting greater variability.
-### 3. JSON Schema Generation
-- Created a metadata schema including column names, types, and value ranges.
-- Intended for dataset validation and documentation.
-
-### 4. Data Handling Considerations
-- Handled .txt-suffixed CSV files due to mobile app limitations.
-- Verified that data ordering by TPS did not affect Pearson correlations.
+![Set division pie chart](./Analysis/OmegaTable.png)
+[*See full table in analysis folder*](./Analysis/Keto-CTA-Regressions.txt).
+### Just the Omega superset
+- Average CAC for the fist Visit wa 50.28 ± 2.011
+- Average CAC for the secod visit was 58.79 ± 2.4
+- Average NCPV for the first visit was 75.88 ± 1.76
+- Average NCPV for the second visit was 107.374 ± 2.25
+- You get the idea ... the p-values are pretty good for these regressions and say that if this demographic has CAC of X
+- From their first scan they should have a CAC * the slope one year later.
+My CAC baseline scan was 21 so I should have had CAC of had a CAC of 21 * 1.8 a year later, or 24.8. I had a actuall CAC of 21 again  a year later 
+but note that would be ±2.4 and 21+2.4 is 23.4 which is no to far short of the upper range of the predicted value.  It is even closer if you look at the Theta subset regressions which have a lower slope.
+- Of course my NCPV tells a very different story ...
 
 ---
 
