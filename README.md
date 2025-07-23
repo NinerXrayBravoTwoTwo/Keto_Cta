@@ -14,10 +14,11 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 2. Ketone and Glucose data analysis, which plots ketone and glucose for participants
 
 ### Top Level Data transformation 
+- **High level objective**
+- **Purpose:** To understand what this all means, at the deepest level of the data
 a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
 b. Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
-c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data
-the logarithmic relationship between the variables in the dataset.
+c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data the logarithmic relationship between the variables in the dataset.
 d. Preliminary analysis also reveled the presence of clear divisions in the data based on 
 NCPV and CAC and their change (Deltas)between visits.
 
