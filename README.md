@@ -14,8 +14,7 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 2. Ketone and Glucose data analysis, which plots ketone and glucose for participants
 
 ### Top Level Data transformation 
-a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
-[*See Keto-CTA Enhanced Data set*](./Analysis/Keto-CTA-EnhancedDataSet.txt).
+a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset. [*See Keto-CTA Enhanced Data set*](./Analysis/Keto-CTA-EnhancedDataSet.txt).
 b. Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
 c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data
 the logarithmic relationship between the variables in the dataset.
@@ -102,7 +101,7 @@ exponential distributions of these root values.
 - Average NCPV for the first visit was 75.88 ± 1.76
 - Average NCPV for the second visit was 107.374 ± 2.25
 - You get the idea ... the p-values are pretty good for these regressions and say that if this demographic has CAC of X
-- From their first scan they should have a CAC * the slope one year later.
+from their first scan they should have a CAC * the slope one year later.
 My CAC baseline scan was 21 so I should have had CAC of had a CAC of 21 * 1.8 a year later, or 24.8. I had a actuall CAC of 21 again  a year later 
 but note that would be ±2.4 and 21+2.4 is 23.4 which is no to far short of the upper range of the predicted value.  It is even closer if you look at the Theta subset regressions which have a lower slope.
 - Of course my NCPV tells a very different story ...
