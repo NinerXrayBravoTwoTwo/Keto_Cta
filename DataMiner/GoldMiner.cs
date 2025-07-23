@@ -422,57 +422,36 @@ public class GoldMiner
         {
             return [];
         }
+
+
+
+        string[] chartTitles =
+        [
+            "Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1",
+            "LnCac0 vs. LnCac1", "LnTps0 vs. LnTps1", "LnNcpv0 vs. LnNcpv1", "LnTcpv0 vs. LnTcpv1", "LnPav0 vs. LnPav1",
+        ];
+        var localDust = chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList();
+        //var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
+
         // if header is true, add header row
         List<string> myData = header
             ?
             [
-                "Regression,Set,Mean X CAC,+/-,Mean Y CAC,+/-," +
+                "MOE = Margin Of Error i.e. +/-\n" +
+                "Regression,Set,Mean X,moe X,Mean Y,moe Y," +
                 "Slope,p-value"
             ]
             : [];
 
-
-        string[] chartTitles = ["Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1"];
-        var localDust = new List<Dust>();
-        foreach (var chart in chartTitles)
+        foreach (var dust in localDust)
         {
-            RegressionPvalue regression;
-            switch (chart)
-            {
-                case "Cac0 vs. Cac1":
-                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Cac, e.Visits[1].Cac));
-                    break;
-                case "Tps0 vs. Tps1":
-                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Tps, e.Visits[1].Tps));
-                    break;
-                case "Ncpv0 vs. Ncpv1":
-                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Ncpv, e.Visits[1].Ncpv));
-                    break;
-                case "Tcpv0 vs. Tcpv1":
-                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Tcpv, e.Visits[1].Tcpv));
-                    break;
-                case "Pav0 vs. Pav1":
-                    regression = CalculateRegression(elements, chart, e => (e.Visits[0].Pav, e.Visits[1].Pav));
-                    break;
-                default:
-                    regression = new RegressionPvalue(); // Default empty regression
-                    break;
-
-            }
-
-            var confidenceInterval = regression.ConfidenceIntervalPlus();
-            localDust.Add(new Dust(setName,chart,regression));
-        }
-        var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
-        
-        foreach (var dust in sortedDust)
-        {
+            var confidience = dust.Regression.ConfidenceInterval();
             var moeX = dust.Regression.MarginOfError();
             var moeY = dust.Regression.MarginOfError(true);
 
             myData.Add(
                 $"{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                $"{dust.Regression.Slope():F5},{dust.Regression.PValue():F5}");
+                $"{dust.Regression.Slope():F5},{dust.Regression.PValue():F8}");
         }
 
         return myData.ToArray();

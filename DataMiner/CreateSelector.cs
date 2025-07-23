@@ -142,7 +142,7 @@ public class CreateSelector
             return value;
         }
 
-        object? current = obj;
+        var current = obj;
         foreach (var property in properties)
         {
             if (current == null) return null;

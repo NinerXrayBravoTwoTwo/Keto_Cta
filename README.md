@@ -8,6 +8,7 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 
 ---
 
+
 ## Overview
 ### There are Two main components to this project both of which are highly dependent on Linear Regressions
 1. Data Mining, creating an exhaustive list of all possible linear relationships between the variables in the dataset.
@@ -16,15 +17,14 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 ### Top Level Data transformation 
  **High level objective**
 - **Pupose:** To understand what this all means, at the deepest level of the data
-	a. Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
-	b. Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
-	c. Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data the logarithmic relationship between the variables in the dataset.
-	d. Preliminary analysis also reveled the presence of clear divisions in the data based on  NCPV and CAC and their change (Deltas)between visits.
+	- Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
+	- Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
+	- Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data the logarithmic relationship between the variables in the dataset.
+	- Preliminary analysis also reveled the presence of clear divisions in the data based on  NCPV and CAC and their change (Deltas)between visits.
 
 [*See Keto-CTA Enhanced Data set*](./Analysis/Keto-CTA-EnhancedDataSet.txt).
 
-**Element** and **Visit**.
-### Data Classes
+### **Element** and **Visit** Data Classes
 - **Element**
 	1. **Sub Set** - The subset of the dataset that this element belongs to, based on the presence of plaque reversal and CAC scores. Zeta, Gamma, Theta, and Alpha are the leaf sets.
 	2. **Id** - The original keto-cta-quant dataset does not have a unique key, so we create one based on the row number of the source dataset.
@@ -55,7 +55,7 @@ exponential distributions of these root values.
 - In set mathmatics theory it is traditonal to name sets using greek letters, typically the superset is given the label Omega to represent everything.
 - This Omega set hierarchy was used to categorize Participant based in the presence of  Plaque reversal and their CAC scores.
 - This is the most important part of the analysis, as it allows us to see how the participants are divided based on their CAC and TPS scores.
-- **This IS the root of this project.**
+- ==This IS the root of this project.==
 
 ![Set division tree](./Analysis/Keto-CTA-SubsetDivisionTree.png)
 ![Set division pie chart](./Analysis/setdivisioncharts.png)
@@ -106,7 +106,7 @@ exponential distributions of these root values.
 - You get the idea ... the p-values are pretty good for these regressions and say that if this demographic has CAC of X
 from their first scan they should have a CAC * the slope one year later.
 My CAC baseline scan was 21 so I should have had CAC of had a CAC of 21 * 1.8 a year later, or 24.8. I had a actuall CAC of 21 again  a year later 
-but note that would be ±2.4 and 21+2.4 is 23.4 which is no to far short of the upper range of the predicted value.  It is even closer if you look at the Theta subset regressions which have a lower slope.
+but note that would be ±2.4 and 21+2.4 is 23.4 which is not to far short of the upper range of the predicted value.  It is even closer if you look at the Theta subset regressions which have a lower slope.
 - Of course my NCPV tells a very different story ...
 
 ---
