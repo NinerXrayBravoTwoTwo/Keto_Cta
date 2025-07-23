@@ -439,7 +439,7 @@ public class GoldMiner
             [
                 "MOE = Margin Of Error i.e. +/-\n" +
                 "Regression,Set,Mean X,moe X,Mean Y,moe Y," +
-                "Slope,p-value"
+                "Slope,R^2,p-value"
             ]
             : [];
 
@@ -451,7 +451,7 @@ public class GoldMiner
 
             myData.Add(
                 $"{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                $"{dust.Regression.Slope():F5},{dust.Regression.PValue():F8}");
+                $"{dust.Regression.Slope():F5},{dust.Regression.RSquared():F4},{dust.Regression.PValue():F8}");
         }
 
         return myData.ToArray();
