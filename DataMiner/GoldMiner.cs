@@ -182,63 +182,6 @@ public class GoldMiner
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
-    ///// <summary>
-    ///// Generates a list of ratio-based chart descriptions by combining attributes as numerators, denominators, and
-    ///// dependents.
-    ///// </summary>
-    ///// <remarks>The method iterates through combinations of attributes to create unique ratio-based chart
-    ///// descriptions.  If duplicate or inverse relationships are detected, they are counted and included in the
-    ///// output.</remarks>
-    ///// <param name="inverseIncluded">Outputs the number of inverse relationships detected and included in the chart descriptions.</param>
-    ///// <returns>A list of strings representing ratio-based chart descriptions in the format  "<c>numerator / denominator vs.
-    ///// dependent</c>".</returns>
-    //public List<string> RatioCharts(out int inverseIncluded)
-    //{
-    //    var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
-    //    var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
-
-    //    var bothVisits = new List<string>();
-    //    foreach (var visit in visitAttributes)
-    //    {
-    //        bothVisits.Add($"{visit}0");
-    //        bothVisits.Add($"{visit}1");
-    //    }
-
-    //    var allAttributes = elementAttributes.Concat(bothVisits).ToList();
-
-    //    Dictionary<string, string> chartMap = new Dictionary<string, string>();
-    //    var inverseDetected = 0;
-    //    var dependentInRatio = 0;
-    //    var numEqualDenom = 0;
-    //    bool isSkipInverse = true;
-
-    //    foreach (var numerator in allAttributes)
-    //    {
-    //        foreach (var denominator in allAttributes)
-    //        {
-    //            if (numerator == denominator) continue; // skip 
-
-    //            foreach (var dependent in allAttributes)
-    //            {
-    //                var chart = $"{numerator} / {denominator} vs. {dependent}";
-    //                string[] reg = [numerator, denominator];
-    //                var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
-
-    //                if (chartMap.TryAdd(key, chart)) continue;
-
-    //                inverseDetected++;
-    //                chartMap.TryAdd(string.Join(',', reg) + $",{dependent}", chart);
-    //            }
-    //        }
-
-    //    }
-
-
-    //    inverseIncluded = inverseDetected;
-    //    return chartMap.Select(kvp => kvp.Value).ToList();
-
-    //}
-
     /// <summary>
     ///  
     /// </summary>
@@ -458,6 +401,8 @@ public class GoldMiner
         return myData.ToArray();
     }
 
+    private int matrixIndex = 0;
+
     public string[] PrintAllSetMatrix()
     {
         List<string> myData = [];
@@ -488,23 +433,26 @@ public class GoldMiner
         //var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
 
         // if header is true, add header row
+        if (header) matrixIndex = 0;
+         
         List<string> myData = header
             ?
             [
                 "MOE = Margin Of Error i.e. +/-\n" +
-                "Regression,Set,Mean X,moe X,Mean Y,moe Y," +
+                "Index,Regression,Set,Mean X,moe X,Mean Y,moe Y," +
                 "Slope,R^2,p-value"
             ]
             : [];
 
         foreach (var dust in localDust)
         {
+            matrixIndex++;
             var confidience = dust.Regression.ConfidenceInterval();
             var moeX = dust.Regression.MarginOfError();
             var moeY = dust.Regression.MarginOfError(true);
 
             myData.Add(
-                $"{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
+                $"{matrixIndex},{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
                 $"{dust.Regression.Slope():F5},{dust.Regression.RSquared():F4},{dust.Regression.PValue():F8}");
         }
 
@@ -538,10 +486,4 @@ public class GoldMiner
         return myData.ToArray();
     }
 
-    public string[] MineRegressions()
-    {
-        var miner = new MineRegressionsWithGold();
-        var report = miner.GenerateGoldRegression(this);
-        return miner.Report();
-    }
 }
