@@ -1,9 +1,7 @@
-﻿using System.ComponentModel.Design;
-using DataMiner;
+﻿using DataMiner;
 using Keto_Cta;
 using LinearRegression;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -96,11 +94,11 @@ void ChartToCvs(IEnumerable<Dust> dust)
 
 #region Mine!
 
-var mineRegressions= new MineRegressionsWithGold();
-string []  Mine(MineRegressionsWithGold miner)
+var mineRegressions = new MineRegressionsWithGold();
+string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
 {
-    localDusts.AddRange(miner.GenerateGoldRegression(MyMine));
-    var dusts = miner.GenerateGoldRegression(MyMine);
+    localDusts.AddRange(miner.GenerateGoldRegression(MyMine, isIncludeRatioCharts));
+    var dusts = miner.GenerateGoldRegression(MyMine, isIncludeRatioCharts);
     var report = miner.Report();
 
     return report;
@@ -122,7 +120,7 @@ while (true)
     var command = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(command)) continue;
     // Check for exit commands
-    if ( IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
+    if (IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
         break;
 
     if (!string.IsNullOrWhiteSpace(command))
@@ -138,13 +136,16 @@ while (true)
         else if (IsMatch(command, @"mine", RegexOptions.IgnoreCase))
         {
             localDusts.Clear();
-            localDusts.AddRange(mineRegressions.GenerateGoldRegression(MyMine));
+            localDusts.AddRange(mineRegressions.GenerateGoldRegression(MyMine, true));
             var myData = mineRegressions.Report();
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
             }
-
+        }
+        else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
+        {
+            mineRegressions.ClearDust();
         }
         else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
         {
@@ -177,12 +178,11 @@ while (true)
             {
                 Console.WriteLine(item);
             }
-
         }
         else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
         {
-            Console.WriteLine("Possible Commands: 'independent vs. regressor', cac, mine, gamma, dust, matrix, "+
-                              "all matrix, keto, q|exit|quit|end|help");
+            Console.WriteLine("Possible Commands: 'independent vs. regressor', CAC, mine, gamma, dust, matrix, " +
+                              "all matrix, keto, clear dusts, q|exit|quit|end|help");
         }
         else if (IsMatch(command, @"dust", RegexOptions.IgnoreCase))
         {

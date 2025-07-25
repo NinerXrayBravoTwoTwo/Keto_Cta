@@ -1,12 +1,4 @@
-﻿using DataMiner;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataMiner;
+﻿namespace DataMiner;
 
 public class MineRegressionsWithGold()
 {
@@ -142,7 +134,7 @@ public class MineRegressionsWithGold()
         #endregion
 
 
-        _dust = _dust.Distinct().OrderBy(d=> d.Regression.PValue()).ToList();
+        _dust = _dust.Distinct().OrderBy(d => d.Regression.PValue()).ToList();
         return _dust.ToArray();
     }
 
@@ -172,7 +164,8 @@ public class MineRegressionsWithGold()
         var allAttributes = elementAttributes.Concat(bothVisits).ToList();
         // Todo: for log-log use Ln(numerator / denominator) not numerator / denominator
         // Todo: probably should not allow Ln /Ln at all
-        Dictionary<string, string> chartMap = new Dictionary<string, string>();
+        Dictionary<string, string> chartMapa = new Dictionary<string, string>();
+        Dictionary<string, string> chartMapb = new Dictionary<string, string>();
         var inverseDetected = 0;
         var dependentInRatio = 0;
         var numEqualDenom = 0;
@@ -185,24 +178,34 @@ public class MineRegressionsWithGold()
                 // Todo: if both numerator and denominator are prefixed with Ln use "Ln(Numerator / Denominator) vs. dependent"
                 if (numerator == denominator) continue; // skip 
 
+                if (numerator.StartsWith("Ln") && denominator.StartsWith("Ln"))
+                {
+                    // skip Ln / Ln, should use Ln(numerator / denominator) instead
+                    continue;
+                }
+
                 foreach (var dependent in allAttributes)
                 {
-                    var chart = $"{numerator} / {denominator} vs. {dependent}";
+                    var charta = $"{dependent} vs. {numerator} / {denominator}";
+                    var chartb = $"{dependent} vs. Ln({numerator} / {denominator})";
+
 
                     string[] reg = [numerator, denominator];
                     var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
 
-                    if (chartMap.TryAdd(key, chart)) continue;
-
-                    inverseDetected++;
-                    chartMap.TryAdd(string.Join(',', reg) + $",{dependent}", chart);
+                    chartMapa.TryAdd(key, charta);
+                    if (!numerator.StartsWith("Ln") && !denominator.StartsWith("Ln"))
+                        chartMapb.TryAdd(key, chartb);
                 }
             }
 
         }
 
         inverseIncluded = inverseDetected;
-        return chartMap.Select(kvp => kvp.Value).ToList();
+        var result = chartMapa.Select(kvp => kvp.Value).ToList();
+        //result.AddRange(chartMapb.Select(kvp => kvp.Value).ToList());
+
+        return result;
 
     }
 

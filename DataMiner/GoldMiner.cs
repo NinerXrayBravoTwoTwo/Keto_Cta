@@ -87,7 +87,7 @@ public class GoldMiner
 
         return list;
     }
-   
+
     /// <summary>
     /// Calculates a regression analysis based on the provided elements and selector function.
     /// </summary>
@@ -123,7 +123,7 @@ public class GoldMiner
 
         return new RegressionPvalue(dataPoints);
     }
-   
+
     /// <summary>
     /// Calculates a regression ratio based on the provided elements and selectors.
     /// </summary>
@@ -159,7 +159,7 @@ public class GoldMiner
 
         return new RegressionPvalue(dataPoints);
     }
-   
+
     /// <summary>
     /// Generates an array of gold dust data based on the specified chart title.
     /// </summary>
@@ -434,7 +434,7 @@ public class GoldMiner
 
         // if header is true, add header row
         if (header) matrixIndex = 0;
-         
+
         List<string> myData = header
             ?
             [
