@@ -48,11 +48,11 @@ public class CreateSelector
         if (regSplit.Length < 2)
             throw new ArgumentException("Chart title must contain 'vs.' to separate dependent and independent variables.");
 
-        RegressorDicer = regSplit[0].Contains('/')
-            ? new RatioVariableDicer(regSplit[0].Trim())
-            : new SimpleVariableDicer(regSplit[0].Trim());
+        RegressorDicer = regSplit[1].Contains('/')
+            ? new RatioVariableDicer(regSplit[1].Trim())
+            : new SimpleVariableDicer(regSplit[1].Trim());
 
-        DependantDicer = new SimpleVariableDicer(regSplit[1].Trim());
+        DependantDicer = new SimpleVariableDicer(regSplit[0].Trim());
 
         if (!IsRatio && RegressorDicer.Target.Equals(DependantDicer.Target, StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException($"Dependent and Independent variables must be different: {chartTitle}");

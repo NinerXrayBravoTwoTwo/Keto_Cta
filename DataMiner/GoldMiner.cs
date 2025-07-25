@@ -46,6 +46,15 @@ public class GoldMiner
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
     // private readonly HashSet<string> _processedRatios = [];
 
+    /// <summary>
+    /// Reads a CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
+    /// </summary>
+    /// <remarks>The method expects the CSV file to have a specific structure where each row contains numeric
+    /// values  separated by commas. The first row is assumed to be a header and is skipped during processing. If a row
+    /// contains invalid numeric data, it is skipped, and a message is logged to the console.</remarks>
+    /// <param name="path">The file path of the CSV file to read. The file must exist and be accessible.</param>
+    /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
+    /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
     private static List<Element> ReadCsvFile(string path)
     {
         var list = new List<Element>();
@@ -78,7 +87,20 @@ public class GoldMiner
 
         return list;
     }
-
+   
+    /// <summary>
+    /// Calculates a regression analysis based on the provided elements and selector function.
+    /// </summary>
+    /// <remarks>Elements for which the <paramref name="selector"/> function throws an <see
+    /// cref="ArgumentException"/> are skipped, and a message is logged to the console with the provided <paramref
+    /// name="label"/>.</remarks>
+    /// <param name="targetElements">A collection of elements to be analyzed. Cannot be <see langword="null"/>.</param>
+    /// <param name="label">A label used for logging or identification purposes. Can be <see langword="null"/> or empty.</param>
+    /// <param name="selector">A function that maps each element to a tuple containing the x and y values for the regression analysis. Cannot
+    /// be <see langword="null"/>. If the function throws an <see cref="ArgumentException"/>, the corresponding element
+    /// is skipped.</param>
+    /// <returns>A <see cref="RegressionPvalue"/> object containing the results of the regression analysis.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="targetElements"/> or <paramref name="selector"/> is <see langword="null"/>.</exception>
     private RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
         Func<Element, (double x, double y)> selector)
     {
@@ -101,7 +123,19 @@ public class GoldMiner
 
         return new RegressionPvalue(dataPoints);
     }
-
+   
+    /// <summary>
+    /// Calculates a regression ratio based on the provided elements and selectors.
+    /// </summary>
+    /// <remarks>Any elements that cause an <see cref="ArgumentException"/> during processing are skipped, and
+    /// a message is logged with the provided label.</remarks>
+    /// <param name="targetElements">A collection of elements to process. Each element is used to compute data points for the regression analysis.</param>
+    /// <param name="label">A label used for logging or diagnostic purposes when processing elements.</param>
+    /// <param name="xSelector">A function that selects the numerator and denominator values from an element to compute the x-coordinate. The
+    /// x-coordinate is calculated as the ratio of the numerator to the denominator. If the denominator is zero, the
+    /// x-coordinate is set to 0.</param>
+    /// <param name="ySelector">A function that selects the y-coordinate value from an element.</param>
+    /// <returns>A <see cref="RegressionPvalue"/> object containing the computed regression data points.</returns>
     private RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
         Func<Element, (double numerator, double denominator)> xSelector,
         Func<Element, double> ySelector)
@@ -125,7 +159,14 @@ public class GoldMiner
 
         return new RegressionPvalue(dataPoints);
     }
-
+   
+    /// <summary>
+    /// Generates an array of gold dust data based on the specified chart title.
+    /// </summary>
+    /// <remarks>This method creates gold dust data for a predefined set of names and filters out any null
+    /// entries. The resulting array contains only valid <see cref="Dust"/> objects.</remarks>
+    /// <param name="chartTitle">The title of the chart used to generate the gold dust data.</param>
+    /// <returns>An array of <see cref="Dust"/> objects representing the gold dust data.  The array will exclude any null values.</returns>
     public Dust[] GoldDust(string chartTitle)
     {
         return new List<Dust?>
@@ -141,54 +182,69 @@ public class GoldMiner
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
-    public List<string> RatioCharts(out int inverseIncluded)
-    {
-        var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
-        var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
+    ///// <summary>
+    ///// Generates a list of ratio-based chart descriptions by combining attributes as numerators, denominators, and
+    ///// dependents.
+    ///// </summary>
+    ///// <remarks>The method iterates through combinations of attributes to create unique ratio-based chart
+    ///// descriptions.  If duplicate or inverse relationships are detected, they are counted and included in the
+    ///// output.</remarks>
+    ///// <param name="inverseIncluded">Outputs the number of inverse relationships detected and included in the chart descriptions.</param>
+    ///// <returns>A list of strings representing ratio-based chart descriptions in the format  "<c>numerator / denominator vs.
+    ///// dependent</c>".</returns>
+    //public List<string> RatioCharts(out int inverseIncluded)
+    //{
+    //    var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
+    //    var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
 
-        var bothVisits = new List<string>();
-        foreach (var visit in visitAttributes)
-        {
-            bothVisits.Add($"{visit}0");
-            bothVisits.Add($"{visit}1");
-        }
+    //    var bothVisits = new List<string>();
+    //    foreach (var visit in visitAttributes)
+    //    {
+    //        bothVisits.Add($"{visit}0");
+    //        bothVisits.Add($"{visit}1");
+    //    }
 
-        var allAttributes = elementAttributes.Concat(bothVisits).ToList();
+    //    var allAttributes = elementAttributes.Concat(bothVisits).ToList();
 
-        Dictionary<string, string> chartMap = new Dictionary<string, string>();
-        var inverseDetected = 0;
-        var dependentInRatio = 0;
-        var numEqualDenom = 0;
-        bool isSkipInverse = true;
+    //    Dictionary<string, string> chartMap = new Dictionary<string, string>();
+    //    var inverseDetected = 0;
+    //    var dependentInRatio = 0;
+    //    var numEqualDenom = 0;
+    //    bool isSkipInverse = true;
 
-        foreach (var numerator in allAttributes)
-        {
-            foreach (var denominator in allAttributes)
-            {
-                if (numerator == denominator) continue; // skip 
+    //    foreach (var numerator in allAttributes)
+    //    {
+    //        foreach (var denominator in allAttributes)
+    //        {
+    //            if (numerator == denominator) continue; // skip 
 
-                foreach (var dependent in allAttributes)
-                {
-                    var chart = $"{numerator} / {denominator} vs. {dependent}";
-                    string[] reg = [numerator, denominator];
-                    var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
+    //            foreach (var dependent in allAttributes)
+    //            {
+    //                var chart = $"{numerator} / {denominator} vs. {dependent}";
+    //                string[] reg = [numerator, denominator];
+    //                var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
 
-                    if (chartMap.TryAdd(key, chart)) continue;
+    //                if (chartMap.TryAdd(key, chart)) continue;
 
-                    inverseDetected++;
-                    chartMap.TryAdd(string.Join(',', reg) + $",{dependent}", chart);
-                }
-            }
+    //                inverseDetected++;
+    //                chartMap.TryAdd(string.Join(',', reg) + $",{dependent}", chart);
+    //            }
+    //        }
 
-        }
-
-
-        inverseIncluded = inverseDetected;
-        return chartMap.Select(kvp => kvp.Value).ToList();
-
-    }
+    //    }
 
 
+    //    inverseIncluded = inverseDetected;
+    //    return chartMap.Select(kvp => kvp.Value).ToList();
+
+    //}
+
+    /// <summary>
+    ///  
+    /// </summary>
+    /// <param name="setName"></param>
+    /// <param name="chartTitle"></param>
+    /// <returns></returns>
     public Dust? AuDust(SetName setName, string chartTitle)
     {
         if (!_setNameToData.TryGetValue(setName, out var data) || data.Length == 0)
@@ -423,12 +479,10 @@ public class GoldMiner
             return [];
         }
 
-
-
         string[] chartTitles =
         [
-            "Cac0 vs. Cac1", "Tps0 vs. Tps1", "Ncpv0 vs. Ncpv1", "Tcpv0 vs. Tcpv1", "Pav0 vs. Pav1",
-            "LnCac0 vs. LnCac1", "LnTps0 vs. LnTps1", "LnNcpv0 vs. LnNcpv1", "LnTcpv0 vs. LnTcpv1", "LnPav0 vs. LnPav1",
+            "Cac1 vs. Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
+            "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
         ];
         var localDust = chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList();
         //var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
@@ -482,5 +536,12 @@ public class GoldMiner
             $"{item.DTps},{item.DCac},{item.DNcpv},{item.DTcpv},{item.DPav},{item.LnDTps},{item.LnDCac},{item.LnDNcpv},{item.LnDTcpv},{item.LnDPav}"));
 
         return myData.ToArray();
+    }
+
+    public string[] MineRegressions()
+    {
+        var miner = new MineRegressionsWithGold();
+        var report = miner.GenerateGoldRegression(this);
+        return miner.Report();
     }
 }

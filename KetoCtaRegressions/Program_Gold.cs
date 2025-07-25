@@ -1,4 +1,5 @@
-﻿using DataMiner;
+﻿using System.ComponentModel.Design;
+using DataMiner;
 using Keto_Cta;
 using LinearRegression;
 using System.Text.RegularExpressions;
@@ -9,137 +10,9 @@ var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var MyMine = new GoldMiner(ctaDataPath);
 var logMismatch = 0;
 var uninterestingSkip = 0;
-var Dust = new List<Dust>();
+var localDusts = new List<Dust>();
 
-#region Load dust  Element Delta vs. Element Delta
-var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
-
-for (var x = 0; x < elementDelta.Length; x++)
-{
-    for (var y = 0; y < elementDelta.Length; y++)
-    {
-        if (x != y)
-        {
-            var chart = $"{elementDelta[x]} vs. {elementDelta[y]}";
-            try
-            {
-                var selector = new CreateSelector(chart);
-                if (selector.IsLogMismatch || selector.IsUninteresting)
-                {
-                    if (selector.IsLogMismatch) logMismatch++;
-                    if (selector.IsUninteresting) uninterestingSkip++;
-                    continue;
-                }
-                Dust.AddRange(MyMine.GoldDust(chart));
-            }
-            catch (ArgumentException)
-            {
-                logMismatch++; // technically this is a regression against self error  
-            }
-        }
-    }
-}
-#endregion
-
-#region Load dust Baseline vs. Year later  
-var visit = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(",");
-for (var x = 0; x < visit.Length; x++)
-{
-    var chart = $"{visit[x]}0 vs. {visit[x]}1";
-    try
-    {
-        var selector = new CreateSelector(chart);
-        if (selector.IsLogMismatch || selector.IsUninteresting)
-        {
-            if (selector.IsLogMismatch) logMismatch++;
-            if (selector.IsUninteresting) uninterestingSkip++;
-            continue;
-        }
-        Dust.AddRange(MyMine.GoldDust(chart));
-    }
-    catch (ArgumentException)
-    {
-        logMismatch++;
-    }
-}
-#endregion
-
-#region dust Baseline vs. Year delta
-var eDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
-
-foreach (var visit0 in visit)
-{
-    foreach (var delta in eDelta)
-    {
-        var chart = $"{visit0}0 vs. {delta}";
-        try
-        {
-            var selector = new CreateSelector(chart);
-            if (selector.IsLogMismatch || selector.IsUninteresting)
-            {
-                if (selector.IsLogMismatch) logMismatch++;
-                if (selector.IsUninteresting) uninterestingSkip++;
-                continue;
-            }
-            Dust.AddRange(MyMine.GoldDust(chart));
-        }
-        catch (ArgumentException)
-        {
-            logMismatch++;
-        }
-    }
-}
-#endregion
-
-#region Add regression charts
-
-var inverseRatiosIncluded = 0;
-foreach (var chart in MyMine.RatioCharts(out inverseRatiosIncluded))
-{
-    try
-    {
-        var selector = new CreateSelector(chart);
-        if (selector.IsLogMismatch || selector.IsUninteresting)
-        {
-            if (selector.IsLogMismatch) logMismatch++;
-            if (selector.IsUninteresting) uninterestingSkip++;
-            continue;
-        }
-        Dust.AddRange(MyMine.GoldDust(chart));
-    }
-    catch (ArgumentException)
-    {
-        logMismatch++;
-    }
-}
-#endregion
-
-#region Print regression Csv table
-Console.WriteLine($"In Order of PValue (Interesting Regressions Highlighted):");
-Console.WriteLine($"Index, Chart, Subset, N, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
-var totalRegressions = 0;
-var index = 0;
-var sortedDust = Dust.OrderBy(d => d.Regression.PValue());
-foreach (var dust in sortedDust)
-{
-    totalRegressions++;
-    if (dust.IsInteresting)
-    {
-        var reg = dust.Regression;
-        Console.WriteLine($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
-                          + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                          + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.StdDevX():F4}, {reg.Correlation():F4}");
-    }
-}
-Console.WriteLine($"\nTotal regressions calculated {totalRegressions}");
-Console.WriteLine($"Log mismatch regressions skipped: {logMismatch}");
-Console.WriteLine($"Inverse Ratio regressions included: {inverseRatiosIncluded}");
-Console.WriteLine($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {uninterestingSkip}");
-Console.WriteLine($"Total interesting regressions: {Dust.Count(d => d.IsInteresting)}");
-Console.WriteLine($"Interesting remaining regressions: {index}");
-#endregion
-
-#region Set Order regression
+#region Set Order regression histogram
 var histograms = new Dictionary<SetName, int[]>
 {
     { SetName.Omega, new int[6] },
@@ -164,7 +37,7 @@ var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
     { SetName.BetaUZeta, [] }
 };
 
-foreach (var dust in Dust)
+foreach (var dust in localDusts)
 {
     dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.StdDevX()));
     var bucket = (int)(dust.Regression.PValue() * 5);
@@ -221,6 +94,22 @@ void ChartToCvs(IEnumerable<Dust> dust)
 }
 #endregion
 
+#region Mine!
+
+var mineRegressions= new MineRegressionsWithGold();
+string []  Mine(MineRegressionsWithGold miner)
+{
+    localDusts.AddRange(miner.GenerateGoldRegression(MyMine));
+    var dusts = miner.GenerateGoldRegression(MyMine);
+    var report = miner.Report();
+
+    return report;
+}
+
+
+
+#endregion
+
 //ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
 
 
@@ -229,14 +118,16 @@ Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regre
 
 while (true)
 {
+    Console.Write("> ");
     var command = Console.ReadLine()?.Trim();
-
-    if (string.IsNullOrEmpty(command) || IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
+    if (string.IsNullOrEmpty(command)) continue;
+    // Check for exit commands
+    if ( IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
         break;
 
     if (!string.IsNullOrWhiteSpace(command))
     {
-        if (IsMatch(command, @"print\s*cac", RegexOptions.IgnoreCase))
+        if (IsMatch(command, @"cac", RegexOptions.IgnoreCase))
         {
             var myData = MyMine.PrintBetaUZetaElements(SetName.BetaUZeta);
             foreach (var item in myData)
@@ -244,7 +135,18 @@ while (true)
                 Console.WriteLine(item);
             }
         }
-        else if (IsMatch(command, @"print\s*gamma", RegexOptions.IgnoreCase))
+        else if (IsMatch(command, @"mine", RegexOptions.IgnoreCase))
+        {
+            localDusts.Clear();
+            localDusts.AddRange(mineRegressions.GenerateGoldRegression(MyMine));
+            var myData = mineRegressions.Report();
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+
+        }
+        else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
         {
             var myData = MyMine.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
             foreach (var item in myData)
@@ -252,15 +154,7 @@ while (true)
                 Console.WriteLine(item);
             }
         }
-        else if (IsMatch(command, @"print\s*matrix", RegexOptions.IgnoreCase))
-        {
-            var myData = MyMine.PrintStatisticMatrix(SetName.Omega);
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
-        }
-        else if (IsMatch(command, @"print\s*all\s*matrix", RegexOptions.IgnoreCase))
+        else if (IsMatch(command, @"all\s*matrix", RegexOptions.IgnoreCase))
         {
             var myData = MyMine.PrintAllSetMatrix();
             foreach (var item in myData)
@@ -268,7 +162,15 @@ while (true)
                 Console.WriteLine(item);
             }
         }
-        else if (IsMatch(command, @"print\s*keto.*", RegexOptions.IgnoreCase))
+        else if (IsMatch(command, @"matrix", RegexOptions.IgnoreCase))
+        {
+            var myData = MyMine.PrintStatisticMatrix(SetName.Omega);
+            foreach (var item in myData)
+            {
+                Console.WriteLine(item);
+            }
+        }
+        else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
         {
             var myData = MyMine.PrintKetoCta();
             foreach (var item in myData)
@@ -277,9 +179,21 @@ while (true)
             }
 
         }
-        else
+        else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
         {
-            var dust = Dust.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase)).ToArray();
+            Console.WriteLine("Possible Commands: 'independent vs. regressor', cac, mine, gamma, dust, matrix, "+
+                              "all matrix, keto, q|exit|quit|end|help");
+        }
+        else if (IsMatch(command, @"dust", RegexOptions.IgnoreCase))
+        {
+            foreach (var item in localDusts)
+            {
+                Console.WriteLine($"{item.ChartTitle},{item.SetName},{item.Regression.RSquared():F3}");
+            }
+        }
+        else // Get the data for a chart
+        {
+            var dust = localDusts.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase)).ToArray();
             if (dust.Any())
             {
                 ChartToCvs(dust);
