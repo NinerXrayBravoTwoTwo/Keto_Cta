@@ -7,7 +7,19 @@ namespace KetoCtaTest
 {
     public class SelectorTest(ITestOutputHelper testOutputHelper)
     {
+        [Fact]
+        public void CreateSelectorValidateSimple()
+        {
+            var title = "Cac1 vs. Cac0";
 
+            var path = "TestData/keto-cta-quant-and-semi-quant.csv";
+            var goldMiner = new GoldMiner(path);
+
+            var dusts = goldMiner.GoldDust(title);
+            Assert.NotNull(dusts);
+            Assert.NotEqual(1, dusts[0].Regression.PValue());
+            
+        }
         [Fact]
         public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
         {

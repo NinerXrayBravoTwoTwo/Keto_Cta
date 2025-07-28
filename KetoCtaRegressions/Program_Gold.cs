@@ -6,7 +6,7 @@ using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var ctaQangioPath = "TestData/keto-cta-qangio.csv";
-var MyMine = new GoldMiner(ctaDataPath, ctaQangioPath);
+var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
 var logMismatch = 0;
 var uninterestingSkip = 0;
 var localDusts = new List<Dust>();
@@ -98,8 +98,8 @@ void ChartToCvs(IEnumerable<Dust> dust)
 var mineRegressions = new MineRegressionsWithGold();
 string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
 {
-    localDusts.AddRange(miner.GenerateGoldRegression(MyMine, isIncludeRatioCharts));
-    var dusts = miner.GenerateGoldRegression(MyMine, isIncludeRatioCharts);
+    localDusts.AddRange(miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts));
+    var dusts = miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts);
     var report = miner.Report();
 
     return report;
@@ -126,7 +126,7 @@ while (true)
     {
         if (IsMatch(command, @"beta", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintBetaElements(SetName.Beta);
+            var myData = goldMiner.PrintBetaElements(SetName.Beta);
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
@@ -135,20 +135,20 @@ while (true)
         else if (IsMatch(command, @"mine", RegexOptions.IgnoreCase))
         {
             localDusts.Clear();
-            localDusts.AddRange(mineRegressions.GenerateGoldRegression(MyMine, true));
+            localDusts.AddRange(mineRegressions.GenerateGoldRegression(goldMiner, true));
             var myData = mineRegressions.Report();
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
+
+            Console.WriteLine(localDusts);
         }
         else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
         {
             mineRegressions.ClearDust();
+            localDusts.Clear();
+
         }
         else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
+            var myData = goldMiner.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
@@ -156,23 +156,19 @@ while (true)
         }
         else if (IsMatch(command, @"all\s*matrix", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintAllSetMatrix();
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
+            var dusts = goldMiner.RootAllSetMatrix();
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
+
         }
         else if (IsMatch(command, @"matrix", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintStatisticMatrix(SetName.Omega);
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
+            Dust[] myDusts;
+            var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
+            Console.WriteLine(string.Join( '\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts,true)));
         }
         else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintKetoCta();
+            var myData = goldMiner.PrintKetoCta();
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
@@ -185,10 +181,7 @@ while (true)
         }
         else if (IsMatch(command, @"dust", RegexOptions.IgnoreCase))
         {
-            foreach (var item in localDusts)
-            {
-                Console.WriteLine($"{item.ChartTitle},{item.SetName},{item.Regression.RSquared():F3}");
-            }
+            GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
         }
         else // Get the data for a chart
         {
@@ -200,8 +193,23 @@ while (true)
             }
             else
             {
-                Console.WriteLine($"Chart '{command}' not found. Try again or 'exit' to quit:");
+                Console.WriteLine($"Generating regression for '{command}'...");
+                var newDusts = goldMiner.GoldDust(command);
+                if (newDusts.Length == 0)
+                {
+                    Console.WriteLine($"Regression '{command}' can not be generated. Try again or 'exit' to quit:");
+                    continue;
+                }
+
+                localDusts.AddRange(newDusts);
+                ChartToCvs(newDusts);
             }
         }
     }
+    continue;
+
+
 }
+
+return;
+

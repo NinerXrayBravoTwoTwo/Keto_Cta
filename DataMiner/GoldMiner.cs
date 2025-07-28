@@ -1,4 +1,5 @@
-﻿using Keto_Cta;
+﻿using System.Reflection;
+using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -464,62 +465,61 @@ public class GoldMiner
         return myData.ToArray();
     }
 
-    private int matrixIndex = 0;
-
-    public string[] PrintAllSetMatrix()
+    public Dust[] RootAllSetMatrix()
     {
-        List<string> myData = [];
+        List<Dust> dusts = [];
 
-        myData.AddRange(PrintStatisticMatrix(SetName.Omega, true));
-        myData.AddRange(PrintStatisticMatrix(SetName.Eta, false));
-        myData.AddRange(PrintStatisticMatrix(SetName.Theta, false));
-        myData.AddRange(PrintStatisticMatrix(SetName.Gamma, false));
-        myData.AddRange(PrintStatisticMatrix(SetName.Zeta, false));
+        dusts.AddRange(RootStatisticMatrix(SetName.Omega));
+        dusts.AddRange(RootStatisticMatrix(SetName.Alpha));
+        dusts.AddRange(RootStatisticMatrix(SetName.Zeta));
+        dusts.AddRange(RootStatisticMatrix(SetName.Gamma));
+        dusts.AddRange(RootStatisticMatrix(SetName.Theta));
+        dusts.AddRange(RootStatisticMatrix(SetName.Eta));
+        dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
 
-        return myData.ToArray();
+        Dust[] locDusts = dusts.OrderBy(d => d.Regression.PValue()).ToArray<Dust>();
+
+        return locDusts.OrderBy(d => d.Regression.PValue()).ToArray();
     }
 
-    public string[] PrintStatisticMatrix(SetName setName, bool header = true)
+    public Dust[] RootStatisticMatrix(SetName setName, bool header = true)
     {
 
         if (!_setNameToData.TryGetValue(setName, out var elements))
-        {
             return [];
-        }
 
         string[] chartTitles =
         [
             "Cac1 vs.Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
             "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
         ];
-        var localDust = chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList();
+
+        List<Dust> localDusts = [];
+        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList());
         //var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
 
-        // if header is true, add header row
-        if (header) matrixIndex = 0;
+        return localDusts.ToArray();
 
-        List<string> myData = header
-            ?
-            [
-                "MOE = Margin Of Error i.e. +/-\n" +
-                "Index,Regression,Set,Mean X,moe X,Mean Y,moe Y," +
-                "Slope,R^2,p-value"
-            ]
-            : [];
+    }
 
-        foreach (var dust in localDust)
-        {
-            matrixIndex++;
-            var confidience = dust.Regression.ConfidenceInterval();
-            var moeX = dust.Regression.MarginOfError();
-            var moeY = dust.Regression.MarginOfError(true);
+    public static string ToStringFormatRegressionsInDusts(Dust[] dusts, bool isPrintHeader = true)
+    {
+        List<string> result = [];
 
-            myData.Add(
-                $"{matrixIndex},{dust.ChartTitle},{setName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                $"{dust.Regression.Slope():F5},{dust.Regression.RSquared():F4},{dust.Regression.PValue():F8}");
-        }
+        if (isPrintHeader)
+            result.Add("Index,Regression,Set,Mean X,moe X, Mean Y,moe Y, Slope,R^2,p-value");
 
-        return myData.ToArray();
+        var index = 1;
+        result.AddRange(from item in dusts 
+            let moeX = item.Regression.MarginOfError() 
+            let moeY = item.Regression.MarginOfError(useY: true) 
+            select $"{index++},{item.ChartTitle},{item.SetName} {item.Regression.N}," 
+                   + $"{moeX.Mean:F3},{moeX.MarginOfError:F4}," 
+                   + $"{moeY.Mean:F3},{moeY.MarginOfError:F4}," 
+                   + $"{item.Regression.Slope():F3},"
+                   + $"{item.Regression.RSquared():F3},{item.Regression.PValue():F11}");
+
+        return string.Join('\n', result.ToArray());
     }
 
     public string[] PrintKetoCta(bool header = true)
