@@ -1,4 +1,6 @@
-﻿namespace DataMiner;
+﻿using System.Text.RegularExpressions;
+
+namespace DataMiner;
 
 public class MineRegressionsWithGold()
 {
@@ -42,10 +44,10 @@ public class MineRegressionsWithGold()
                     try
                     {
                         var selector = new CreateSelector(chart);
-                        if (selector.IsLogMismatch || selector.IsUninteresting)
+                        if (selector.IsLogMismatch || selector.HasComponentOverlap)
                         {
                             if (selector.IsLogMismatch) _logMismatch++;
-                            if (selector.IsUninteresting) _uninterestingSkip++;
+                            if (selector.HasComponentOverlap) _uninterestingSkip++;
                             continue;
                         }
 
@@ -68,10 +70,10 @@ public class MineRegressionsWithGold()
             try
             {
                 var selector = new CreateSelector(chart);
-                if (selector.IsLogMismatch || selector.IsUninteresting)
+                if (selector.IsLogMismatch || selector.HasComponentOverlap)
                 {
                     if (selector.IsLogMismatch) _logMismatch++;
-                    if (selector.IsUninteresting) _uninterestingSkip++;
+                    if (selector.HasComponentOverlap) _uninterestingSkip++;
                     continue;
                 }
                 _dust.AddRange(myMine.GoldDust(chart));
@@ -94,10 +96,10 @@ public class MineRegressionsWithGold()
                 try
                 {
                     var selector = new CreateSelector(chart);
-                    if (selector.IsLogMismatch || selector.IsUninteresting)
+                    if (selector.IsLogMismatch || selector.HasComponentOverlap)
                     {
                         if (selector.IsLogMismatch) _logMismatch++;
-                        if (selector.IsUninteresting) _uninterestingSkip++;
+                        if (selector.HasComponentOverlap) _uninterestingSkip++;
                         continue;
                     }
                     _dust.AddRange(myMine.GoldDust(chart));
@@ -112,25 +114,35 @@ public class MineRegressionsWithGold()
 
         #region Add Ratio  charts
 
-        if (isIncludeRatioCharts)
-            foreach (var chart in RatioCharts(out _inverseRatiosIncluded))
+        //if (isIncludeRatioCharts)
+        var listOfcacRatios = new List<string>();
+
+        var ratioCharts = RatioCharts();
+        foreach (var chart in ratioCharts)
+        {
+
+            if (Regex.IsMatch(chart, @"LnCac1 vs. Ln\(Cac0", RegexOptions.IgnoreCase))
+                listOfcacRatios.Add(chart);
+
+            try
             {
-                try
+                var selector = new CreateSelector(chart);
+                if (selector.IsLogMismatch || selector.HasComponentOverlap)
                 {
-                    var selector = new CreateSelector(chart);
-                    if (selector.IsLogMismatch || selector.IsUninteresting)
-                    {
-                        if (selector.IsLogMismatch) _logMismatch++;
-                        if (selector.IsUninteresting) _uninterestingSkip++;
-                        continue;
-                    }
-                    _dust.AddRange(myMine.GoldDust(chart));
+                    System.Diagnostics.Debug.WriteLine($"Reject: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}  ");
+                    if (selector.IsLogMismatch) _logMismatch++;
+                    if (selector.HasComponentOverlap) _uninterestingSkip++;
+                    continue;
                 }
-                catch (ArgumentException)
-                {
-                    _logMismatch++;
-                }
+                System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
+
+                _dust.AddRange(myMine.GoldDust(chart));
             }
+            catch (ArgumentException)
+            {
+                _logMismatch++;
+            }
+        }
         #endregion
 
 
@@ -149,7 +161,7 @@ public class MineRegressionsWithGold()
     /// <returns>A list of strings representing ratio-based chart descriptions in the format  "<c>numerator / denominator vs.
     /// dependent</c>".</returns>
     /// 
-    public List<string> RatioCharts(out int inverseIncluded)
+    public string[] RatioCharts()
     {
         var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(',');
         var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,LnTps,LnCac,LnNcpv,LnTcpv,LnPav".Split(',');
@@ -162,50 +174,50 @@ public class MineRegressionsWithGold()
         }
 
         var allAttributes = elementAttributes.Concat(bothVisits).ToList();
-        // Todo: for log-log use Ln(numerator / denominator) not numerator / denominator
-        // Todo: probably should not allow Ln /Ln at all
-        Dictionary<string, string> chartMapa = new Dictionary<string, string>();
-        Dictionary<string, string> chartMapb = new Dictionary<string, string>();
+        List<string> chartMapa = [];
+        List<string> chartMapb = [];
         var inverseDetected = 0;
         var dependentInRatio = 0;
         var numEqualDenom = 0;
         bool isSkipInverse = true;
 
+        List<string> showme = [];
         foreach (var numerator in allAttributes)
         {
             foreach (var denominator in allAttributes)
             {
-                // Todo: if both numerator and denominator are prefixed with Ln use "Ln(Numerator / Denominator) vs. dependent"
                 if (numerator == denominator) continue; // skip 
-
-                if (numerator.StartsWith("Ln") && denominator.StartsWith("Ln"))
-                {
-                    // skip Ln / Ln, should use Ln(numerator / denominator) instead
-                    continue;
-                }
 
                 foreach (var dependent in allAttributes)
                 {
-                    var charta = $"{dependent} vs. {numerator} / {denominator}";
-                    var chartb = $"{dependent} vs. Ln({numerator} / {denominator})";
-
+                   // if (!dependent.StartsWith("LnCac1")) continue; // skip, only interested in lnCac0 for now
 
                     string[] reg = [numerator, denominator];
-                    var key = string.Join(',', reg.OrderBy(r => r)) + $",{dependent}";
+                    var key = string.Join(',', reg) + $",{dependent}";
 
-                    chartMapa.TryAdd(key, charta);
-                    if (!numerator.StartsWith("Ln") && !denominator.StartsWith("Ln"))
-                        chartMapb.TryAdd(key, chartb);
+                    var charta = $"{dependent} vs. {numerator} / {denominator}";
+                    chartMapa.Add(charta);
+
+
+                    // skip Ln / Ln, should use Ln(numerator / denominator) instead
+                    var chartb = $"{dependent} vs. Ln({numerator} / {denominator})";
+
+                    chartMapb.Add(chartb);
+
+                    //"Chart: LnCac1 vs. Ln(Cac0 / Ncpv0)"
+                    //"Chart: LnCac1 vs. Ln(Cac0 / Ncpv1)"
+
+                    //if (chartb.StartsWith("LnCac1 vs. Ln(Cac0"))
+                    //    showme.Add($"Chart: {chartb}"); // debug
                 }
             }
-
         }
 
-        inverseIncluded = inverseDetected;
-        var result = chartMapa.Select(kvp => kvp.Value).ToList();
-        //result.AddRange(chartMapb.Select(kvp => kvp.Value).ToList());
+        List<string> result = [];
+        result.AddRange(chartMapb);
+        result.AddRange(chartMapa);
 
-        return result;
+        return result.Distinct().ToArray();
 
     }
 

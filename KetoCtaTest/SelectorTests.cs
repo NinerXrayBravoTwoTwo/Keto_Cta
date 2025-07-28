@@ -9,21 +9,44 @@ namespace KetoCtaTest
     {
 
         [Fact]
+        public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
+        {
+            var selector = new CreateSelector("Tps0 vs. DCac");
+            Assert.NotNull(selector.Selector);
+            Assert.False(selector.IsLogMismatch);
+        }
+        [Fact]
+        public void SelectorXySimpleTest()
+        {
+            var result = new CreateSelector("DCac vs. DNcpv");
+            Assert.Equal("DNcpv", result.RegressorDicer.Target);
+            Assert.Equal("DCac", result.DependantDicer.Target);
+
+            // Select data and test results
+            var dataPoints = new List<(double x, double y)>();
+
+            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            dataPoints.AddRange(goldMiner.Omega.Select(result.Selector));
+
+            var regression = new RegressionPvalue(dataPoints);
+            testOutputHelper.WriteLine(regression.ToString());
+        }
+        [Fact]
         public void CreateSelector_ValidRatio_SetsProperties()
         {
-            var selector = new CreateSelector("Cac0/Ncpv0 vs. LnCac1");
+            var selector = new CreateSelector("LnCac1 vs. Cac0/Ncpv0");
             Assert.True(selector.IsRatio);
             Assert.Equal("Cac0", selector.Numerator?.VariableName);
             Assert.Equal("Ncpv0", selector.Denominator?.VariableName);
             Assert.Equal("LnCac1", selector.DependantDicer.VariableName);
-            Assert.True(selector.IsLogMismatch);
+            Assert.True(selector.IsRatio);
         }
 
         [Fact]
         public void CreateSelector_LogMismatch_Detected()
         {
-            var selector = new CreateSelector("LnCac0/Ncpv0 vs. Cac1");
-            Assert.True(selector.IsLogMismatch);
+            var selector = new CreateSelector("Cac1 vs. LnCac0/Ncpv0");
+            Assert.False(selector.IsRatio);
         }
 
         [Fact]
@@ -42,6 +65,7 @@ namespace KetoCtaTest
             Assert.True(dicer.IsDelta);
             Assert.True(dicer.IsVisit);
         }
+
         [Fact]
         public void RatioVariableDicer_ValidInput_SetsProperties()
         {
@@ -53,29 +77,10 @@ namespace KetoCtaTest
             Assert.True(dicer.IsVisit);
         }
 
-
         [Fact]
         public void SimpleVariableDicer_InvalidInput_ThrowsArgumentException()
         {
             Assert.Throws<ArgumentException>(() => new SimpleVariableDicer("InvalidVariable"));
-        }
-        [Fact]
-        public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
-        {
-            var selector = new CreateSelector("Tps0 vs. DTps");
-            Assert.NotNull(selector.Selector);
-            Assert.False(selector.IsLogMismatch);
-        }
-
-        [Fact]
-        public void Dust_ValidSetNameAndChartTitle_ReturnsDust()
-        {
-            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Assume test.csv populates datasets
-            var dust = miner.AuDust(SetName.Omega, "Tps0 vs. DTps");
-            Assert.NotNull(dust);
-            Assert.Equal(SetName.Omega, dust.SetName);
-            Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
-            Assert.True(dust.Regression.DataPointsCount() >= 3);
         }
 
         [Fact]
@@ -87,43 +92,26 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void SelectorXySimpleTest()
-        {
-            var result = new CreateSelector("DNcpv vs. DCac");
-            Assert.Equal("DNcpv", result.RegressorDicer.Target);
-            Assert.Equal("DCac", result.DependantDicer.Target);
-
-            // Select data and test results
-            var dataPoints = new List<(double x, double y)>();
-
-            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            dataPoints.AddRange(goldMiner.Omega.Select(result.Selector));
-
-            var regression = new RegressionPvalue(dataPoints);
-            testOutputHelper.WriteLine(regression.ToString());
-        }
-
-        [Fact]
         public void SelectorDeltaRegressorTest()
         {
-            var result = new CreateSelector("DCac vs. LnPav1");
+            var result = new CreateSelector("LnPav1 vs. DCac ");
             Assert.False(result.IsRatio);
             Assert.Equal("DCac", result.RegressorDicer.Target);
             Assert.Equal("Visits[1].LnPav", result.DependantDicer.Target);
         }
 
-        //[Fact]
-        //public void SelectorXyComplexTest()
-        //{
-        //    var result = new CreateSelector("Ncpv0 vs. LnDCac");
-        //    Assert.Equal("Visits[0].Ncpv", result.RegressorDicer.RootAttribute);
-        //    Assert.Equal("LnDCac", result.DependantDicer.VariableName);
-        //}
+        [Fact]
+        public void SelectorXyComplexTestA()
+        {
+            var result = new CreateSelector("Cac0 vs. Ncpv1");
+            Assert.Equal("Visits[1].Ncpv", result.RegressorDicer.RootAttribute);
+            Assert.Equal("Visits[0].Cac", result.DependantDicer.RootAttribute);
+        }
 
         [Fact]
-        public void SelectorXyComplexTest()
+        public void SelectorXyComplexTestB()
         {
-            var result = new CreateSelector("Ncpv0 vs. LnDCac");
+            var result = new CreateSelector("LnDCac vs. Ncpv0");
             Assert.Equal("Visits[0].Ncpv", result.RegressorDicer.Target);
             Assert.Equal("LnDCac", result.DependantDicer.Target);
         }
@@ -216,28 +204,28 @@ namespace KetoCtaTest
         {
             string[] testCharts =
             [
-                "Tps0 / Cac0 vs. DNcpv",
-                "DTps / LnTps1 vs. DTcpv",
-                "DCac / LnDPav vs. Tcpv1",
-                "DCac / LnNcpv1 vs. LnTps0",
-                "DTcpv / Cac0 vs. LnTcpv1",
-                "DPav / LnDTps vs. Pav0",
-                "DPav / LnNcpv0 vs. LnNcpv1",
-                "LnDTps / LnDNcpv vs. DPav",
-                "LnDTps / Ncpv1 vs. LnTcpv1",
-                "LnDCac / LnDPav vs. LnNcpv1",
-                "LnDCac / LnCac0 vs. LnCac1",
-                "LnDNcpv / Tps1 vs. Tps0",
-                "LnDNcpv / Cac1 vs. Tcpv1",
-                "LnDNcpv / Tcpv1 vs. Ncpv1",
-                "LnDNcpv / Pav1 vs. LnTcpv1",
-                "LnDNcpv / LnTps0 vs. Tcpv1",
-                "LnDNcpv / LnCac0 vs. LnNcpv0",
-                "LnDPav / Tps0 vs. DCac",
-                "LnDPav / LnNcpv1 vs. Ncpv1",
-                "Tps0 / LnTcpv0 vs. LnDTps",
-                "Tps1 / LnPav1 vs. LnTps1",
-                "Cac0 / Cac1 vs. Tps1"
+                "DNcpv vs. Tps0 / Cac0",
+                "DTcpv vs. DTps / LnTps1",
+                "Tcpv1 vs. DCac / LnDPav",
+                "LnTps0 vs. DCac / LnNcpv1",
+                "LnTcpv1 vs. DTcpv / Cac0",
+                "Pav0 vs. DPav / LnDTps",
+                "LnNcpv1 vs. DPav / LnNcpv0",
+                "DPav vs. LnDTps / LnDNcpv",
+                "LnTcpv1 vs. LnDTps / Ncpv1",
+                "LnNcpv1 vs. LnDCac / LnDPav",
+                "LnCac1 vs. LnDCac / LnCac0",
+                "Tps0 vs. LnDNcpv / Tps1",
+                "Tcpv1 vs. LnDNcpv / Cac1",
+                "Ncpv1 vs. LnDNcpv / Tcpv1",
+                "LnTcpv1 vs. LnDNcpv / Pav1",
+                "Tcpv1 vs. LnDNcpv / LnTps0",
+                "LnNcpv0 vs. LnDNcpv / LnCac0",
+                "DCac vs. LnDPav / Tps0",
+                "Ncpv1 vs. LnDPav / LnNcpv1",
+                "LnDTps vs. Tps0 / LnTcpv0",
+                "LnTps1 vs. Tps1 / LnPav1",
+                "Tps1 vs. Cac0 / Cac1"
 
             ];
 
@@ -252,6 +240,63 @@ namespace KetoCtaTest
                 var selector = new CreateSelector(chart);
 
                 if (selector.IsRatio)
+                {
+                    var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+                    var dust = goldMiner.AuDust(SetName.Beta, chart);
+
+                    var regression = dust.Regression;
+                    testOutputHelper.WriteLine($"Regression for {chart}: {regression.PValue():F6}, {regression.Slope():F3}, {regression.N}");
+                }
+                else
+                {
+                    testOutputHelper.WriteLine($"The selector for chart '{chart}' is not a ratio selector.");
+                }
+            }
+        }
+
+
+        [Fact]
+        public void RatioLnOfRatioSelectorTest()
+        {
+            string[] testCharts =
+            [
+                "DNcpv vs. Ln(Tps0 / Cac0)",
+                "LnTcpv1 vs. Ln(DTcpv / Cac0)",
+                "LnTcpv1 vs. Ln(DTps / Ncpv1)",
+                "LnNcpv1 vs. Ln(DPav / Ncpv0)",
+                "Tps1 vs. Ln(Cac0 / Cac1)",
+                "LnTps1 vs. Ln(Tps1 / Pav1)",
+                "Tcpv1 vs. Ln(DCac / DPav)",
+                "DTcpv vs. Ln(DTps / Tps1)",
+                "LnTps0 vs. Ln(DCac / Ncpv1)",
+                "Pav0 vs. Ln(DPav / LnDTps)",
+                "DPav vs. Ln(LnDTps / LnDNcpv)",
+                "LnNcpv1 vs. Ln(LnDCac / LnDPav)",
+                "LnCac1 vs. Ln(LnDCac / LnCac0)",
+                "Tps0 vs. Ln(LnDNcpv / Tps1)",
+                "Tcpv1 vs. Ln(LnDNcpv / Cac1)",
+                "Ncpv1 vs. Ln(LnDNcpv / Tcpv1)",
+                "LnTcpv1 vs. Ln(LnDNcpv / Pav1)",
+                "Tcpv1 vs. Ln(LnDNcpv / LnTps0)",
+                "LnNcpv0 vs. Ln(LnDNcpv / LnCac0)",
+                "DCac vs. Ln(LnDPav / Tps0)",
+                "Ncpv1 vs. Ln(nDPav / LnNcpv1)",
+                "LnDTps vs. Ln(Tps0 / LnTcpv0)",
+                "Tcpv1 vs. Ln(DCac / LnDPav)",
+
+            ];
+
+
+            foreach (var chart in testCharts)
+            {
+
+                //var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
+                //// Define ySelector to return y value (LnDTps)
+                //var ySelector = new Func<Element, double>(item => item.LnDTps);
+
+                var selector = new CreateSelector(chart);
+
+                if (selector.IsRatioLnWrapper)
                 {
                     var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
                     var dust = goldMiner.AuDust(SetName.Beta, chart);

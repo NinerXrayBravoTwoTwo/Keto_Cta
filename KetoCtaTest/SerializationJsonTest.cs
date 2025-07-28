@@ -10,7 +10,7 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void SerializeVisit()
     {
-        var visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5);
+        Visit visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5,0);
         var json = System.Text.Json.JsonSerializer.Serialize(visit);
         _testOutputHelper.WriteLine(json);
         Assert.NotNull(json);

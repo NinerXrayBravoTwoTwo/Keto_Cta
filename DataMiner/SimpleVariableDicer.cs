@@ -1,6 +1,7 @@
-﻿using DataMiner;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
+
+namespace DataMiner;
 
 public class SimpleVariableDicer : BaseVariableDicer
 {
@@ -9,30 +10,34 @@ public class SimpleVariableDicer : BaseVariableDicer
         ValidateVariableName(variableName);
         VariableName = variableName;
 
-        var prefixPattern = @"(?:[a-zA-Z_][a-zA-Z0-9_]*\[\d+\]\.)?";
-        var variablePattern = @"(Ln)?(D)?(Tps|Cac|Ncpv|Tcpv|Pav)(\d?)";
-        var pattern = $"^{prefixPattern}{variablePattern}$";
+        // Normalize input to trim extra whitespace
+        var normalizedInput = Regex.Replace(variableName.Trim(), @"\s+", " ");
+        System.Diagnostics.Debug.WriteLine($"Normalized Input: {normalizedInput}");
 
-        var match = Regex.Match(variableName, pattern, RegexOptions.IgnoreCase);
+        // Support format: [prefix.](Ln)D(DTps|Tps|DCac|Cac|DNcpv|Ncpv|DTcpv|Tcpv|DPav|Pav)(\d?)
+        var prefixPattern = @"(?:[a-zA-Z_][a-zA-Z0-9_]*\[\d+\]\.)?";
+        var variablePattern = @"(Ln)?(D)?(DTps|Tps|DCac|Cac|DNcpv|Ncpv|DTcpv|Tcpv|DPav|Pav)(\d?)";
+        var pattern = $@"^{prefixPattern}{variablePattern}$";
+
+        var match = Regex.Match(normalizedInput, pattern, RegexOptions.IgnoreCase);
         if (!match.Success)
-            throw new ArgumentException($"Invalid variable name: {variableName}. Expected format: '[prefix.](Ln)D(Tps|Cac|Ncpv|Tcpv|Pav)(\\d?)'");
+        {
+            System.Diagnostics.Debug.WriteLine($"Regex failed for groups: {string.Join(", ", match.Groups.Cast<Group>().Select(g => $"[{g.Index}]: {g.Value}"))}");
+            throw new ArgumentException($"Invalid variable name: {variableName}. Expected format: '[prefix.](Ln)D(DTps|Tps|DCac|Cac|DNcpv|Ncpv|DTcpv|Tcpv|DPav|Pav)(\\d?)'");
+        }
+
+        System.Diagnostics.Debug.WriteLine($"Matched groups: {string.Join(", ", match.Groups.Cast<Group>().Select(g => $"[{g.Index}]: {g.Value}"))}");
 
         var varSb = new StringBuilder();
         var sbRoot = new StringBuilder();
 
         bool isDelta = match.Groups[2].Success;
-        if (match.Groups[1].Success)
-        {
-            varSb.Append("Ln");
-            IsLogarithmic = true;
-            sbRoot.Append(isDelta ? "LnD" : "Ln");
-        }
+        IsLogarithmic = match.Groups[1].Success;
 
         if (isDelta)
         {
             varSb.Append('D');
-            if (!IsLogarithmic)
-                sbRoot.Append('D');
+            sbRoot.Append('D');
             IsDelta = true;
         }
 
@@ -45,7 +50,7 @@ public class SimpleVariableDicer : BaseVariableDicer
         IsVisit = match.Groups[4].Success && !string.IsNullOrEmpty(match.Groups[4].Value);
         var visitIndex = IsVisit ? match.Groups[4].Value : "0";
 
-        if (isDelta && !IsVisit || IsLogarithmic && varSb.ToString().StartsWith("LnD") && !IsVisit)
+        if (isDelta && !IsVisit)
         {
             Target = varSb.ToString();
             RootAttribute = sbRoot.ToString();
@@ -55,5 +60,7 @@ public class SimpleVariableDicer : BaseVariableDicer
             Target = $"Visits[{visitIndex}].{varSb}";
             RootAttribute = $"Visits[{visitIndex}].{sbRoot}";
         }
+
+        System.Diagnostics.Debug.WriteLine($"Target: {Target}, RootAttribute: {RootAttribute}");
     }
 }

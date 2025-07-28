@@ -5,7 +5,8 @@ using System.Text.RegularExpressions;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
-var MyMine = new GoldMiner(ctaDataPath);
+var ctaQangioPath = "TestData/keto-cta-qangio.csv";
+var MyMine = new GoldMiner(ctaDataPath, ctaQangioPath);
 var logMismatch = 0;
 var uninterestingSkip = 0;
 var localDusts = new List<Dust>();
@@ -78,8 +79,8 @@ void ChartToCvs(IEnumerable<Dust> dust)
         var target = dust1.Regression;
         var parts = Split(dust1.ChartTitle, @"\s+vs.\s*");
         if (parts.Length < 2) continue; // Handle invalid titles
-        var regressor = parts[0];
-        var dependent = parts[1];
+        var regressor = parts[1];
+        var dependent = parts[0];
 
         Console.WriteLine($"\n-,-,{dust1.ChartTitle} -- {dust1.SetName}" +
                           $"\n-,-,Slope: {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
@@ -104,8 +105,6 @@ string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
     return report;
 }
 
-
-
 #endregion
 
 //ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
@@ -125,9 +124,9 @@ while (true)
 
     if (!string.IsNullOrWhiteSpace(command))
     {
-        if (IsMatch(command, @"cac", RegexOptions.IgnoreCase))
+        if (IsMatch(command, @"beta", RegexOptions.IgnoreCase))
         {
-            var myData = MyMine.PrintBetaUZetaElements(SetName.BetaUZeta);
+            var myData = MyMine.PrintBetaElements(SetName.Beta);
             foreach (var item in myData)
             {
                 Console.WriteLine(item);
@@ -181,7 +180,7 @@ while (true)
         }
         else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
         {
-            Console.WriteLine("Possible Commands: 'independent vs. regressor', CAC, mine, gamma, dust, matrix, " +
+            Console.WriteLine("Possible Commands: 'independent vs. regressor', BetaUZeta, mine, gamma, dust, matrix, " +
                               "all matrix, keto, clear dusts, q|exit|quit|end|help");
         }
         else if (IsMatch(command, @"dust", RegexOptions.IgnoreCase))

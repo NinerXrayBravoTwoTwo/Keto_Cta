@@ -9,7 +9,15 @@ public class Dust
     {
         SetName = set;
         ChartTitle = title;
-        Regression = regression ?? throw new ArgumentNullException(nameof(regression));
+        try
+        {
+            Regression = regression ?? throw new ArgumentNullException(nameof(regression));
+        }
+        catch (ArgumentException error)
+        {
+            System.Diagnostics.Debug.WriteLine($"Dust; {error.Message} {title}, {set}");
+            throw;
+        }
     }
 
     public Dust(SetName set, string title)

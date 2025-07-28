@@ -5,10 +5,13 @@ namespace DataMiner;
 
 public class GoldMiner
 {
-    public GoldMiner(string path)
+    public GoldMiner(string ketoCtaPath, string qAngioPath = "")
     {
-        var elements = ReadCsvFile(path) ??
-                       throw new ArgumentException("CSV file returned null elements.", nameof(path));
+
+        var qangio = ReadQangioCsvFile(qAngioPath);
+
+        var elements = ReadKetoCtaFile(ketoCtaPath, qangio) ??
+                       throw new ArgumentException("CSV file returned null elements.", nameof(ketoCtaPath));
 
         Omega = elements.Where(e =>
             e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
@@ -44,21 +47,20 @@ public class GoldMiner
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
-    // private readonly HashSet<string> _processedRatios = [];
 
     /// <summary>
-    /// Reads a CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
+    /// Reads a Keto-CTA CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
     /// </summary>
     /// <remarks>The method expects the CSV file to have a specific structure where each row contains numeric
     /// values  separated by commas. The first row is assumed to be a header and is skipped during processing. If a row
     /// contains invalid numeric data, it is skipped, and a message is logged to the console.</remarks>
-    /// <param name="path">The file path of the CSV file to read. The file must exist and be accessible.</param>
+    /// <param name="ketoCtaPath">The file path of the CSV file to read. The file must exist and be accessible.</param>
     /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
     /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
-    private static List<Element> ReadCsvFile(string path)
+    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio> qAngioData = null)
     {
         var list = new List<Element>();
-        using var reader = new StreamReader(path);
+        using var reader = new StreamReader(ketoCtaPath);
         var index = 0;
         if (!reader.EndOfStream) reader.ReadLine();
         while (!reader.EndOfStream)
@@ -68,12 +70,16 @@ public class GoldMiner
             var values = line.Split(',');
 #pragma warning restore CS8602
 
+            var qa = qAngioData.FirstOrDefault(q => q.Id == index);
+            var qa1 = qa != null ? qa.QAngio1 : double.NaN;
+            var qa2 = qa != null ? qa.QAngio2 : double.NaN;
+
             try
             {
                 var visit1 = new Visit("V1", null, int.Parse(values[0]), int.Parse(values[2]), double.Parse(values[4]),
-                    double.Parse(values[6]), double.Parse(values[8]));
+                    double.Parse(values[6]), double.Parse(values[8]), qa1);
                 var visit2 = new Visit("V2", null, int.Parse(values[1]), int.Parse(values[3]), double.Parse(values[5]),
-                    double.Parse(values[7]), double.Parse(values[9]));
+                    double.Parse(values[7]), double.Parse(values[9]), qa2);
 
                 index++;
                 var element = new Element(index.ToString(), [visit1, visit2]);
@@ -82,6 +88,39 @@ public class GoldMiner
             catch (FormatException ex)
             {
                 Console.WriteLine($"Skipping line {index + 1}: invalid number format ({ex.Message}).");
+            }
+
+        }
+
+        return list;
+    }
+
+    private static List<QAngio> ReadQangioCsvFile(string qAngioPath)
+    {
+
+        if (string.IsNullOrEmpty(qAngioPath)) return [];
+
+        var list = new List<QAngio>();
+        using var reader = new StreamReader(qAngioPath);
+        var lineNumber = 0;
+        if (!reader.EndOfStream) reader.ReadLine();
+        while (!reader.EndOfStream)
+        {
+            lineNumber++;
+
+            var line = reader.ReadLine();
+#pragma warning disable CS8602
+            var values = line.Split(',');
+#pragma warning restore CS8602
+
+            try
+            {
+                var qAngioRow = new QAngio(int.Parse(values[0]), double.Parse(values[1]), double.Parse(values[2]));
+                list.Add(qAngioRow);
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"QAngio - Skipping Row {lineNumber + 1}: invalid number format ({ex.Message}).");
             }
         }
 
@@ -104,8 +143,16 @@ public class GoldMiner
     private RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
         Func<Element, (double x, double y)> selector)
     {
-        if (targetElements == null) throw new ArgumentNullException(nameof(targetElements));
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
+        try
+        {
+            if (targetElements == null) throw new ArgumentNullException(nameof(targetElements));
+            if (selector == null) throw new ArgumentNullException(nameof(selector));
+        }
+        catch (Exception error)
+        {
+            System.Diagnostics.Debug.WriteLine($"Local RegressionPValue; {error.Message} {label}");
+            throw;
+        }
 
         var dataPoints = new List<(double x, double y)>();
         foreach (var element in targetElements)
@@ -210,14 +257,20 @@ public class GoldMiner
             }
         }
 
-        var regression = selector.IsRatio
-            ? CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector)
-            : CalculateRegression(data, chartTitle, selector.Selector);
+        RegressionPvalue regression;
+        if (selector.IsRatio)
+            regression = CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector);
+        else
+            regression = CalculateRegression(data, chartTitle, selector.Selector);
+
+        //var regression = selector.IsRatio
+        //? CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector)
+        //: CalculateRegression(data, chartTitle, selector.Selector);
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
 
-    public string[] PrintBetaUZetaElements(SetName setName)
+    public string[] PrintBetaElements(SetName setName)
     {
 
         if (!_setNameToData.TryGetValue(setName, out var elements))
@@ -227,29 +280,39 @@ public class GoldMiner
 
         List<string> myData =
         [
-            "index,DCac,DNCpv,LnDCac,LnDNcpv," +
+            "index,Set,DCac,DNCpv,LnDCac,LnDNcpv," +
+            "Ratio0,Ratio1," +
             "Cac0,Cac1,LnCac0,LnCac1," +
             "Ncpv0,Ncpv1,LnNcpv0,LnNcpv1," +
             "Cac0/Ncpv0,Cac0/Ncpv1," +
-            "Ln/LnNcpv0,LnCac0/LnNcpv1,Set"
+            "Ln/LnNcpv0,LnCac0/LnNcpv1"
         ];
-        myData.AddRange(elements.Select(item => $"{item.Id},{item.DCac},{item.DNcpv},{item.LnDCac},{item.LnDNcpv},"
-                    + $"{item.Visits[0].Cac},{item.Visits[1].Cac},{item.Visits[0].LnCac},{item.Visits[1].LnCac},"
-                    + $"{item.Visits[0].Ncpv},{item.Visits[1].Ncpv},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},"
-                    + $"{item.Visits[0].Cac / item.Visits[0].Ncpv},{item.Visits[0].Cac / item.Visits[1].Ncpv},"
-                    + $"{item.Visits[0].LnCac / item.Visits[0].LnNcpv},{item.Visits[0].LnCac / item.Visits[1].LnNcpv},{item.MemberSet}"));
+
+        foreach (var element in elements)
+        {
+            var ratio0 = element.Visits[0].Ncpv == 0.0 ? 0 : Visit.Ln(element.Visits[0].Cac / element.Visits[0].Ncpv);
+            var ratio1 = element.Visits[1].Ncpv == 0.0 ? 0 : Visit.Ln(element.Visits[0].Cac / element.Visits[1].Ncpv);
+
+            myData.Add(
+                $"{element.Id},{element.MemberSet},{element.DCac},{element.DNcpv},{element.LnDCac},{element.LnDNcpv},"
+                + $"{element.Visits[0].Cac},{element.Visits[1].Cac},{ratio0},{ratio1},"
+                + $"{element.Visits[0].LnCac},{element.Visits[1].LnCac},"
+                + $"{element.Visits[0].Ncpv},{element.Visits[1].Ncpv},{element.Visits[0].LnNcpv},{element.Visits[1].LnNcpv},"
+                + $"{element.Visits[0].Cac / element.Visits[0].Ncpv},{element.Visits[0].Cac / element.Visits[1].Ncpv},"
+                + $"{element.Visits[0].LnCac / element.Visits[0].LnNcpv},{element.Visits[0].LnCac / element.Visits[1].LnNcpv}");
+        }
 
         return myData.ToArray();
     }
 
     public string[] PrintOmegaElementsFor3DGammaStudy(SetName setName)
     {
-        // LnPav0 / LnNcpv0 vs. LnDPav -- Alpha
-        // LnPav0 / LnNcpv1 vs. LnDPav -- Alpha
-        // LnPav1 / LnNcpv1 vs. LnDPav -- Alpha
+        // LnDPav vs. LnPav0 / LnNcpv0 -- Alpha
+        // LnDPav vs. LnPav0 / LnNcpv1 -- Alpha
+        // LnDPav vs. LnPav1 / LnNcpv1 -- Alpha
 
-        // LnPav0 / LnNcpv0 vs. LnPav1 -- Alpha
-        // LnPav0 / LnNcpv1 vs. LnPav1 -- Alpha
+        // LnPav1 vs. LnPav0 / LnNcpv0 -- Alpha
+        // LnPav1 vs. LnPav0 / LnNcpv1 -- Alpha
 
         if (!_setNameToData.TryGetValue(setName, out var elements))
         {
@@ -426,7 +489,7 @@ public class GoldMiner
 
         string[] chartTitles =
         [
-            "Cac1 vs. Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
+            "Cac1 vs.Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
             "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
         ];
         var localDust = chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList();
