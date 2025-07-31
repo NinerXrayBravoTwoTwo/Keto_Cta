@@ -1,6 +1,5 @@
 ﻿using DataMiner;
 using Keto_Cta;
-using LinearRegression;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Abstractions;
@@ -46,7 +45,7 @@ namespace KetoCtaTest
                     testOutputHelper.WriteLine($"Normalized attribute: {attLn} -> {normalized}");
                     var compiled = CreateSelectorTwo.Compile(normalized);
                     // look up the expected normalized attLn
-                    var reflectValue = (double) GetNestedPropertyValue(element, compiled.numerator);
+                    var reflectValue = (double)GetNestedPropertyValue(element, compiled.numerator);
                     testOutputHelper.WriteLine($"\tCompiled   attribute: {attLn} -> {compiled} -> {reflectValue:F2}");
 
 
@@ -78,7 +77,7 @@ namespace KetoCtaTest
         {
             if (string.IsNullOrEmpty(propertyPath) || obj == null)
                 return null;
-            
+
             var properties = propertyPath.Split('.');
 
             var current = obj;
