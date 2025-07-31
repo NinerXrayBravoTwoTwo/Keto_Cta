@@ -61,15 +61,15 @@ public partial class CreateSelectorTwo
         return current;
     }
 
-    private static object? GetElementPropertyValue(object? obj, string propertyPath)
-    {
-        var 
-    }
+    //private static object? GetElementPropertyValue(object? obj, string propertyPath)
+    //{
+    //    var 
+    //}
 
-    private static object? GetVisitPropertyValue(object? string propertyPath)
-    {
+    //private static object? GetVisitPropertyValue(object? string propertyPath)
+    //{
 
-    }
+    //}
 
     #endregion
 }

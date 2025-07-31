@@ -39,7 +39,7 @@ namespace DataMiner
                     YSelector = CreateSelector(compileDependent.numerator);
 
                     break;
-                    
+
                 case Token.Ratio:
                 case Token.LnRatio:
                     break;
@@ -107,4 +107,4 @@ namespace DataMiner
         //    }
         //}
     }
-
+}

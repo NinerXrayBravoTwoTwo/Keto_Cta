@@ -58,26 +58,25 @@ namespace DataMiner
         public static string AttributeCaseNormalize(string attribute)
         {
             var match = Regex.Match(attribute, @"(^[a-zA-Z)]+)(\d)$");
-            
+
             //var result = string.Empty;
             if (match.Success)
             {
                 var suffix = match.Groups[2].Value;
                 var key = match.Groups[1].Value.ToLower();
-                return AttributeDictionary[key]+ suffix;
+                return AttributeDictionary[key] + suffix;
             }
             else
-            { 
+            {
                 var key = attribute.ToLower();
                 if (AttributeDictionary.TryGetValue(key, out var normalized))
                     return normalized;
             }
-
-            if (string.IsNullOrEmpty(attribute))
-                throw new SyntaxErrorException($"Valid attribute not found for:{attribute}");
+            
+            throw new SyntaxErrorException($"Valid attribute not found for:{attribute}");
         }
 
         #endregion
     }
 }
-}
+
