@@ -164,7 +164,7 @@ while (true)
         {
             Dust[] myDusts;
             var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
-            Console.WriteLine(string.Join( '\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts,true)));
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
         }
         else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
         {

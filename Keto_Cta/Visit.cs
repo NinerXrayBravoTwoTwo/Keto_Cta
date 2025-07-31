@@ -15,24 +15,25 @@ public record Visit
     /// <param name="ncpv">The Non Calcified Plaque Volume.</param>
     /// <param name="tcpv">The Total calcified plaque volume</param>
     /// <param name="pav">The Percent Atheroma Volume</param>
-    /// <param name="qangio">The QAngio value, default is 0.0</param>
-    public Visit(string id, DateTime? visitDate, int tps, int cac, double ncpv, double tcpv, double pav, double qangio=double.NaN)
+    /// <param name="qangio">The QAngio value, default for no value is NaN</param>
+    public Visit(string id, DateTime? visitDate, int tps, int cac, double ncpv, double tcpv, double pav, double qangio = double.NaN)
     {
         Id = id;
         VisitDate = visitDate;
+
         Tps = tps;
         Cac = cac;
         Ncpv = ncpv;
         Tcpv = tcpv;
         Pav = pav;
-        QAngio = qangio;
+        Qangio = qangio;
 
         LnTps = Ln(tps);
         LnCac = Ln(cac);
         LnNcpv = Ln(ncpv);
         LnTcpv = Ln(tcpv);
         LnPav = Ln(pav);
-        LnQAngio =Ln(QAngio);
+        LnQangio = Ln(Qangio);
     }
 
     public static double Ln(double value)
@@ -47,7 +48,7 @@ public record Visit
     public double Ncpv { get; init; }
     public double Tcpv { get; init; }
     public double Pav { get; init; }
-    public double QAngio { get; init; } = 0.0;
+    public double Qangio { get; init; } = 0.0;
 
     public double LnTps { get; init; }
     public double LnCac { get; init; }
@@ -55,7 +56,7 @@ public record Visit
     public double LnTcpv { get; init; }
     public double LnPav { get; init; }
 
-    public double LnQAngio { get; init; } = 0.0;
+    public double LnQangio { get; init; } = 0.0;
     public override string ToString()
     {
         return

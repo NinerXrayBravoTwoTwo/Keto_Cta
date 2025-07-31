@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Keto_Cta;
+﻿using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -510,14 +509,14 @@ public class GoldMiner
             result.Add("Index,Regression,Set,Mean X,moe X, Mean Y,moe Y, Slope,R^2,p-value");
 
         var index = 1;
-        result.AddRange(from item in dusts 
-            let moeX = item.Regression.MarginOfError() 
-            let moeY = item.Regression.MarginOfError(useY: true) 
-            select $"{index++},{item.ChartTitle},{item.SetName} {item.Regression.N}," 
-                   + $"{moeX.Mean:F3},{moeX.MarginOfError:F4}," 
-                   + $"{moeY.Mean:F3},{moeY.MarginOfError:F4}," 
-                   + $"{item.Regression.Slope():F3},"
-                   + $"{item.Regression.RSquared():F3},{item.Regression.PValue():F11}");
+        result.AddRange(from item in dusts
+                        let moeX = item.Regression.MarginOfError()
+                        let moeY = item.Regression.MarginOfError(useY: true)
+                        select $"{index++},{item.ChartTitle},{item.SetName} {item.Regression.N},"
+                               + $"{moeX.Mean:F3},{moeX.MarginOfError:F4},"
+                               + $"{moeY.Mean:F3},{moeY.MarginOfError:F4},"
+                               + $"{item.Regression.Slope():F3},"
+                               + $"{item.Regression.RSquared():F3},{item.Regression.PValue():F11}");
 
         return string.Join('\n', result.ToArray());
     }

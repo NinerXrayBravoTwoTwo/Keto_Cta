@@ -190,7 +190,7 @@ public class MineRegressionsWithGold()
 
                 foreach (var dependent in allAttributes)
                 {
-                   // if (!dependent.StartsWith("LnCac1")) continue; // skip, only interested in lnCac0 for now
+                    // if (!dependent.StartsWith("LnCac1")) continue; // skip, only interested in lnCac0 for now
 
                     string[] reg = [numerator, denominator];
                     var key = string.Join(',', reg) + $",{dependent}";

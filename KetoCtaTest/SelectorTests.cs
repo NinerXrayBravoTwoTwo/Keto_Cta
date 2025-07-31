@@ -18,7 +18,7 @@ namespace KetoCtaTest
             var dusts = goldMiner.GoldDust(title);
             Assert.NotNull(dusts);
             Assert.NotEqual(1, dusts[0].Regression.PValue());
-            
+
         }
         [Fact]
         public void CreateSelector_ValidChartTitle_SetsNonNullSelector()
@@ -58,7 +58,11 @@ namespace KetoCtaTest
         public void CreateSelector_LogMismatch_Detected()
         {
             var selector = new CreateSelector("Cac1 vs. LnCac0/Ncpv0");
-            Assert.False(selector.IsRatio);
+            Assert.True(selector.IsRatio);
+            Assert.Equal("LnCac0/Ncpv0", selector.RegressorDicer.VariableName);
+            Assert.True(selector.IsRatio);
+            Assert.False(selector.IsLnWrapRatio);
+
         }
 
         [Fact]
@@ -216,6 +220,9 @@ namespace KetoCtaTest
         {
             string[] testCharts =
             [
+                "LnCac1 vs. LnCac0 / Ncpv0",
+                "LnCac1 vs. LnCac0 / Ncpv1",
+
                 "DNcpv vs. Tps0 / Cac0",
                 "DTcpv vs. DTps / LnTps1",
                 "Tcpv1 vs. DCac / LnDPav",
@@ -242,28 +249,30 @@ namespace KetoCtaTest
             ];
 
 
+            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            List<Dust> testDusts = [];
             foreach (var chart in testCharts)
             {
-
-                //var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
-                //// Define ySelector to return y value (LnDTps)
-                //var ySelector = new Func<Element, double>(item => item.LnDTps);
-
                 var selector = new CreateSelector(chart);
 
                 if (selector.IsRatio)
                 {
-                    var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
                     var dust = goldMiner.AuDust(SetName.Beta, chart);
-
-                    var regression = dust.Regression;
-                    testOutputHelper.WriteLine($"Regression for {chart}: {regression.PValue():F6}, {regression.Slope():F3}, {regression.N}");
+                    if (dust == null)
+                        testOutputHelper.WriteLine($"The selector for chart '{chart}' NULL.");
+                    else
+                        testDusts.Add(dust);
                 }
                 else
                 {
                     testOutputHelper.WriteLine($"The selector for chart '{chart}' is not a ratio selector.");
                 }
             }
+
+            var debug = GoldMiner.ToStringFormatRegressionsInDusts(testDusts.ToArray());
+
+            testOutputHelper.WriteLine($"Regression for {debug}");
+
         }
 
 
@@ -272,6 +281,8 @@ namespace KetoCtaTest
         {
             string[] testCharts =
             [
+                "LnCac1 vs. Ln(Cac0 / Ncpv0)",
+                "LnCac1 vs. Ln(Cac0 / Ncpv1)",
                 "DNcpv vs. Ln(Tps0 / Cac0)",
                 "LnTcpv1 vs. Ln(DTcpv / Cac0)",
                 "LnTcpv1 vs. Ln(DTps / Ncpv1)",
@@ -281,46 +292,48 @@ namespace KetoCtaTest
                 "Tcpv1 vs. Ln(DCac / DPav)",
                 "DTcpv vs. Ln(DTps / Tps1)",
                 "LnTps0 vs. Ln(DCac / Ncpv1)",
-                "Pav0 vs. Ln(DPav / LnDTps)",
-                "DPav vs. Ln(LnDTps / LnDNcpv)",
-                "LnNcpv1 vs. Ln(LnDCac / LnDPav)",
-                "LnCac1 vs. Ln(LnDCac / LnCac0)",
-                "Tps0 vs. Ln(LnDNcpv / Tps1)",
-                "Tcpv1 vs. Ln(LnDNcpv / Cac1)",
-                "Ncpv1 vs. Ln(LnDNcpv / Tcpv1)",
-                "LnTcpv1 vs. Ln(LnDNcpv / Pav1)",
-                "Tcpv1 vs. Ln(LnDNcpv / LnTps0)",
-                "LnNcpv0 vs. Ln(LnDNcpv / LnCac0)",
-                "DCac vs. Ln(LnDPav / Tps0)",
-                "Ncpv1 vs. Ln(nDPav / LnNcpv1)",
-                "LnDTps vs. Ln(Tps0 / LnTcpv0)",
-                "Tcpv1 vs. Ln(DCac / LnDPav)",
+                
+                //"Pav0 vs. Ln(DPav / LnDTps)",
+                //"DPav vs. Ln(LnDTps / LnDNcpv)",
+                //"LnNcpv1 vs. Ln(LnDCac / LnDPav)",
+                //"LnCac1 vs. Ln(LnDCac / LnCac0)",
+                //"Tps0 vs. Ln(LnDNcpv / Tps1)",
+                //"Tcpv1 vs. Ln(LnDNcpv / Cac1)",
+                //"Ncpv1 vs. Ln(LnDNcpv / Tcpv1)",
+                //"LnTcpv1 vs. Ln(LnDNcpv / Pav1)",
+                //"Tcpv1 vs. Ln(LnDNcpv / LnTps0)",
+                //"LnNcpv0 vs. Ln(LnDNcpv / LnCac0)",
+                //"DCac vs. Ln(LnDPav / Tps0)",
+                //"Ncpv1 vs. Ln(nDPav / LnNcpv1)",
+                //"LnDTps vs. Ln(Tps0 / LnTcpv0)",
+                //"Tcpv1 vs. Ln(DCac / LnDPav)",
 
             ];
 
-
+            var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
+            List<Dust> testDusts = [];
             foreach (var chart in testCharts)
             {
-
-                //var xSelector = new Func<Element, (double numerator, double denominator)>(item => (item.LnDNcpv, item.LnDCac));
-                //// Define ySelector to return y value (LnDTps)
-                //var ySelector = new Func<Element, double>(item => item.LnDTps);
-
                 var selector = new CreateSelector(chart);
 
-                if (selector.IsRatioLnWrapper)
+                if (selector.IsLnWrapRatio)
                 {
-                    var goldMiner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-                    var dust = goldMiner.AuDust(SetName.Beta, chart);
-
-                    var regression = dust.Regression;
-                    testOutputHelper.WriteLine($"Regression for {chart}: {regression.PValue():F6}, {regression.Slope():F3}, {regression.N}");
+                    var dust = goldMiner.AuDust(SetName.Omega, chart);
+                    if (dust == null)
+                        testOutputHelper.WriteLine($"The selector for chart '{chart}' NULL.");
+                    else
+                        testDusts.Add(dust);
                 }
                 else
                 {
                     testOutputHelper.WriteLine($"The selector for chart '{chart}' is not a ratio selector.");
                 }
             }
+
+            var debug = GoldMiner.ToStringFormatRegressionsInDusts(testDusts.ToArray());
+
+            testOutputHelper.WriteLine($"Regression for {debug}");
+
         }
 
         [Fact]

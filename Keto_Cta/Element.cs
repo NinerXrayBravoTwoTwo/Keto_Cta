@@ -90,12 +90,14 @@ public class Element
     public double DNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
     public double DTcpv => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
+    public double DQangio => Visits[1].Qangio - Visits[0].Qangio;
 
     public double LnDTps => Visit.Ln(DTps);
     public double LnDCac => Visit.Ln(DCac);
     public double LnDNcpv => Visit.Ln(DNcpv);
     public double LnDTcpv => Visit.Ln(DTcpv);
     public double LnDPav => Visit.Ln(DPav);
+    public double LnDQangio => Visit.Ln(DQangio);
 
 
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);

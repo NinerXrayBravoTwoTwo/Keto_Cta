@@ -1,6 +1,5 @@
 ﻿
 using Keto_Cta;
-using LinearRegression;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -20,10 +19,7 @@ public class CreateSelector
 
         // Determine the type of regressor and create the appropriate dicer
         if (regressor.StartsWith("Ln(", StringComparison.OrdinalIgnoreCase) && regressor.EndsWith(")"))
-        {
             RegressorDicer = new LnRatioVariableDicer(regressor);
-            IsRatioLnWrapper = true;
-        }
         else if (regressor.Contains('/'))
             RegressorDicer = new RatioVariableDicer(regressor);
 
@@ -62,7 +58,7 @@ public class CreateSelector
             if (IsRatio)
                 return numLog != denLog || numLog != depLog;
 
-            if (isLnWrapRatio)
+            if (IsLnWrapRatio)
                 return true != depLog;
 
             return false;
@@ -74,11 +70,11 @@ public class CreateSelector
         IsRatio && (Numerator?.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) == true ||
                     Denominator?.Target.Contains(DependantDicer.Target, StringComparison.OrdinalIgnoreCase) == true);
 
-    public bool IsRatioLnWrapper { get; set; }
+    //public bool IsRatioLnWrapper { get; set; }
 
     public bool IsRatio => RegressorDicer is RatioVariableDicer;
 
-    public bool isLnWrapRatio => RegressorDicer is LnRatioVariableDicer;
+    public bool IsLnWrapRatio => RegressorDicer is LnRatioVariableDicer;
 
     public SimpleVariableDicer? Numerator => (RegressorDicer as RatioVariableDicer)?.Numerator ?? (RegressorDicer as LnRatioVariableDicer)?.Numerator;
 
@@ -96,7 +92,7 @@ public class CreateSelector
 
     private Func<Element, (double, double)> CreateXSelector()
     {
-        if (IsRatio || isLnWrapRatio)
+        if (IsRatio || IsLnWrapRatio)
         {
             var numeratorTarget = Numerator?.Target ?? "";
             var denominatorTarget = Denominator?.Target ?? "";
@@ -136,12 +132,12 @@ public class CreateSelector
             {
                 var (num, den) = XSelector(e);
                 var y = _ySelector(e);
-                double x = 0.0;
+                double x;
                 if (IsRatio)
                 {
                     x = den != 0 ? num / den : 0;
                 }
-                else if (isLnWrapRatio)
+                else if (IsLnWrapRatio)
                 {
                     var ratio = den != 0 ? num / den : 0;
                     x = ratio > 0 ? Visit.Ln(ratio) : double.NaN;
@@ -154,7 +150,16 @@ public class CreateSelector
             };
         }
     }
-
+    /// <summary>
+    /// Retrieves the value of a nested property from an object, following a specified property path.
+    /// </summary>
+    /// <remarks>This method uses reflection to traverse the property path and retrieve the value.  If any
+    /// part of the path is invalid, or if the object or property value is <see langword="null"/>,  the method returns
+    /// <see langword="null"/>.</remarks>
+    /// <param name="obj">The object from which to retrieve the property value. Can be <see langword="null"/>.</param>
+    /// <param name="propertyPath">A dot-separated string representing the path to the nested property.  Supports indexed properties for
+    /// collections, e.g., "PropertyName[0].SubProperty".</param>
+    /// <returns>The value of the nested property if found; otherwise, <see langword="null"/>.</returns>
     private static object? GetNestedPropertyValue(object? obj, string propertyPath)
     {
         if (string.IsNullOrEmpty(propertyPath) || obj == null)
