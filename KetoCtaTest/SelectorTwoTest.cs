@@ -2,23 +2,25 @@
 using Keto_Cta;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using LinearRegression;
 using Xunit.Abstractions;
 
 namespace KetoCtaTest
 {
     public class SelectorTwoTest(ITestOutputHelper testOutputHelper)
     {
+
         [Fact]
         public void CreateSelectorTwo_ValidInput_CreatesSelectors()
         {
             // Arrange
-            var regressionString = "LnTps1 vs LnTps2";
+            var regressionString = "LnTps1 vs LnTps0";
             var createSelectorTwo = new CreateSelectorTwo(regressionString);
             // Act
             var (token, numerator, denominator) = CreateSelectorTwo.Compile("LnTps1");
             // Assert
             Assert.Equal(Token.VisitAttribute, token);
-            Assert.Equal("Visit[1].Tps", numerator);
+            Assert.Equal("Visits[1].LnTps", numerator);
             Assert.Equal(string.Empty, denominator);
         }
 
@@ -45,9 +47,8 @@ namespace KetoCtaTest
                     testOutputHelper.WriteLine($"Normalized attribute: {attLn} -> {normalized}");
                     var compiled = CreateSelectorTwo.Compile(normalized);
                     // look up the expected normalized attLn
-                    var reflectValue = (double)GetNestedPropertyValue(element, compiled.numerator);
+                    var reflectValue = (double)CreateSelectorTwo.GetNestedPropertyValue(element, compiled.numerator);
                     testOutputHelper.WriteLine($"\tCompiled   attribute: {attLn} -> {compiled} -> {reflectValue:F2}");
-
 
                 }
             }
@@ -60,51 +61,87 @@ namespace KetoCtaTest
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "Cac0 vs Cac1";
+            const string title = "Cac1 vs. Cac0";
             var c2Selector = new CreateSelectorTwo(title);
 
             var result = goldMiner.Zeta.Select(c2Selector.Selector);
+            // Act
+            foreach (var (id, x, y) in result)
+            {
+                testOutputHelper.WriteLine($"Element ID: {id}, X: {x}, Y: {y}");
+            }
+            List<(double x, double y)> xyList = result
+                .Select(tuple => (tuple.x, tuple.y))
+                .ToList();
+
+            // Assert
+            var regression = new RegressionPvalue(xyList);
             Assert.NotNull(result);
+            Assert.NotEmpty(xyList);
+            Assert.NotNull(regression);
+            Assert.Equal(0.00003316389, regression.PValue(), 0.000033);
+            testOutputHelper.WriteLine($"Regression: {regression.ToString()}");
         }
 
-
-        /**                                **/
-        // ** Helper Methods for Nested Property Retrieval **/
-        private static readonly Regex PropertyRegex = new(@"([a-zA-Z_][a-zA-Z0-9_]*)(\[(\d+)\])?", RegexOptions.Compiled);
-        private static readonly Dictionary<string, PropertyInfo?> PropertyCache = new();
-
-        private static object? GetNestedPropertyValue(object? obj, string propertyPath)
+        [Fact]
+        public void RatioRegressor()
         {
-            if (string.IsNullOrEmpty(propertyPath) || obj == null)
-                return null;
+            // Arrange
+            const string ratio = "LnCac0 /  LnNcpv1";
 
-            var properties = propertyPath.Split('.');
+            // Act
+            var compile = CreateSelectorTwo.Compile(ratio);
+            Assert.Equal("Visits[0].LnCac", compile.numerator);
+            Assert.Equal("Visits[1].LnNcpv", compile.denominator);
+        }
 
-            var current = obj;
+        [Fact]
+        public void RatioRegressionCreateSelector()
+        {
+            // Arrange
+            const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
+            var goldMiner = new GoldMiner(path);
 
-            foreach (var property in properties)
+            const string ratio = "Cac0 / Ncpv1 vs Cac0";
+            // Act
+            var c2 = new CreateSelectorTwo(ratio);
+
+            // Assert
+            var sel = goldMiner.Zeta.Select(c2.Selector);
+            Assert.NotNull(sel);
+            testOutputHelper.WriteLine($"Ratio Regression: {ratio}");
+            testOutputHelper.WriteLine(c2.ToString());
+
+            foreach (var (id, x, y) in sel)
             {
-                if (current == null) return null;
-
-                var match = PropertyRegex.Match(property);
-                if (!match.Success) return null;
-
-                var propName = match.Groups[1].Value;
-                var cacheKey = $"{current.GetType().FullName}.{propName}";
-                if (!PropertyCache.TryGetValue(cacheKey, out var propInfo))
-                {
-                    propInfo = current.GetType().GetProperty(propName);
-                    PropertyCache[cacheKey] = propInfo;
-                }
-                if (propInfo == null) return null;
-
-                current = propInfo.GetValue(current);
-
-                if (!match.Groups[2].Success || current is not System.Collections.IList list) continue;
-                var index = int.Parse(match.Groups[3].Value);
-                current = index >= 0 && index < list.Count ? list[index] : null;
+                testOutputHelper.WriteLine($"Element ID: {id}, X: {x}, Y: {y}");
             }
-            return current;
+
+            var xyList = sel
+                .Select(tuple => (tuple.x, tuple.y))
+                .ToList();
+
+            foreach (var list in xyList)
+            {
+                testOutputHelper.WriteLine($"X: {list.x}, Y: {list.y}");
+            }
+        }
+
+        [Fact]
+        public void GetRatioDataTest()
+        {
+            // Arrange
+            const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
+            var goldMiner = new GoldMiner(path);
+
+            string[] titles = ["Cac1 vs Cac0", "Ncpv1 vs Ncpv0", "Cac0 / Ncpv0 vs Cac0"];
+            foreach (var title in titles)
+            {
+                var selector = new CreateSelectorTwo(title);
+                testOutputHelper.WriteLine($"{selector.Title} : {selector.ToString()}");
+            }
+
+            // Act
         }
     }
 }

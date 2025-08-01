@@ -25,7 +25,7 @@ public partial class CreateSelectorTwo
     /// <returns>The value of the nested property if found; otherwise, <see langword="null"/>.  Returns <see
     /// langword="null"/> if <paramref name="obj"/> is <see langword="null"/>,  <paramref name="propertyPath"/> is
     /// <see langword="null"/> or empty, or if any part of the path is invalid.</returns>
-    private static object? GetNestedPropertyValue(object? obj, string propertyPath)
+    public static object? GetNestedPropertyValue(object? obj, string propertyPath)
     {
         if (string.IsNullOrEmpty(propertyPath) || obj == null)
             return null;

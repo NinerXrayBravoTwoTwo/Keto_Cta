@@ -1,4 +1,5 @@
-﻿using Keto_Cta;
+﻿using System.Text;
+using Keto_Cta;
 using System.Text.RegularExpressions;
 
 public enum Token
@@ -13,26 +14,54 @@ namespace DataMiner
 {
     public partial class CreateSelectorTwo
     {
-        public CreateSelectorTwo(string regressionString)
+        public CreateSelectorTwo(string dependentVsRegressor)
         {
-            var split = Regex.Split(regressionString, @"\s+vs(.)\s*", RegexOptions.IgnoreCase);
-            string dependent = split[0].Trim();
-            string regressor = split[1].Trim();
+            // delete any whitespace
+            string regressionString = Regex.Replace(dependentVsRegressor, @"\s+", string.Empty);
 
-            var compileDependent = Compile(dependent);
-            var compileRegressor = Compile(regressor);
+            var vsPattern = @"((ln)?\(?[A-Za-z\d/]+\)?)\s*vs\.?\s*((ln)?\(?[A-Za-z\d/]+\)?)";
+            var match = Regex.Match(regressionString, vsPattern, RegexOptions.IgnoreCase);
 
-            switch (compileRegressor.token)
+            if (!match.Success)
+                throw new ArgumentException($"Invalid regression string format: {regressionString}");
+            // group 1 is dependent, group 3 is regressor
+            // group 2 and 4 are optional ln() wrappers; 2 for dependent, 4 for regressor
+
+            string dependent = match.Groups[2].Length == 0 ? RemoveParens(match.Groups[1].Value) : "Ln(" + RemoveParens(match.Groups[1].Value) + ")";
+            string regressor = match.Groups[4].Length == 0 ? RemoveParens(match.Groups[3].Value) : "Ln(" + RemoveParens(match.Groups[3].Value) + ")";
+
+            DependentCompile = Compile(dependent);
+            RegressorCompile = Compile(regressor);
+            
+            StringBuilder sbTitle = new StringBuilder($"n:{DependentCompile.numerator}");
+  
+            Title = $"{dependent} =vs= {regressor}";
+
+            switch(DependentCompile.token)
             {
                 case Token.ElementAttribute:
                 case Token.VisitAttribute:
-                    XSelector = CreateSelector(compileRegressor.numerator);
-                    YSelector = CreateSelector(compileDependent.numerator);
-
+                    YSelector = CreateSelector(DependentCompile.numerator);
                     break;
 
                 case Token.Ratio:
                 case Token.LnRatio:
+                    YSelector = CreateSelector(DependentCompile.numerator, DependentCompile.denominator);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            switch (RegressorCompile.token)
+            {
+                case Token.ElementAttribute:
+                case Token.VisitAttribute:
+                    XSelector = CreateSelector(RegressorCompile.numerator);
+                    break;
+
+                case Token.Ratio:
+                case Token.LnRatio:
+                    XSelector = CreateSelector(RegressorCompile.numerator, RegressorCompile.denominator);
                     break;
 
                 default:
@@ -59,43 +88,43 @@ namespace DataMiner
 
         public Func<Element, (string id, double y)> YSelector { get; }
 
-        private static Func<Element, (string id, double z)> CreateSelector(string attribute)
+        private static Func<Element, (string id, double z)> CreateSelector(string numerator, string denominator = "")
         {
+            if (denominator != "")
+            {
+                return e =>
+                {
+                    string id = e.Id;
+                    double valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
+                    double valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
+
+
+                    // Handle division by zero
+                    if (valueN == 0)
+                        return (id, 0);
+
+                    return valueD == 0
+                        ? (id, valueN / 0.001)
+                        : (id, valueN / valueD);
+                };
+            }
             return e =>
             {
                 string id = e.Id;
-                double value = Convert.ToDouble(GetNestedPropertyValue(e, attribute));
-                return (id, value);
+                double valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
+                return (id, valueN);
             };
         }
 
-        //private Func<Element, (double x, double y)> CreateSelector(string attribute)
-        //{
-        //    return e =>
-        //    {
-        //        // Implement the logic to extract x and y values from the element
-        //        // This is a placeholder implementation
-        //        double x = Convert.ToDouble(GetNestedPropertyValue(e, attribute));
-        //        double y = 0; // Replace with actual logic to get y value
-        //        return (x, y);
-        //    };
-        //}
+        public override string ToString()
+        {
+            return $"{Title}";
+        }
 
-        //public Func<Element, (string id, double x, double y)> Selector
-        //{
-        //    get
-        //    {
-        //        string id;
-        //        double x;
-        //        double y;
-        //        return e =>
-        //        {
-        //            id = e.Id;
-        //            x = XSelector // Replace with actual logic to get x value
-        //            y = 0; // Replace with actual logic to get y value
-        //            return (id, x, y);
-        //        };
-        //    }
-        //}
+        public (Token token, string numerator, string denominator) DependentCompile { get; init; }
+
+        public (Token token, string numerator, string denominator) RegressorCompile { get; init; }
+
+        public string Title { get; init; }
     }
 }
