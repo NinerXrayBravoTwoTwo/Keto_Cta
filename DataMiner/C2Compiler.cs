@@ -9,20 +9,22 @@ namespace DataMiner
 
         public static (Token token, string numerator, string denominator) Compile(string regressorOrDependent)
         {
-            // Check for ratio
-            var ratioStrings = regressorOrDependent.Split('/');
-            if (ratioStrings.Length == 2)
+            var attribute = AttributeCaseNormalize(regressorOrDependent);
+
+            // Check for ratio and ln(ratio) and rip all the parens out of the numerator and denominator
+            var ratioMatch = Regex.Match(regressorOrDependent, @"(Ln\()?\(?([A-Za-z\d]+)/([A-Za-z\d]+)\)?", RegexOptions.IgnoreCase);
+            if (ratioMatch.Success)
             {
-                var numerator = Compile(ratioStrings[0].Trim());
-                var denominator = Compile(ratioStrings[1].Trim());
+                var numerator = Compile(ratioMatch.Groups[2].Value);
+                var denominator = Compile(ratioMatch.Groups[3].Value);
 
                 if (numerator.token == Token.Ratio)
                     throw new SyntaxErrorException($"No, I am not going to do recursive trees of ratios of ratios, <sigh/>,  'ratio vs ratio' is okay however ... call me <smile/> Re: {regressorOrDependent})");
 
-                return (Token.Ratio, numerator.numerator, denominator.numerator);
+                return (ratioMatch.Groups[1].Success // The secret to our success is the first group
+                        ? Token.LnRatio : Token.Ratio, numerator.numerator, denominator.numerator);
             }
 
-            var attribute = AttributeCaseNormalize(regressorOrDependent);
 
             // if visit attribute
             var visit = Regex.Match(attribute, @"^(Ln)*(Tps|Cac|Ncpv|Tcpv|Pav|Qangio)(\d+)$");
@@ -47,8 +49,6 @@ namespace DataMiner
                     string.Empty
                 );
             }
-
-            // if ln(ratio)
 
             // else throw syntax error you dumb ...
             throw new SyntaxErrorException($"Not a valid data point: {attribute}");

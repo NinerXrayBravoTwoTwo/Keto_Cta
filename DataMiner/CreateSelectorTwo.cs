@@ -32,41 +32,12 @@ namespace DataMiner
 
             DependentCompile = Compile(dependent);
             RegressorCompile = Compile(regressor);
-            
-            StringBuilder sbTitle = new StringBuilder($"n:{DependentCompile.numerator}");
-  
+
             Title = $"{dependent} =vs= {regressor}";
 
-            switch(DependentCompile.token)
-            {
-                case Token.ElementAttribute:
-                case Token.VisitAttribute:
-                    YSelector = CreateSelector(DependentCompile.numerator);
-                    break;
+            YSelector = CreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);
+            XSelector = CreateSelector(RegressorCompile.numerator, RegressorCompile.denominator, RegressorCompile.token);
 
-                case Token.Ratio:
-                case Token.LnRatio:
-                    YSelector = CreateSelector(DependentCompile.numerator, DependentCompile.denominator);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            switch (RegressorCompile.token)
-            {
-                case Token.ElementAttribute:
-                case Token.VisitAttribute:
-                    XSelector = CreateSelector(RegressorCompile.numerator);
-                    break;
-
-                case Token.Ratio:
-                case Token.LnRatio:
-                    XSelector = CreateSelector(RegressorCompile.numerator, RegressorCompile.denominator);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         public Func<Element, (string id, double x, double y)> Selector
@@ -88,9 +59,9 @@ namespace DataMiner
 
         public Func<Element, (string id, double y)> YSelector { get; }
 
-        private static Func<Element, (string id, double z)> CreateSelector(string numerator, string denominator = "")
+        private static Func<Element, (string id, double z)> CreateSelector(string numerator, string denominator, Token token)
         {
-            if (denominator != "")
+            if (token is Token.Ratio or Token.LnRatio)
             {
                 return e =>
                 {
@@ -103,9 +74,14 @@ namespace DataMiner
                     if (valueN == 0)
                         return (id, 0);
 
-                    return valueD == 0
-                        ? (id, valueN / 0.001)
-                        : (id, valueN / valueD);
+                    var ratio= 
+                        valueD == 0
+                        ?  valueN / 0.001
+                        :  valueN / valueD;
+
+                    return token == Token.LnRatio 
+                        ? (id, Visit.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
+                        : (id, ratio);
                 };
             }
             return e =>

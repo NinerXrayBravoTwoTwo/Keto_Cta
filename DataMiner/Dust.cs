@@ -13,9 +13,9 @@ public class Dust
         {
             Regression = regression ?? throw new ArgumentNullException(nameof(regression));
         }
-        catch (ArgumentException error)
+        catch (Exception error)
         {
-            System.Diagnostics.Debug.WriteLine($"Dust; {error.Message} {title}, {set}");
+            System.Diagnostics.Debug.WriteLine($"Dust; {error.Message} {title} {set}");
             throw;
         }
     }
@@ -34,7 +34,7 @@ public class Dust
 
     public override string ToString()
     {
-        return $"{SetName}, {ChartTitle}, Slope {Regression.Slope():F5}, "
-               + $"N={Regression.N}, p-value: {Regression.PValue():F3}";
+        return $"{SetName}, {ChartTitle}, Slope {Regression.Slope():F5}," +
+               $"N={Regression.N}, p-value: {Regression.PValue():F3}";
     }
 }
