@@ -88,8 +88,8 @@ namespace KetoCtaTest
         [Fact]
         public void BaselinePredictElementDelta()
         {
-            string[] visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
-            string[] elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+            var visitBaseline = "Tps0,Cac0,Ncpv0,Tcpv0,Pav0,LnTps0,LnCac0,LnNcpv0,LnTcpv0,LnPav0".Split(",");
+            var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
 
             const string filePath = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(filePath);
@@ -141,7 +141,7 @@ namespace KetoCtaTest
         {
             var mine = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
 
-            string[] elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
+            var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav".Split(",");
             var index = 0;
             var logMismatch = 0;
 

@@ -7,16 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Old\**" />
+    <EmbeddedResource Remove="Old\**" />
+    <None Remove="Old\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="AlternateSelector.cs" />
     <Compile Remove="BaseVariableDicer.cs" />
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
-    <Compile Remove="Old\AlternateSelector.cs" />
-    <Compile Remove="Old\BaseVariableDicer.cs" />
-    <Compile Remove="Old\CreateSelector.cs" />
-    <Compile Remove="Old\LnRatioVariableDicet.cs" />
-    <Compile Remove="Old\RatioVariableDicer.cs" />
-    <Compile Remove="Old\SimpleVariableDicer.cs" />
     <Compile Remove="RatioVariableDicer.cs" />
     <Compile Remove="SaltMiner.cs" />
     <Compile Remove="SimpleVariableDicer.cs" />
@@ -28,10 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Keto_Cta\Keto_Cta.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Old\" />
   </ItemGroup>
 
 </Project>

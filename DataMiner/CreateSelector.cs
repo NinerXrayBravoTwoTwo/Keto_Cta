@@ -17,23 +17,23 @@ namespace DataMiner
         public CreateSelector(string dependentVsRegressor)
         {
             // delete any whitespace
-            string regressionString = Regex.Replace(dependentVsRegressor, @"\s+", string.Empty);
+            var regressionString = dependentVsRegressor.Trim();
 
-            var vsPattern = @"((Ln\()?\(?[A-Za-z\d/]+\)?)\s*vs\.?\s*((Ln\()?\(?[A-Za-z\d/]+\)?)";
+            var vsPattern = @"^(ln\([A-Z\d]+(\s*/\s*[A-Z\d]+)?\)|[A-Z\d]+(\s*/\s*[A-Z\d]+)?)\s+(vs\.?)\s+(ln\([A-Z\d]+(\s*/\s*[A-Z\d]+)?\)|[A-Z\d]+(\s*/\s*[A-Z\d]+)?)\s*$";
             var match = Regex.Match(regressionString, vsPattern, RegexOptions.IgnoreCase);
 
             if (!match.Success)
                 throw new ArgumentException($"Invalid regression string format: {regressionString}");
-            // group 1 is dependent, group 3 is regressor
-            // group 2 and 4 are optional ln() wrappers; 2 for dependent, 4 for regressor
 
-            string dependent = match.Groups[2].Length == 0 ? RemoveParens(match.Groups[1].Value) : "Ln(" + RemoveParens(match.Groups[1].Value) + ")";
-            string regressor = match.Groups[4].Length == 0 ? RemoveParens(match.Groups[3].Value) : "Ln(" + RemoveParens(match.Groups[3].Value) + ")";
+            // group 2 is dependent, group 4 is regressor
+
+            var dependent = match.Groups[2].Value;
+            var regressor = match.Groups[4].Value;
+            Title = $"{dependent} vs {regressor}";
+            System.Diagnostics.Debug.WriteLine($"In: {dependentVsRegressor} Mapped: {Title}");
 
             DependentCompile = Compile(dependent);
             RegressorCompile = Compile(regressor);
-
-            Title = $"{dependent} =vs= {regressor}";
 
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);
             XSelector = InternalCreateSelector(RegressorCompile.numerator, RegressorCompile.denominator, RegressorCompile.token);
@@ -49,7 +49,7 @@ namespace DataMiner
                     var (idx, x) = XSelector(e);
                     var (idy, y) = YSelector(e);
 
-                    System.Diagnostics.Debug.WriteLine($"Element ID: {idx}={idy}, X: {x}, Y: {y}");
+                    //System.Diagnostics.Debug.WriteLine($"Element ID: {idx}, X: {x:F3}, Y: {y:F3}");
 
                     return (idx, x, y);
                 };
@@ -66,29 +66,29 @@ namespace DataMiner
             {
                 return e =>
                 {
-                    string id = e.Id;
-                    double valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
-                    double valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
+                    var id = e.Id;
+                    var valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
+                    var valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
 
 
                     // Handle division by zero
                     if (valueN == 0)
                         return (id, 0);
 
-                    var ratio= 
+                    var ratio =
                         valueD == 0
-                        ?  valueN / 0.001
-                        :  valueN / valueD;
+                        ? valueN / 0.001
+                        : valueN / valueD;
 
-                    return token == Token.LnRatio 
+                    return token == Token.LnRatio
                         ? (id, Visit.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
                         : (id, ratio);
                 };
             }
             return e =>
             {
-                string id = e.Id;
-                double valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
+                var id = e.Id;
+                var valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
                 return (id, valueN);
             };
         }
@@ -104,6 +104,6 @@ namespace DataMiner
 
         private (Token token, string numerator, string denominator) RegressorCompile { get; init; }
 
-   
+
     }
 }

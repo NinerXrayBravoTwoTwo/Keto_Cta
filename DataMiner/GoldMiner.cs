@@ -234,7 +234,9 @@ public class GoldMiner
             }
         }
 
-        var regression = new MineRegression(data.Select(selector.Selector));
+        var selectedData = data.Select(selector.Selector);
+
+        var regression = new MineRegression(selectedData);
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
@@ -445,7 +447,7 @@ public class GoldMiner
         dusts.AddRange(RootStatisticMatrix(SetName.Eta));
         dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
 
-        Dust[] locDusts = dusts.OrderBy(d => d.Regression.PValue()).ToArray<Dust>();
+        var locDusts = dusts.OrderBy(d => d.Regression.PValue()).ToArray<Dust>();
 
         return locDusts.OrderBy(d => d.Regression.PValue()).ToArray();
     }

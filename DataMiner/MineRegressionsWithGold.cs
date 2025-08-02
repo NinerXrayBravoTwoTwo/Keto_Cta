@@ -81,11 +81,12 @@ public class MineRegressionsWithGold()
         {
             foreach (var delta in eDelta)
             {
-                var chart = $"{visit0} vs. {delta}";
+
+                var chart = $"{visit0}0 vs. {delta}";
                 try
                 {
                     var selector = new CreateSelector(chart);
-  
+
                     _dust.AddRange(myMine.GoldDust(chart));
                 }
                 catch (ArgumentException)
@@ -111,7 +112,7 @@ public class MineRegressionsWithGold()
             try
             {
                 var selector = new CreateSelector(chart);
-             
+
                 //System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
 
                 _dust.AddRange(myMine.GoldDust(chart));
@@ -157,7 +158,7 @@ public class MineRegressionsWithGold()
         var inverseDetected = 0;
         var dependentInRatio = 0;
         var numEqualDenom = 0;
-        bool isSkipInverse = true;
+        var isSkipInverse = true;
 
         List<string> showme = [];
         foreach (var numerator in allAttributes)

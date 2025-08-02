@@ -12,7 +12,10 @@ namespace DataMiner
         {
             var attribute = AttributeCaseNormalize(regressorOrDependent);
 
-            // Check for ratio and ln(ratio) and rip all the parens out of the numerator and denominator
+            var pattern = @"^(ln\(([A-Z\d]+)(\s*/\s*[A-Z\d]+)?\)|([A-Z\d]+)(\s*/\s*[A-Z\d]+)?)$";
+            // G4 is num, no denominator
+            // G5 is denominator, G4 is numerator (special case of embeded LnAttribute)
+            // Check for ratio and ln(ratio); return numerator and denominator
             var ratioMatch = Regex.Match(regressorOrDependent, @"(Ln\()?\(?([A-Za-z\d]+)/([A-Za-z\d]+)\)?", RegexOptions.IgnoreCase);
             if (ratioMatch.Success)
             {
@@ -25,7 +28,7 @@ namespace DataMiner
                 return (ratioMatch.Groups[1].Success // The secret to our success is the first group
                         ? Token.LnRatio : Token.Ratio, numerator.numerator, denominator.numerator);
             }
-            
+
             // if visit attribute
             var visit = Regex.Match(attribute, @"^(Ln)*(Tps|Cac|Ncpv|Tcpv|Pav|Qangio)(\d+)$");
             if (visit.Success)
@@ -67,8 +70,8 @@ namespace DataMiner
 
             if (noSpaceAttribute.Contains('/'))
                 return noSpaceAttribute;
-            
-            var match = Regex.Match(noSpaceAttribute, @"(^[a-zA-Z)]+)(\d)$", RegexOptions.Compiled);
+
+            var match = Regex.Match(noSpaceAttribute, @"(^[A-Z)]+)(\d)$", RegexOptions.Compiled & RegexOptions.IgnoreCase);
 
             if (match.Success)
             {
@@ -83,16 +86,16 @@ namespace DataMiner
                     return normalized;
             }
 
-            throw new SyntaxErrorException($"Valid attribute not found for:{noSpaceAttribute}");
+            throw new SyntaxErrorException($"Valid attribute not found for: '{attribute}'");
         }
 
         #endregion
 
-        private static string RemoveParens(string value)
-        {
-            // Remove parentheses from the value
-            return Regex.Replace(value, @"[\(\)]", string.Empty);
-        }
+        //private static string RemoveParens(string value)
+        //{
+        //    // Remove parentheses from the value
+        //    return Regex.Replace(value, @"[\(\)]", string.Empty);
+        //}
     }
 }
 
