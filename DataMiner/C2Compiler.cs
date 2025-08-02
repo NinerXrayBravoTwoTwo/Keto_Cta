@@ -1,9 +1,10 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Text.RegularExpressions;
 
 namespace DataMiner
 {
-    public partial class CreateSelectorTwo
+    public partial class CreateSelector
     {
         #region Compile properties
 
@@ -24,8 +25,7 @@ namespace DataMiner
                 return (ratioMatch.Groups[1].Success // The secret to our success is the first group
                         ? Token.LnRatio : Token.Ratio, numerator.numerator, denominator.numerator);
             }
-
-
+            
             // if visit attribute
             var visit = Regex.Match(attribute, @"^(Ln)*(Tps|Cac|Ncpv|Tcpv|Pav|Qangio)(\d+)$");
             if (visit.Success)
@@ -63,7 +63,12 @@ namespace DataMiner
 
         public static string AttributeCaseNormalize(string attribute)
         {
-            var match = Regex.Match(attribute, @"(^[a-zA-Z)]+)(\d)$", RegexOptions.Compiled);
+            var noSpaceAttribute = Regex.Replace(attribute, @"\s+", string.Empty);
+
+            if (noSpaceAttribute.Contains('/'))
+                return noSpaceAttribute;
+            
+            var match = Regex.Match(noSpaceAttribute, @"(^[a-zA-Z)]+)(\d)$", RegexOptions.Compiled);
 
             if (match.Success)
             {
@@ -73,17 +78,17 @@ namespace DataMiner
             }
             else
             {
-                var key = attribute.ToLower();
+                var key = noSpaceAttribute.ToLower();
                 if (AttributeDictionary.TryGetValue(key, out var normalized))
                     return normalized;
             }
 
-            throw new SyntaxErrorException($"Valid attribute not found for:{attribute}");
+            throw new SyntaxErrorException($"Valid attribute not found for:{noSpaceAttribute}");
         }
 
         #endregion
 
-        private string RemoveParens(string value)
+        private static string RemoveParens(string value)
         {
             // Remove parentheses from the value
             return Regex.Replace(value, @"[\(\)]", string.Empty);

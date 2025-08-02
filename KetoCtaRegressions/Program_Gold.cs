@@ -1,14 +1,11 @@
 ﻿using DataMiner;
 using Keto_Cta;
-using LinearRegression;
 using System.Text.RegularExpressions;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
-var logMismatch = 0;
-var uninterestingSkip = 0;
 var localDusts = new List<Dust>();
 
 #region Set Order regression histogram
@@ -24,7 +21,7 @@ var histograms = new Dictionary<SetName, int[]>
     { SetName.BetaUZeta, new int[6] }
 };
 
-var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
+var dataPoints = new Dictionary<SetName, List<(string id, double x, double y)>>
 {
     { SetName.Omega, [] },
     { SetName.Alpha, [] },
@@ -38,19 +35,19 @@ var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
 
 foreach (var dust in localDusts)
 {
-    dataPoints[dust.SetName].Add((dust.Regression.PValue(), dust.Regression.StdDevX()));
+    dataPoints[dust.SetName].Add(("NA", dust.Regression.PValue, dust.Regression.StdDevX));
     var bucket = (int)(dust.Regression.PValue() * 5);
     histograms[dust.SetName][Math.Min(bucket, 5)]++; // Clamp to 5 for NaN bin
 }
 
-var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
+var subsetRegressions = new Dictionary<SetName, MineRegression>();
 Console.WriteLine("\nCalculated Subset Regressions:\nSet, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
 foreach (var item in dataPoints)
 {
     var data = dataPoints[item.Key];
     if (data.Count != 0)
     {
-        var regression = new RegressionPvalue(data);
+        var regression = new MineRegression(data);
         subsetRegressions[item.Key] = regression;
         var hist = histograms[item.Key];
         Console.WriteLine(
@@ -60,7 +57,7 @@ foreach (var item in dataPoints)
 #endregion
 
 #region Chart Specific Regression
-void ChartARegressionExcel(Dictionary<SetName, RegressionPvalue> setRegressions, SetName set)
+void ChartARegressionExcel(Dictionary<SetName, MineRegression> setRegressions, SetName set)
 {
     if (!setRegressions.TryGetValue(set, out var target) || !target.DataPoints.Any()) return;
 

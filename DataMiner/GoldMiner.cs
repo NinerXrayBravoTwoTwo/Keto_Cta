@@ -48,6 +48,8 @@ public class GoldMiner
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
 
+    #region load Data
+
     /// <summary>
     /// Reads a Keto-CTA CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
     /// </summary>
@@ -55,9 +57,10 @@ public class GoldMiner
     /// values  separated by commas. The first row is assumed to be a header and is skipped during processing. If a row
     /// contains invalid numeric data, it is skipped, and a message is logged to the console.</remarks>
     /// <param name="ketoCtaPath">The file path of the CSV file to read. The file must exist and be accessible.</param>
+    /// <param name="qAngioData"></param>
     /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
     /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
-    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio> qAngioData = null)
+    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null)
     {
         var list = new List<Element>();
         using var reader = new StreamReader(ketoCtaPath);
@@ -70,9 +73,20 @@ public class GoldMiner
             var values = line.Split(',');
 #pragma warning restore CS8602
 
-            var qa = qAngioData.FirstOrDefault(q => q.Id == index);
-            var qa1 = qa != null ? qa.QAngio1 : double.NaN;
-            var qa2 = qa != null ? qa.QAngio2 : double.NaN;
+            var qa1 = double.NaN;
+            var qa2 = double.NaN;
+            if (qAngioData != null)
+            {
+                var qa = qAngioData.FirstOrDefault(q => q.Id == index);
+                qa1 = qa?.QAngio1 ?? double.NaN;
+                qa2 = qa?.QAngio2 ?? double.NaN;
+            }
+            else
+            {
+                // If no QAngio data is provided, set to NaN
+                qa1 = double.NaN;
+                qa2 = double.NaN;
+            }
 
             try
             {
@@ -89,13 +103,11 @@ public class GoldMiner
             {
                 Console.WriteLine($"Skipping line {index + 1}: invalid number format ({ex.Message}).");
             }
-
         }
 
         return list;
     }
-
-    private static List<QAngio> ReadQangioCsvFile(string qAngioPath)
+    private static List<QAngio>? ReadQangioCsvFile(string qAngioPath)
     {
 
         if (string.IsNullOrEmpty(qAngioPath)) return [];
@@ -126,6 +138,7 @@ public class GoldMiner
 
         return list;
     }
+    #endregion
 
     /// <summary>
     /// Calculates a regression analysis based on the provided elements and selector function.
@@ -138,10 +151,10 @@ public class GoldMiner
     /// <param name="selector">A function that maps each element to a tuple containing the x and y values for the regression analysis. Cannot
     /// be <see langword="null"/>. If the function throws an <see cref="ArgumentException"/>, the corresponding element
     /// is skipped.</param>
-    /// <returns>A <see cref="RegressionPvalue"/> object containing the results of the regression analysis.</returns>
+    /// <returns>A <see cref="MineRegression"/> object containing the results of the regression analysis.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="targetElements"/> or <paramref name="selector"/> is <see langword="null"/>.</exception>
-    private RegressionPvalue CalculateRegression(IEnumerable<Element> targetElements, string label,
-        Func<Element, (double x, double y)> selector)
+    private MineRegression CalculateRegression(IEnumerable<Element> targetElements, string label,
+        Func<Element, (string id, double x, double y)> selector)
     {
         try
         {
@@ -154,7 +167,7 @@ public class GoldMiner
             throw;
         }
 
-        var dataPoints = new List<(double x, double y)>();
+        var dataPoints = new List<(string id, double x, double y)>();
         foreach (var element in targetElements)
         {
             try
@@ -164,48 +177,13 @@ public class GoldMiner
             catch (ArgumentException ex)
             {
                 Console.WriteLine($"Skipping data point in {label}: {ex.Message}");
-                continue;
             }
         }
 
-        return new RegressionPvalue(dataPoints);
+        return new MineRegression(dataPoints);
     }
 
-    /// <summary>
-    /// Calculates a regression ratio based on the provided elements and selectors.
-    /// </summary>
-    /// <remarks>Any elements that cause an <see cref="ArgumentException"/> during processing are skipped, and
-    /// a message is logged with the provided label.</remarks>
-    /// <param name="targetElements">A collection of elements to process. Each element is used to compute data points for the regression analysis.</param>
-    /// <param name="label">A label used for logging or diagnostic purposes when processing elements.</param>
-    /// <param name="xSelector">A function that selects the numerator and denominator values from an element to compute the x-coordinate. The
-    /// x-coordinate is calculated as the ratio of the numerator to the denominator. If the denominator is zero, the
-    /// x-coordinate is set to 0.</param>
-    /// <param name="ySelector">A function that selects the y-coordinate value from an element.</param>
-    /// <returns>A <see cref="RegressionPvalue"/> object containing the computed regression data points.</returns>
-    private RegressionPvalue CalculateRegressionRatio(IEnumerable<Element> targetElements, string label,
-        Func<Element, (double numerator, double denominator)> xSelector,
-        Func<Element, double> ySelector)
-    {
-        var dataPoints = new List<(double x, double y)>();
-        foreach (var element in targetElements)
-        {
-            try
-            {
-                var (numerator, denominator) = xSelector(element);
-                double x = denominator != 0 ? numerator / denominator : 0;
-                double y = ySelector(element);
-                dataPoints.Add((x, y));
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine($"Skipping data point in {label}: {ex.Message}");
-                continue;
-            }
-        }
 
-        return new RegressionPvalue(dataPoints);
-    }
 
     /// <summary>
     /// Generates an array of gold dust data based on the specified chart title.
@@ -248,24 +226,15 @@ public class GoldMiner
             try
             {
                 selector = new CreateSelector(chartTitle);
-                _selectorCache[chartTitle] = selector;
             }
             catch (ArgumentException ex)
             {
-                Console.WriteLine($"Invalid chart title {chartTitle}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message}");
                 return null;
             }
         }
 
-        RegressionPvalue regression;
-        if (selector.IsRatio)
-            regression = CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector);
-        else
-            regression = CalculateRegression(data, chartTitle, selector.Selector);
-
-        //var regression = selector.IsRatio
-        //? CalculateRegressionRatio(data, chartTitle, selector.XSelector, selector.YSelector)
-        //: CalculateRegression(data, chartTitle, selector.Selector);
+        var regression = new MineRegression(data.Select(selector.Selector));
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }

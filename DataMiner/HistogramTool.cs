@@ -43,8 +43,8 @@ class HistogramTool
 
         foreach (var item in dusts)
         {
-            dataPoints[item.SetName].Add((item.Regression.PValue(), item.Regression.StdDevX()));
-            var bucket = (int)(item.Regression.PValue() * 5);
+            dataPoints[item.SetName].Add((item.Regression.PValue, item.Regression.StdDevX);
+            var bucket = (int)(item.Regression.PValue * 5);
             histograms[item.SetName][Math.Min(bucket, 5)]++;
         }
 
@@ -54,9 +54,9 @@ class HistogramTool
         foreach (var item in dataPoints)
         {
             var data = dataPoints[item.Key];
-            var regression = new RegressionPvalue(data);
+            var regression = new MineRegression(data);
             var hist = histograms[item.Key];
-            writer.WriteLine($"{item.Key},{regression.N},{regression.MeanX():F6},{hist[0]},{hist[1]},{hist[2]},{hist[3]},{hist[4]},{hist[5]}");
+            writer.WriteLine($"{item.Key},{regression.N},{regression.MeanX:F6},{hist[0]},{hist[1]},{hist[2]},{hist[3]},{hist[4]},{hist[5]}");
         }
 
         Console.WriteLine("Histograms exported to histograms.csv");

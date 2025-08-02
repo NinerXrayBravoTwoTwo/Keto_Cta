@@ -5,7 +5,7 @@ namespace DataMiner;
 
 public class Dust
 {
-    public Dust(SetName set, string title, RegressionPvalue regression)
+    public Dust(SetName set, string title, MineRegression regression)
     {
         SetName = set;
         ChartTitle = title;
@@ -24,12 +24,12 @@ public class Dust
     {
         SetName = set;
         ChartTitle = title;
-        Regression = new RegressionPvalue(); // Initialize with a default value
+        Regression = new MineRegression([]); // Initialize with a default value
     }
 
     public readonly SetName SetName;
     public readonly string ChartTitle;
-    public RegressionPvalue Regression;
+    public MineRegression Regression;
     public bool IsInteresting => Regression.N >= 2 && Regression.PValue() > 0.0 && Regression.PValue() <= 0.601;
 
     public override string ToString()

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
-public partial class CreateSelectorTwo
+public partial class CreateSelector
 {
     #region Reflection and Nested Property Retrieval
 

@@ -15,9 +15,9 @@ namespace KetoCtaTest
         {
             // Arrange
             var regressionString = "LnTps1 vs LnTps0";
-            var createSelectorTwo = new CreateSelectorTwo(regressionString);
+            var createSelectorTwo = new CreateSelector(regressionString);
             // Act
-            var (token, numerator, denominator) = CreateSelectorTwo.Compile("LnTps1");
+            var (token, numerator, denominator) = CreateSelector.Compile("LnTps1");
             // Assert
             Assert.Equal(Token.VisitAttribute, token);
             Assert.Equal("Visits[1].LnTps", numerator);
@@ -43,11 +43,11 @@ namespace KetoCtaTest
                 foreach (var attribute in allAttributes)
                 {
                     var attLn = x % 2 == 0 ? "ln" + attribute : attribute;
-                    var normalized = CreateSelectorTwo.AttributeCaseNormalize(attLn);
+                    var normalized = CreateSelector.AttributeCaseNormalize(attLn);
                     testOutputHelper.WriteLine($"Normalized attribute: {attLn} -> {normalized}");
-                    var compiled = CreateSelectorTwo.Compile(normalized);
+                    var compiled = CreateSelector.Compile(normalized);
                     // look up the expected normalized attLn
-                    var reflectValue = (double)CreateSelectorTwo.GetNestedPropertyValue(element, compiled.numerator);
+                    var reflectValue = (double)CreateSelector.GetNestedPropertyValue(element, compiled.numerator);
                     testOutputHelper.WriteLine($"\tCompiled   attribute: {attLn} -> {compiled} -> {reflectValue:F2}");
 
                 }
@@ -62,21 +62,27 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(path);
 
             const string title = "Cac1 vs. Cac0";
-            var c2Selector = new CreateSelectorTwo(title);
+            var c2Selector = new CreateSelector(title);
 
-            var result = goldMiner.Zeta.Select(c2Selector.Selector);
-            // Act
-            foreach (var (id, x, y) in result)
+            var selResult = goldMiner.Zeta.Select(c2Selector.Selector);
+
+            // Act 1
+            var valueTuples = selResult as (string id, double x, double y)[] ?? selResult.ToArray();
+            foreach (var (id, x, y) in valueTuples)
             {
                 testOutputHelper.WriteLine($"Element ID: {id}, X: {x}, Y: {y}");
             }
-            List<(double x, double y)> xyList = result
+
+            var xyList = valueTuples
                 .Select(tuple => (tuple.x, tuple.y))
                 .ToList();
 
             // Assert
             var regression = new RegressionPvalue(xyList);
-            Assert.NotNull(result);
+
+            // Act 2
+            var regression2 = new MineRegression( selResult.ToList() );
+            Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
             Assert.Equal(0.00003316389, regression.PValue(), 0.000033);
@@ -87,10 +93,10 @@ namespace KetoCtaTest
         public void RatioRegressor()
         {
             // Arrange
-            const string ratio = "LnCac0 /  LnNcpv1";
+            const string ratio = "LnCac0/LnNcpv1";
 
             // Act
-            var compile = CreateSelectorTwo.Compile(ratio);
+            var compile = CreateSelector.Compile(ratio);
             Assert.Equal("Visits[0].LnCac", compile.numerator);
             Assert.Equal("Visits[1].LnNcpv", compile.denominator);
         }
@@ -104,20 +110,22 @@ namespace KetoCtaTest
 
             const string ratio = "Cac0 / Ncpv1 vs Cac0";
             // Act
-            var c2 = new CreateSelectorTwo(ratio);
+            var c2 = new CreateSelector(ratio);
 
             // Assert
             var sel = goldMiner.Zeta.Select(c2.Selector);
             Assert.NotNull(sel);
+            var regression = new MineRegression(sel);
             testOutputHelper.WriteLine($"Ratio Regression: {ratio}");
             testOutputHelper.WriteLine(c2.ToString());
 
-            foreach (var (id, x, y) in sel)
+            var valueTriples = sel as (string id, double x, double y)[] ?? sel.ToArray();
+            foreach (var (id, x, y) in valueTriples)
             {
                 testOutputHelper.WriteLine($"Element ID: {id}, X: {x}, Y: {y}");
             }
 
-            var xyList = sel
+            var xyList = valueTriples
                 .Select(tuple => (tuple.x, tuple.y))
                 .ToList();
 
@@ -137,7 +145,7 @@ namespace KetoCtaTest
             string[] titles = ["Cac1 vs Cac0", "Ncpv1 vs Ncpv0", "Cac0 / Ncpv0 vs Cac0"];
             foreach (var title in titles)
             {
-                var selector = new CreateSelectorTwo(title);
+                var selector = new CreateSelector(title);
                 testOutputHelper.WriteLine($"{selector.Title} : {selector.ToString()}");
             }
 

@@ -44,12 +44,6 @@ public class MineRegressionsWithGold()
                     try
                     {
                         var selector = new CreateSelector(chart);
-                        if (selector.IsLogMismatch || selector.HasComponentOverlap)
-                        {
-                            if (selector.IsLogMismatch) _logMismatch++;
-                            if (selector.HasComponentOverlap) _uninterestingSkip++;
-                            continue;
-                        }
 
                         _dust.AddRange(myMine.GoldDust(chart));
                     }
@@ -70,12 +64,7 @@ public class MineRegressionsWithGold()
             try
             {
                 var selector = new CreateSelector(chart);
-                if (selector.IsLogMismatch || selector.HasComponentOverlap)
-                {
-                    if (selector.IsLogMismatch) _logMismatch++;
-                    if (selector.HasComponentOverlap) _uninterestingSkip++;
-                    continue;
-                }
+
                 _dust.AddRange(myMine.GoldDust(chart));
             }
             catch (ArgumentException)
@@ -96,12 +85,7 @@ public class MineRegressionsWithGold()
                 try
                 {
                     var selector = new CreateSelector(chart);
-                    if (selector.IsLogMismatch || selector.HasComponentOverlap)
-                    {
-                        if (selector.IsLogMismatch) _logMismatch++;
-                        if (selector.HasComponentOverlap) _uninterestingSkip++;
-                        continue;
-                    }
+  
                     _dust.AddRange(myMine.GoldDust(chart));
                 }
                 catch (ArgumentException)
@@ -127,14 +111,8 @@ public class MineRegressionsWithGold()
             try
             {
                 var selector = new CreateSelector(chart);
-                if (selector.IsLogMismatch || selector.HasComponentOverlap)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Reject: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}  ");
-                    if (selector.IsLogMismatch) _logMismatch++;
-                    if (selector.HasComponentOverlap) _uninterestingSkip++;
-                    continue;
-                }
-                System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
+             
+                //System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
 
                 _dust.AddRange(myMine.GoldDust(chart));
             }

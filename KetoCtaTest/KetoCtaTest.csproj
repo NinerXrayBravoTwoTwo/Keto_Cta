@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Compile Remove="SaltMinerTest.cs" />
+    <Compile Remove="SelectorTests.cs" />
   </ItemGroup>
 
   <ItemGroup>

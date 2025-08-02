@@ -39,7 +39,7 @@ namespace KetoCtaTest
         {
             var selector = new CreateSelector("Tps0 vs. DTps");
             Assert.NotNull(selector.Selector);
-            Assert.False(selector.IsLogMismatch);
+      
         }
 
 
@@ -106,12 +106,7 @@ namespace KetoCtaTest
                     {
                         var chart = $"{visitBaseline[x]} vs. {elementDelta[y]}";
                         var selector = new CreateSelector(chart);
-                        if (selector.IsLogMismatch)
-                        {
-                            logMismatch++;
-                            continue;
-                        }
-
+       
                         var result = goldMiner.AuDust(SetName.Omega, chart);
                         var reg = result.Regression;
                         testOutputHelper.WriteLine(
@@ -162,12 +157,7 @@ namespace KetoCtaTest
                         {
                             var chart = $"{elementDelta[x]} vs. {elementDelta[y]}";
                             var selector = new CreateSelector(chart);
-                            if (selector.IsLogMismatch)
-                            {
-                                logMismatch++;
-                                continue;
-                            }
-
+ 
                             result.AddRange(mine.GoldDust(chart));
                         }
                     }

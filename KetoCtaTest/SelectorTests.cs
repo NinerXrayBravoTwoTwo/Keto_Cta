@@ -71,33 +71,33 @@ namespace KetoCtaTest
             Assert.Throws<ArgumentException>(() => new CreateSelector("Cac0 vs. Cac0"));
         }
 
-        [Fact]
-        public void SimpleVariableDicer_ValidInput_SetsProperties()
-        {
-            var dicer = new SimpleVariableDicer("LnDCac1");
-            Assert.Equal("Visits[1].LnDCac", dicer.RootAttribute);
-            Assert.Equal("Visits[1].LnDCac", dicer.Target);
-            Assert.True(dicer.IsLogarithmic);
-            Assert.True(dicer.IsDelta);
-            Assert.True(dicer.IsVisit);
-        }
+        //[Fact]
+        //public void SimpleVariableDicer_ValidInput_SetsProperties()
+        //{
+        //    var dicer = new SimpleVariableDicer("LnDCac1");
+        //    Assert.Equal("Visits[1].LnDCac", dicer.RootAttribute);
+        //    Assert.Equal("Visits[1].LnDCac", dicer.Target);
+        //    Assert.True(dicer.IsLogarithmic);
+        //    Assert.True(dicer.IsDelta);
+        //    Assert.True(dicer.IsVisit);
+        //}
 
-        [Fact]
-        public void RatioVariableDicer_ValidInput_SetsProperties()
-        {
-            var dicer = new RatioVariableDicer("LnDCac1 / LnNcpv1");
-            Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.Target);
-            Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.RootAttribute);
-            Assert.True(dicer.IsLogarithmic);
-            Assert.True(dicer.IsDelta);
-            Assert.True(dicer.IsVisit);
-        }
+        //[Fact]
+        //public void RatioVariableDicer_ValidInput_SetsProperties()
+        //{
+        //    var dicer = new RatioVariableDicer("LnDCac1 / LnNcpv1");
+        //    Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.Target);
+        //    Assert.Equal("Visits[1].LnDCac/Visits[1].LnNcpv", dicer.RootAttribute);
+        //    Assert.True(dicer.IsLogarithmic);
+        //    Assert.True(dicer.IsDelta);
+        //    Assert.True(dicer.IsVisit);
+        //}
 
-        [Fact]
-        public void SimpleVariableDicer_InvalidInput_ThrowsArgumentException()
-        {
-            Assert.Throws<ArgumentException>(() => new SimpleVariableDicer("InvalidVariable"));
-        }
+        //[Fact]
+        //public void SimpleVariableDicer_InvalidInput_ThrowsArgumentException()
+        //{
+        //    Assert.Throws<ArgumentException>(() => new SimpleVariableDicer("InvalidVariable"));
+        //}
 
         [Fact]
         public void Dust_InvalidChartTitle_ThrowsArgumentException()
@@ -107,14 +107,14 @@ namespace KetoCtaTest
             Assert.Null(result);
         }
 
-        [Fact]
-        public void SelectorDeltaRegressorTest()
-        {
-            var result = new CreateSelector("LnPav1 vs. DCac ");
-            Assert.False(result.IsRatio);
-            Assert.Equal("DCac", result.RegressorDicer.Target);
-            Assert.Equal("Visits[1].LnPav", result.DependantDicer.Target);
-        }
+        //[Fact]
+        //public void SelectorDeltaRegressorTest()
+        //{
+        //    var result = new CreateSelector("LnPav1 vs. DCac ");
+        //    Assert.False(result.IsRatio);
+        //    Assert.Equal("DCac", result.RegressorDicer.Target);
+        //    Assert.Equal("Visits[1].LnPav", result.DependantDicer.Target);
+        //}
 
         [Fact]
         public void SelectorXyComplexTestA()
@@ -124,13 +124,13 @@ namespace KetoCtaTest
             Assert.Equal("Visits[0].Cac", result.DependantDicer.RootAttribute);
         }
 
-        [Fact]
-        public void SelectorXyComplexTestB()
-        {
-            var result = new CreateSelector("LnDCac vs. Ncpv0");
-            Assert.Equal("Visits[0].Ncpv", result.RegressorDicer.Target);
-            Assert.Equal("LnDCac", result.DependantDicer.Target);
-        }
+        //[Fact]
+        //public void SelectorXyComplexTestB()
+        //{
+        //    var result = new CreateSelector("LnDCac vs. Ncpv0");
+        //    Assert.Equal("Visits[0].Ncpv", result.RegressorDicer.Target);
+        //    Assert.Equal("LnDCac", result.DependantDicer.Target);
+        //}
 
         [Fact]
         public void GenerateElementCharts()
