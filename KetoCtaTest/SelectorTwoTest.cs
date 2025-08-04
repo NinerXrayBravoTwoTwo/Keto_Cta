@@ -166,5 +166,20 @@ namespace KetoCtaTest
             Assert.Equal("Visits[1].LnNcpv", selector.DependentCompile.numerator);
             Assert.Equal("LnDCac", selector.RegressorCompile.numerator);
         }
+
+        [Fact]
+        public void emptyDenominatorError()
+        {
+            // Arrange
+            var title = "LnCac1 vs. Ln(DCac / DTcpv)";
+
+            // Act
+            var selector = new CreateSelector(title);
+
+            // Validate
+            testOutputHelper.WriteLine($"Reg: {selector.RegressorCompile} Dep: {selector.DependentCompile}");
+            Assert.Equal("DCac", selector.RegressorCompile.numerator);
+            Assert.Equal("DTcpv", selector.RegressorCompile.denominator);
+        }
     }
 }
