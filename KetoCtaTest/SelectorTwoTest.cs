@@ -177,7 +177,7 @@ namespace KetoCtaTest
             var selector = new CreateSelector(title);
 
             // Validate
-            testOutputHelper.WriteLine($"Reg: {selector.RegressorCompile} Dep: {selector.DependentCompile}");
+            testOutputHelper.WriteLine($"Title: {title};   Dep: {selector.DependentCompile} vs Reg: {selector.RegressorCompile}");
             Assert.Equal("DCac", selector.RegressorCompile.numerator);
             Assert.Equal("DTcpv", selector.RegressorCompile.denominator);
         }

@@ -30,10 +30,10 @@ namespace DataMiner
             var dependent = match.Groups[1].Value;
             var regressor = match.Groups[5].Value;
             Title = $"{dependent} vs {regressor}";
-            System.Diagnostics.Debug.WriteLine($"In: {dependentVsRegressor} Mapped: {Title}");
 
             DependentCompile = Compile(dependent);
             RegressorCompile = Compile(regressor);
+            System.Diagnostics.Debug.WriteLine($"In: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
 
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);
             XSelector = InternalCreateSelector(RegressorCompile.numerator, RegressorCompile.denominator, RegressorCompile.token);

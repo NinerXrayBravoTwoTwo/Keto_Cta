@@ -8,12 +8,12 @@ namespace DataMiner
 {
     public partial class CreateSelector
     {
-        #region Compile properties
+
 
         public static (Token token, string numerator, string denominator) Compile(string regressorOrDependent)
         {
             // G4 is num, no denominator
-            // G5 is denominator, G4 is numerator (special case of embeded LnAttribute)
+            // G5 is denominator, G4 is numerator (special case of embedded LnAttribute)
             // Check for ratio and ln(ratio); return numerator and denominator
             //var ratioMatch = Regex.Match(regressorOrDependent, @"(Ln\()?\(?([A-Za-z\d]+)/([A-Za-z\d]+)\)?", RegexOptions.IgnoreCase);
             //if (ratioMatch.Success)
@@ -55,11 +55,16 @@ namespace DataMiner
             //    o Token .VisitAttribute if ends in integer element attribute if no number suffix
             #endregion
 
+            // if ration compile tokens, num and den, separately (recurse)
+            //                             Normal Ratio i.e. num / den       .............  Ln( ratio) i.e. Ln( num / den)
+            var regSpaceRemove = new Regex(@"(^/|\s*)");
+            var regDep = regSpaceRemove.Replace(regressorOrDependent, string.Empty);
+
             var tokenize = @"^(ln\(([A-Z\d]+)(\s*/\s*[A-Z\d]+)?\)|([A-Z\d]+)(\s*/\s*[A-Z\d]+)?)$";
-            var tokens = Regex.Match(regressorOrDependent, tokenize, RegexOptions.IgnoreCase);
+            var tokens = Regex.Match(regDep, tokenize, RegexOptions.IgnoreCase);
             if (!tokens.Success)
             {
-                var msg = $"Bad attribute syntax '{regressorOrDependent}' is invalid.";
+                var msg = $"Bad attribute syntax '{regDep}' is invalid.";
                 System.Diagnostics.Debug.WriteLine(msg);
                 throw new SyntaxErrorException(msg);
             }
@@ -90,15 +95,13 @@ namespace DataMiner
             }
             #endregion
 
+            #region ratio and ln(ratio)
             {
                 var isRatio = tokens.Groups[4].Success && tokens.Groups[5].Success;
                 var isLnRatio = tokens.Groups[2].Success && tokens.Groups[3].Success;
 
-                // if ration compile tokens, num and den, separately (recurse)
-                //                             Normal Ratio i.e. num / den       .............  Ln( ratio) i.e. Ln( num / den)
-                var regSpaceRemove = new Regex(@"\s*/\s*");
 
-                if (isRatio)
+                if (isRatio || isLnRatio)
                 {
                     var numerator = isRatio
                         ? Compile(tokens.Groups[4].Value)
@@ -115,19 +118,23 @@ namespace DataMiner
 
                     if (numerator.token == Token.Ratio || denominator.token == Token.Ratio)
                         throw new SyntaxErrorException(
-                            $"No, I am not going to do recursive trees of ratios of ratios, <sigh/>, 'ratio vs ratio' is okay however ... call me <Grin/> Re: {regressorOrDependent})");
+                            $"No, I am not going to do recursive trees of ratios of ratios, <sigh/>, 'ratio vs ratio' is okay however ... call me <Grin/> Re: {regDep})");
 
                     // The secret to our success is the first group
                     return (isRatio
-                            ? Token.LnRatio
-                            : Token.Ratio,
+                            ? Token.Ratio
+                            : Token.LnRatio,
                         numerator.numerator, denominator.numerator);
                 }
             }
+            #endregion
 
+            #region single attribute, map as visit[index] or element
             //A- single attribute, Cac0, LnDCac1, DTps2, etc. (r00t)
             // This is not the same as Ratio above, it
-            if (tokens.Groups[4].Success)
+            if (!tokens.Groups[4].Success)
+                throw new SyntaxErrorException($"Not a valid element or visit attribute: {regDep}");
+
             {
                 // Group[4] is the numerator, no denominator
                 var numerator = AttributeCaseNormalize(tokens.Groups[4].Value);
@@ -155,42 +162,11 @@ namespace DataMiner
                     );
                 }
             }
+            #endregion
 
-            ////B- ratio, e.g. Cac0/Cac1, DTps2/DTps3, etc. need recursion
-            //if (tokens.Groups[4].Success && tokens.Groups[5].Success)
-            //{
-            //    var num = tokens.Groups[4].Value;
-            //    var den = tokens.Groups[5].Value;
-            //    // Check for visit attribute
-            //    var visitMatch = Regex.Match(num, @"^(Ln)?[A-Z]+\d+$", RegexOptions.IgnoreCase);
-            //    if (visitMatch.Success)
-            //    {
-            //        // prefix visit[x] to attribute without ending \d
-            //        var comp = $"Visits[{visitMatch.Groups[3].Value}].{visitMatch.Groups[1].Value}{visitMatch.Groups[2].Value}";
-            //        return (
-            //            Token.VisitAttribute,
-            //            comp,
-            //            den
-            //        );
-            //    }
-            //    // Check for element attribute
-            //    var elementMatch = Regex.Match(num, @"^(Ln)*(DTps|DCac|DNcpv|DTcpv|DPav|DQangio)$", RegexOptions.Compiled);
-            //    if (elementMatch.Success)
-            //    {
-            //        // prefix element[x] to attribute without ending \d
-            //        return (
-            //            Token.ElementAttribute,
-            //            $"{elementMatch.Groups[1]}{elementMatch.Groups[2]}",
-            //            den
-            //        );
-            //    }
-            //    return (Token.Ratio, num, den);
-            //}
-
-            // else throw syntax error 
-            throw new SyntaxErrorException($"Not a valid data point: {regressorOrDependent}");
+            throw new SyntaxErrorException($"Unexpected regression compile failure; Possibly not a valid element or visit attribute: {regDep}");
         }
-        #endregion
+        
 
         #region Case normalize
         private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(

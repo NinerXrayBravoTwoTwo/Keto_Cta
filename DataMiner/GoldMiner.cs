@@ -229,7 +229,8 @@ public class GoldMiner
             }
             catch (ArgumentException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message} Note that 'vs' must be a seperate token with white space seperation from dependent vs regressor.");
+                
                 return null;
             }
         }
@@ -460,7 +461,7 @@ public class GoldMiner
 
         string[] chartTitles =
         [
-            "Cac1 vs.Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
+            "Cac1 vs. Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
             "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
         ];
 
