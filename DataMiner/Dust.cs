@@ -1,5 +1,4 @@
 ﻿using Keto_Cta;
-using LinearRegression;
 
 namespace DataMiner;
 

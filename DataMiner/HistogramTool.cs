@@ -1,6 +1,5 @@
 ﻿using DataMiner;
 using Keto_Cta;
-using LinearRegression;
 
 class HistogramTool
 {

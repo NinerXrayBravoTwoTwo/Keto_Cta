@@ -1,5 +1,4 @@
 ﻿using Keto_Cta;
-using LinearRegression;
 
 namespace DataMiner;
 
@@ -230,7 +229,7 @@ public class GoldMiner
             catch (ArgumentException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message} Note that 'vs' must be a seperate token with white space seperation from dependent vs regressor.");
-                
+
                 return null;
             }
         }

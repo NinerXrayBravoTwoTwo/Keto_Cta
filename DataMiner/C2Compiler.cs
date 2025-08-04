@@ -1,8 +1,5 @@
-﻿using System;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 
 namespace DataMiner
 {
@@ -166,7 +163,7 @@ namespace DataMiner
 
             throw new SyntaxErrorException($"Unexpected regression compile failure; Possibly not a valid element or visit attribute: {regDep}");
         }
-        
+
 
         #region Case normalize
         private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(

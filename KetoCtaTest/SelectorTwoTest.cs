@@ -1,7 +1,5 @@
 ﻿using DataMiner;
 using Keto_Cta;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using LinearRegression;
 using Xunit.Abstractions;
 
@@ -168,7 +166,7 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void emptyDenominatorError()
+        public void EmptyDenominatorError()
         {
             // Arrange
             var title = "LnCac1 vs. Ln(DCac / DTcpv)";
