@@ -11,7 +11,7 @@ namespace KetoCtaTest
     {
 
         [Fact]
-        public void CreateSelectorTwo_ValidInput_CreatesSelectors()
+        public void ValidInput_CreatesSelectors()
         {
             // Arrange
             var regressionString = "LnTps1 vs LnTps0";
@@ -27,7 +27,8 @@ namespace KetoCtaTest
         [Fact]
         public void StaticCompileAttributeNormalizeTest()
         {
-            List<Visit> visits = [
+            List<Visit> visits =
+            [
                 new Visit("1", DateTime.Now.AddDays(-365), 100, 50, 20.5, 30.0, 15.0),
                 new Visit("2", DateTime.Now, 110, 55, 22.0, 33.0, 16.5)
             ];
@@ -81,7 +82,7 @@ namespace KetoCtaTest
             var regression = new RegressionPvalue(xyList);
 
             // Act 2
-            var regression2 = new MineRegression( selResult.ToList() );
+            var regression2 = new MineRegression(selResult.ToList());
             Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
@@ -142,14 +143,28 @@ namespace KetoCtaTest
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            string[] titles = ["Cac1 vs Cac0", "Ncpv1 vs Ncpv0", "Cac0 / Ncpv0 vs Cac0"];
+            string[] titles = ["Cac0 / Ncpv0 vs Cac0", "Cac1 vs Cac0", "Ncpv1 vs Ncpv0"];
             foreach (var title in titles)
             {
                 var selector = new CreateSelector(title);
-                testOutputHelper.WriteLine($"{selector.Title} : {selector.ToString()}");
+                testOutputHelper.WriteLine(
+                    $"Title -> Compiled; {selector.Title} \t: {selector.DependentCompile} vs {selector.RegressorCompile}");
             }
 
             // Act
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void TransformLnNoRatio()
+        {
+            // Arrange
+            //string[] att = ["Ln(Cac1)", "Ln(DCac)"];
+
+            var selector = new CreateSelector("Ln(Ncpv1) vs Ln(DCac)");
+
+            Assert.Equal("Visits[1].LnNcpv", selector.DependentCompile.numerator);
+            Assert.Equal("LnDCac", selector.RegressorCompile.numerator);
         }
     }
 }

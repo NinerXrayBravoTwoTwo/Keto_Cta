@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
+using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
 
 namespace DataMiner
 {
@@ -10,53 +12,187 @@ namespace DataMiner
 
         public static (Token token, string numerator, string denominator) Compile(string regressorOrDependent)
         {
-            var attribute = AttributeCaseNormalize(regressorOrDependent);
-
-            var pattern = @"^(ln\(([A-Z\d]+)(\s*/\s*[A-Z\d]+)?\)|([A-Z\d]+)(\s*/\s*[A-Z\d]+)?)$";
             // G4 is num, no denominator
             // G5 is denominator, G4 is numerator (special case of embeded LnAttribute)
             // Check for ratio and ln(ratio); return numerator and denominator
-            var ratioMatch = Regex.Match(regressorOrDependent, @"(Ln\()?\(?([A-Za-z\d]+)/([A-Za-z\d]+)\)?", RegexOptions.IgnoreCase);
-            if (ratioMatch.Success)
+            //var ratioMatch = Regex.Match(regressorOrDependent, @"(Ln\()?\(?([A-Za-z\d]+)/([A-Za-z\d]+)\)?", RegexOptions.IgnoreCase);
+            //if (ratioMatch.Success)
+            //{
+            //    var numerator = Compile(ratioMatch.Groups[2].Value);
+            //    var denominator = Compile(ratioMatch.Groups[3].Value);
+
+            //    if (numerator.token == Token.Ratio)
+            //        throw new SyntaxErrorException($"No, I am not going to do recursive trees of ratios of ratios, <sigh/>,  'ratio vs ratio' is okay however ... call me <smile/> Re: {regressorOrDependent})");
+
+            //    return (ratioMatch.Groups[1].Success // The secret to our success is the first group
+            //        ? Token.LnRatio : Token.Ratio, numerator.numerator, denominator.numerator);
+            #region design
+            //A- single attribute, Cac0, LnDCac1, DTps2, etc.
+            //    o Group[4].success. Contents equal group[1].
+            //    o num is in G4
+            //    o den is null or 1, 
+            //    o token.VisitAttribute if ends in integer element attribute if no number suffix
+            //    o All other groups false
+
+            //B- ratio, e.g. Cac0/Cac1, DTps2/DTps3, etc.
+            //    o G1, G4, G5 success
+            //    o G1 contains num
+            //    o G5 contains den with prefix /
+            //    o Token .Ratio
+
+            //C- ln(num/den), e.g. Ln(Cac0/Cac1), Ln(DTps2/DTps3), etc.
+            //    o G1, G2, G3 success
+            //    o G2 contains num
+            //    o G3 contains den with prefix /
+            //    o Token .LnRatio
+
+            //D- ln(var0), single variable, not a ratio, replace with LnVar0
+            //    o G1, G2 success
+            //    o G2 contains var0, 
+            //    o G3 is empty
+            //    o G1 starts with ln(
+            //    o num , den is empty
+            //    o Token .VisitAttribute if ends in integer element attribute if no number suffix
+            #endregion
+
+            var tokenize = @"^(ln\(([A-Z\d]+)(\s*/\s*[A-Z\d]+)?\)|([A-Z\d]+)(\s*/\s*[A-Z\d]+)?)$";
+            var tokens = Regex.Match(regressorOrDependent, tokenize, RegexOptions.IgnoreCase);
+            if (!tokens.Success)
             {
-                var numerator = Compile(ratioMatch.Groups[2].Value);
-                var denominator = Compile(ratioMatch.Groups[3].Value);
-
-                if (numerator.token == Token.Ratio)
-                    throw new SyntaxErrorException($"No, I am not going to do recursive trees of ratios of ratios, <sigh/>,  'ratio vs ratio' is okay however ... call me <smile/> Re: {regressorOrDependent})");
-
-                return (ratioMatch.Groups[1].Success // The secret to our success is the first group
-                        ? Token.LnRatio : Token.Ratio, numerator.numerator, denominator.numerator);
+                var msg = $"Bad attribute syntax '{regressorOrDependent}' is invalid.";
+                System.Diagnostics.Debug.WriteLine(msg);
+                throw new SyntaxErrorException(msg);
             }
 
-            // if visit attribute
-            var visit = Regex.Match(attribute, @"^(Ln)*(Tps|Cac|Ncpv|Tcpv|Pav|Qangio)(\d+)$");
-            if (visit.Success)
+            #region ln(var3) -> lnvar3 transfom
+            { // ln(Var) -> LnVar ...
+                if (tokens.Groups[2].Success && !tokens.Groups[3].Success)
+                {
+                    var lnToLnVar = Regex.Match(tokens.Groups[2].Value, @"^([A-Z]+)(\d)?$", RegexOptions.IgnoreCase);
+                    if (!lnToLnVar.Success)
+                        throw new ArgumentException(
+                            $"That's unexpected ... do not use Ln(Var) use LnVar instead. Ln(A/B) is allowed.");
+
+                    bool isVisit = lnToLnVar.Groups[2].Success; // trailing digit :)e : string.Empty); // + 0 or 1 Visit array index
+
+                    string numerator =
+                        isVisit
+                            ? $"Visits[{lnToLnVar.Groups[2]}].Ln{lnToLnVar.Groups[1].Value}"
+                            : "Ln" + lnToLnVar.Groups[1].Value;
+
+                    string denominator = string.Empty;
+
+                    return (isVisit
+                            ? Token.VisitAttribute
+                            : Token.ElementAttribute,
+                                    numerator, denominator);
+                }
+            }
+            #endregion
+
             {
-                // prefix visit[x] to attribute without ending \d
-                return (
-                    Token.VisitAttribute,
-                    $"Visits[{visit.Groups[3]}].{visit.Groups[1]}{visit.Groups[2]}",
-                    string.Empty
-                );
+                var isRatio = tokens.Groups[4].Success && tokens.Groups[5].Success;
+                var isLnRatio = tokens.Groups[2].Success && tokens.Groups[3].Success;
+
+                // if ration compile tokens, num and den, separately (recurse)
+                //                             Normal Ratio i.e. num / den       .............  Ln( ratio) i.e. Ln( num / den)
+                var regSpaceRemove = new Regex(@"\s*/\s*");
+
+                if (isRatio)
+                {
+                    var numerator = isRatio
+                        ? Compile(tokens.Groups[4].Value)
+                        : Compile(tokens.Groups[2].Value);
+
+                    var denG3 = regSpaceRemove.Replace(tokens.Groups[3].Value, string.Empty);
+                    var denG5 = regSpaceRemove.Replace(tokens.Groups[5].Value, string.Empty);
+
+                    var denominator =
+                        isRatio
+                            ? Compile(denG5)
+                            : Compile(denG3);
+
+
+                    if (numerator.token == Token.Ratio || denominator.token == Token.Ratio)
+                        throw new SyntaxErrorException(
+                            $"No, I am not going to do recursive trees of ratios of ratios, <sigh/>, 'ratio vs ratio' is okay however ... call me <Grin/> Re: {regressorOrDependent})");
+
+                    // The secret to our success is the first group
+                    return (isRatio
+                            ? Token.LnRatio
+                            : Token.Ratio,
+                        numerator.numerator, denominator.numerator);
+                }
             }
 
-            //if element attribute
-            var element = Regex.Match(attribute, @"^(Ln)*(DTps|DCac|DNcpv|DTcpv|DPav|DQangio)$", RegexOptions.Compiled);
-            if (element.Success)
+            //A- single attribute, Cac0, LnDCac1, DTps2, etc. (r00t)
+            // This is not the same as Ratio above, it
+            if (tokens.Groups[4].Success)
             {
-                // prefix element[x] to attribute without ending \d
-                return (
-                    Token.ElementAttribute,
-                    $"{element.Groups[1]}{element.Groups[2]}",
-                    string.Empty
-                );
+                // Group[4] is the numerator, no denominator
+                var numerator = AttributeCaseNormalize(tokens.Groups[4].Value);
+                var denominator = string.Empty;
+
+                // Check for visit attribute
+                var visitElement = Regex.Match(numerator, @"^\s*((Ln|LnD)?[A-Z)]+)(\d)?\s*$", RegexOptions.IgnoreCase);
+                if (tokens.Success)
+                {
+                    // if there is a G3 this is a Visit attribute else element attribute
+                    bool isVisit = visitElement.Groups[3].Success && visitElement.Groups[1].Success;
+                    bool isElement = !isVisit;
+                    if (!(isVisit || isElement))
+                        throw new SyntaxErrorException("The attribute '{attribute} parse error. Must be in Visit or Element.");
+
+                    string comp =
+                        isVisit
+                            ? $"Visits[{visitElement.Groups[3]}].{visitElement.Groups[1].Value}"
+                            : tokens.Groups[1].Value;
+
+                    return (
+                        isVisit ? Token.VisitAttribute : Token.ElementAttribute,
+                        comp,
+                        string.Empty
+                    );
+                }
             }
 
-            // else throw syntax error you dumb ...
-            throw new SyntaxErrorException($"Not a valid data point: {attribute}");
+            ////B- ratio, e.g. Cac0/Cac1, DTps2/DTps3, etc. need recursion
+            //if (tokens.Groups[4].Success && tokens.Groups[5].Success)
+            //{
+            //    var num = tokens.Groups[4].Value;
+            //    var den = tokens.Groups[5].Value;
+            //    // Check for visit attribute
+            //    var visitMatch = Regex.Match(num, @"^(Ln)?[A-Z]+\d+$", RegexOptions.IgnoreCase);
+            //    if (visitMatch.Success)
+            //    {
+            //        // prefix visit[x] to attribute without ending \d
+            //        var comp = $"Visits[{visitMatch.Groups[3].Value}].{visitMatch.Groups[1].Value}{visitMatch.Groups[2].Value}";
+            //        return (
+            //            Token.VisitAttribute,
+            //            comp,
+            //            den
+            //        );
+            //    }
+            //    // Check for element attribute
+            //    var elementMatch = Regex.Match(num, @"^(Ln)*(DTps|DCac|DNcpv|DTcpv|DPav|DQangio)$", RegexOptions.Compiled);
+            //    if (elementMatch.Success)
+            //    {
+            //        // prefix element[x] to attribute without ending \d
+            //        return (
+            //            Token.ElementAttribute,
+            //            $"{elementMatch.Groups[1]}{elementMatch.Groups[2]}",
+            //            den
+            //        );
+            //    }
+            //    return (Token.Ratio, num, den);
+            //}
+
+            // else throw syntax error 
+            throw new SyntaxErrorException($"Not a valid data point: {regressorOrDependent}");
         }
+        #endregion
 
+        #region Case normalize
         private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(
             "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|Tps|Cac|Ncpv|Tcpv|Pav|Qangio"
                 .Split('|')
@@ -64,24 +200,24 @@ namespace DataMiner
                                   new KeyValuePair<string, string>("ln" + att.ToLower(), "Ln" + att) })
         );
 
+
         public static string AttributeCaseNormalize(string attribute)
         {
-            var noSpaceAttribute = Regex.Replace(attribute, @"\s+", string.Empty);
 
-            if (noSpaceAttribute.Contains('/'))
-                return noSpaceAttribute;
+            if (attribute.Contains('/'))
+                throw new SyntaxErrorException($"Valid attribute not found for: '{attribute}'"); ;
 
-            var match = Regex.Match(noSpaceAttribute, @"(^[A-Z)]+)(\d)$", RegexOptions.Compiled & RegexOptions.IgnoreCase);
+            var match = Regex.Match(attribute, @"^(Ln)?([A-Z)]+)(\d)?$", RegexOptions.IgnoreCase);
 
             if (match.Success)
             {
-                var suffix = match.Groups[2].Value;
-                var key = match.Groups[1].Value.ToLower();
-                return AttributeDictionary[key] + suffix;
+                var suffix = match.Groups[3].Value;
+                var key = match.Groups[1] + match.Groups[2].Value;
+                return AttributeDictionary[key.ToLower()] + suffix;
             }
             else
             {
-                var key = noSpaceAttribute.ToLower();
+                var key = attribute.ToLower();
                 if (AttributeDictionary.TryGetValue(key, out var normalized))
                     return normalized;
             }
@@ -90,12 +226,6 @@ namespace DataMiner
         }
 
         #endregion
-
-        //private static string RemoveParens(string value)
-        //{
-        //    // Remove parentheses from the value
-        //    return Regex.Replace(value, @"[\(\)]", string.Empty);
-        //}
     }
 }
 

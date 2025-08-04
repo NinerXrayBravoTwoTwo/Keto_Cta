@@ -27,8 +27,8 @@ namespace DataMiner
 
             // group 2 is dependent, group 4 is regressor
 
-            var dependent = match.Groups[2].Value;
-            var regressor = match.Groups[4].Value;
+            var dependent = match.Groups[1].Value;
+            var regressor = match.Groups[5].Value;
             Title = $"{dependent} vs {regressor}";
             System.Diagnostics.Debug.WriteLine($"In: {dependentVsRegressor} Mapped: {Title}");
 
@@ -100,9 +100,9 @@ namespace DataMiner
             return $"{Title}";
         }
 
-        private (Token token, string numerator, string denominator) DependentCompile { get; init; }
+        public (Token token, string numerator, string denominator) DependentCompile { get; init; }
 
-        private (Token token, string numerator, string denominator) RegressorCompile { get; init; }
+        public (Token token, string numerator, string denominator) RegressorCompile { get; init; }
 
 
     }
