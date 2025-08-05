@@ -178,7 +178,7 @@ namespace DataMiner
         {
 
             if (attribute.Contains('/'))
-                throw new SyntaxErrorException($"Valid attribute not found for: '{attribute}'"); ;
+                throw new SyntaxErrorException($"Valid attribute not found for: '{attribute}'");
 
             var match = Regex.Match(attribute, @"^(Ln)?([A-Z)]+)(\d)?$", RegexOptions.IgnoreCase);
 
@@ -201,4 +201,3 @@ namespace DataMiner
         #endregion
     }
 }
-

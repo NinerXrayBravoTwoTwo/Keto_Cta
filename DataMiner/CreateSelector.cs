@@ -32,10 +32,12 @@ namespace DataMiner
 
             DependentCompile = Compile(dependent);
             RegressorCompile = Compile(regressor);
-            System.Diagnostics.Debug.WriteLine($"In: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
+            System.Diagnostics.Debug.WriteLine($"After Compile: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
 
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);
             XSelector = InternalCreateSelector(RegressorCompile.numerator, RegressorCompile.denominator, RegressorCompile.token);
+            System.Diagnostics.Debug.WriteLine($"After InternalCreate: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
+
 
         }
 
@@ -99,10 +101,9 @@ namespace DataMiner
             return $"{Title}";
         }
 
-        public (Token token, string numerator, string denominator) DependentCompile { get; init; }
+        public (Token token, string numerator, string denominator) DependentCompile { get; private set; }
 
-        public (Token token, string numerator, string denominator) RegressorCompile { get; init; }
-
+        public (Token token, string numerator, string denominator) RegressorCompile { get; private set; }
 
     }
 }

@@ -179,5 +179,42 @@ namespace KetoCtaTest
             Assert.Equal("DCac", selector.RegressorCompile.numerator);
             Assert.Equal("DTcpv", selector.RegressorCompile.denominator);
         }
+
+
+        [Fact]
+        public void CompareReflectionGetPropertyMethods()
+        {
+            // Arrange
+            var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv"); // Ensure this file exists and is valid
+            var selector = new CreateSelector("Cac1/LnNcpv1 vs Cac0");
+            var reg = selector.RegressorCompile;
+            var dep = selector.DependentCompile;
+
+            testOutputHelper.WriteLine(selector.Title);
+            testOutputHelper.WriteLine($"{dep} vs {reg}");
+
+            Assert.Equal("Visits[0].Cac", reg.numerator);
+            Assert.Equal("Visits[1].LnNcpv", dep.denominator);
+            Assert.Equal("Visits[1].Cac", dep.numerator);
+
+            // Act
+            var firstElement = miner.Elements.First();
+            var reflectionValue = CreateSelector.GetNestedPropertyValue(firstElement, reg.numerator);
+            var directValue = firstElement.Visits[1].Cac; // Assuming direct access is possible
+
+            // Validate
+            Assert.Equal(reflectionValue, directValue);
+        }
+        [Fact]
+        public void CreateSelector_ShouldCreateIndependentSelectors()
+        {
+            var selector = new CreateSelector("Cac1/LnNcpv1 vs Cac0");
+            Assert.Equal("Visits[1].Cac", selector.DependentCompile.numerator);
+            Assert.Equal("Visits[1].LnNcpv", selector.DependentCompile.denominator);
+            Assert.Equal("Visits[0].Cac", selector.RegressorCompile.numerator);
+        }
+
+
     }
+
 }

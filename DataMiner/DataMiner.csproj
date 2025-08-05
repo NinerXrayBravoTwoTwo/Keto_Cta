@@ -16,6 +16,7 @@
     <Compile Remove="AlternateSelector.cs" />
     <Compile Remove="BaseVariableDicer.cs" />
     <Compile Remove="CovariantDicer.cs" />
+    <Compile Remove="CreateSelectorA.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
     <Compile Remove="RatioVariableDicer.cs" />
     <Compile Remove="SaltMiner.cs" />

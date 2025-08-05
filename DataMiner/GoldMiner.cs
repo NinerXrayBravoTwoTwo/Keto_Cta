@@ -49,6 +49,8 @@ public class GoldMiner
 
     #region load Data
 
+    public IEnumerable<Element> Elements => Omega;
+
     /// <summary>
     /// Reads a Keto-CTA CSV file from the specified path and parses its contents into a list of <see cref="Element"/> objects.
     /// </summary>
