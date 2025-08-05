@@ -132,6 +132,8 @@ public class Element
 
     public override string ToString()
     {
-        return $"ParticipantId: {Id}, Set: {MemberSet} Visits: [{string.Join(", ", Visits.ToString())}]";
+        var repVisits = string.Join(", ", $"{Visits[0]}\n{Visits[1]}");
+        return $"ParticipantId: {Id} {MemberSet} : DTps {DTps:F3}, DCac {DCac:F3}, DNcpv {DNcpv:F3}, DTcpv {DTcpv:F3}, DPav {DPav:F3}, DQAng {DQangio:F3}"
+               + $"\n{repVisits}";
     }
 }

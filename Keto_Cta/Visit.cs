@@ -65,6 +65,6 @@ public record Visit
     public override string ToString()
     {
         return
-            $"Id: {Id}, VisitDate: {VisitDate}, Tps: {Tps:F3}, Cac: {Cac:F3}, Ncpv: {Ncpv:F3}, Tcpv: {Tcpv:F3}, Pav: {Pav:F3}";
+            $"Id: {Id}, VisitDate: {VisitDate}, Tps {Tps:F3}, Cac {Cac:F3}, Ncpv {Ncpv:F3}, Tcpv {Tcpv:F3}, Pav: {Pav:F3}, QAngio {Qangio:F3}";
     }
 }

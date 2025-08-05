@@ -129,6 +129,23 @@ while (true)
                 Console.WriteLine(item);
             }
         }
+        else if (IsMatch(command, @"Element\s*", RegexOptions.IgnoreCase))
+        {
+            Match match = Regex.Match(command, @"Element (\d{1,3})",RegexOptions.IgnoreCase);
+            if (match.Success)
+            {
+                int elementId = int.Parse(match.Groups[1].Value);
+                var element = goldMiner.Elements.FirstOrDefault(e => e.Id == elementId.ToString());
+                if (element != null)
+                {
+                    Console.WriteLine(element);
+                }
+                else
+                {
+                    Console.WriteLine($"Element with ID {elementId} not found.");
+                }
+            }
+        }
         else if (IsMatch(command, @"mine", RegexOptions.IgnoreCase))
         {
             localDusts.Clear();
@@ -203,10 +220,4 @@ while (true)
             }
         }
     }
-    continue;
-
-
 }
-
-return;
-
