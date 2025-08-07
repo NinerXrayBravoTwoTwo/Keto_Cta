@@ -12,8 +12,7 @@ public class GoldMiner
         var elements = ReadKetoCtaFile(ketoCtaPath, qangio) ??
                        throw new ArgumentException("CSV file returned null elements.", nameof(ketoCtaPath));
 
-        Omega = elements.Where(e =>
-            e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
         Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
@@ -21,6 +20,7 @@ public class GoldMiner
         Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
         BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
+        Qangio = elements.Where(e => !double.IsNaN(e.DQangio)).ToArray();
 
         _setNameToData = new Dictionary<SetName, Element[]>
         {
@@ -31,7 +31,8 @@ public class GoldMiner
             { SetName.Gamma, Gamma },
             { SetName.Eta, Eta },
             { SetName.Theta, Theta },
-            { SetName.BetaUZeta, BetaUZeta }
+            { SetName.BetaUZeta, BetaUZeta },
+            {SetName.Qangio, Qangio }
         };
     }
 
@@ -43,6 +44,7 @@ public class GoldMiner
     public Element[] Theta;
     public Element[] Eta;
     public Element[] BetaUZeta;
+    public Element[] Qangio;
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
@@ -74,7 +76,7 @@ public class GoldMiner
             var values = line.Split(',');
 #pragma warning restore CS8602
 
-            var qa1 = double.NaN;
+            index++; var qa1 = double.NaN;
             var qa2 = double.NaN;
             if (qAngioData != null)
             {
@@ -96,7 +98,6 @@ public class GoldMiner
                 var visit2 = new Visit("V2", null, int.Parse(values[1]), int.Parse(values[3]), double.Parse(values[5]),
                     double.Parse(values[7]), double.Parse(values[9]), qa2);
 
-                index++;
                 var element = new Element(index.ToString(), [visit1, visit2]);
                 list.Add(element);
             }
@@ -159,7 +160,8 @@ public class GoldMiner
             AuDust(SetName.Gamma, chartTitle),
             AuDust(SetName.Theta, chartTitle),
             AuDust(SetName.Eta, chartTitle),
-            AuDust(SetName.BetaUZeta, chartTitle)
+            AuDust(SetName.BetaUZeta, chartTitle),
+            AuDust(SetName.Qangio, chartTitle),
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 
@@ -404,6 +406,7 @@ public class GoldMiner
         dusts.AddRange(RootStatisticMatrix(SetName.Theta));
         dusts.AddRange(RootStatisticMatrix(SetName.Eta));
         dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
+        dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
 
         var locDusts = dusts.OrderBy(d => d.Regression.PValue()).ToArray<Dust>();
 
@@ -420,6 +423,7 @@ public class GoldMiner
         [
             "Cac1 vs. Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
             "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
+            "QAngio1 vs QAngio0","LnQAngio1 vs LnQAngio0"
         ];
 
         List<Dust> localDusts = [];
@@ -435,7 +439,7 @@ public class GoldMiner
         List<string> result = [];
 
         if (isPrintHeader)
-            result.Add("Index,Regression,Set,Mean X,moe X, Mean Y,moe Y, Slope,Rp-value");
+            result.Add("Index,Regression,Phenotype,Mean X,moe X, Mean Y,moe Y, Slope,xSD,ySD,p-value");
 
         var index = 1;
         result.AddRange(from item in dusts
@@ -445,6 +449,8 @@ public class GoldMiner
                                + $"{moeX.Mean:F3},{moeX.MarginOfError:F4},"
                                + $"{moeY.Mean:F3},{moeY.MarginOfError:F4},"
                                + $"{item.Regression.Slope():F3},"
+                               + $"{item.Regression.StdDevX:F3},"
+                               + $"{item.Regression.StdDevY:F3},"
                                + $"{item.Regression.PValue():F11}");
 
         return string.Join('\n', result.ToArray());

@@ -11,19 +11,19 @@ namespace Keto_Cta;
 //            or v2.Pav < v1.Pav;
 //
 // Definitions based on the provided sets and conditions:
-//     • Ω : All participants
+//     • Ω : Omega, All participants
 //     ◦ 100 participants
-//     • α : { x ∈ Ω | ¬isZeta(x) }
+//     • α : Alpha, { x ∈ Ω | ¬isZeta(x) }
 //     ◦ 88 participants (CAC and TPS stable or increasing)
-//     • ζ : { x ∈ Ω | isZeta(x) }
+//     • ζ : Zeta, { x ∈ Ω | isZeta(x) }
 //     ◦ 12 participants (CAC or TPS decrease, “Unicorns”)
-//     • β : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
+//     • β : Beta, { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
 //     ◦ 40 participants (non-zero CAC in α)
-//     • γ : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
+//     • γ : Gamma, { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
 //     ◦ 4 participants (zero CAC in α)
-//     • η : { x ∈ β | Δcac(x) &gt; 10 }
+//     • η : Eta, { x ∈ β | Δcac(x) &gt; 10 }
 //     ◦ 17 participants (larger CAC increase)
-//     • θ : { x ∈ β | Δcac(x) ≤ 10 }
+//     • θ : Theta, { x ∈ β | Δcac(x) ≤ 10 }
 //     ◦ 23 participants (smaller CAC increase)
 // </summary>
 public enum LeafSetName
@@ -43,7 +43,8 @@ public enum SetName
     Gamma = 2, // Zero CAC in Alpha, Alpha exclude Gamma
     Theta = 3, // Smaller CAC increase in Beta
     Eta = 4, // Larger CAC increase in Beta
-    BetaUZeta = 7  // Beta union Zeta Eta and Theta are closely related to the Zeta set in terms of CAC
+    BetaUZeta = 7,  // Beta union Zeta Eta and Theta are closely related to the Zeta set in terms of CAC
+    Qangio = 8,  // Where element.DQangio not double.NaN
 }
 
 // <summary>

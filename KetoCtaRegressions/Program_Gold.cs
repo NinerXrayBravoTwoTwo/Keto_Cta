@@ -145,7 +145,7 @@ while (true)
             var isElementId = int.TryParse(match.Groups[1].Value, out int elementId);
             if (!isElementId)
             {
-                // Or phenotype name
+                // Or phenotype/leafSet name
 
                 var inst = match.Groups[1].Value.ToLower();
 
@@ -163,16 +163,15 @@ while (true)
             }
 
             IEnumerable<Element> elements;
-            if (match.Groups[1].Value.Contains("angio"))
+            if (match.Groups[1].Value.Contains("ang"))
             {
                 elements = goldMiner.Elements.Where(e => !double.IsNaN(e.DQangio)).OrderBy(e => e.MemberSet);
-
             }
             else
             {
                 elements = isElementId
-                   ? goldMiner.Elements.Where(e => e.Id.Equals(elementId.ToString()))
-                   : goldMiner.Elements.Where(e => e.MemberSet.Equals(leafSets.FirstOrDefault()));
+                    ? goldMiner.Elements.Where(e => e.Id.Equals(elementId.ToString()))
+                    : goldMiner.Elements.Where(e => e.MemberSet.Equals(leafSets.FirstOrDefault()));
             }
 
             var enumerable = elements as Element[] ?? elements.ToArray();
@@ -183,7 +182,10 @@ while (true)
             }
             else
             {
-                Console.WriteLine($"Element with ID {elementId} not found.");
+                var msg = isElementId
+                    ? $"Element with ID {elementId} not found."
+                    : $"Only leaf sets 'zeta', 'gamma', 'theta', 'eta' can be requested here. Plus QAngino, for temporarily testing.";
+                Console.WriteLine(msg);
             }
         }
     }
@@ -197,14 +199,17 @@ while (true)
         var end = DateTime.Now;
         var interval = end - start;
 
-        Console.WriteLine($"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
+        Console.WriteLine(
+            $"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
         var myData = mineRegressions.Report(localDusts);
 
         foreach (var speck in myData)
         {
             Console.WriteLine(speck);
         }
-        Console.WriteLine($"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
+
+        Console.WriteLine(
+            $"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
 
 
     }
@@ -229,12 +234,22 @@ while (true)
         Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
 
     }
-    else if (IsMatch(command, @"matrix", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase))
     {
-        Dust[] myDusts;
-        var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
-        localDusts.AddRange(rootDusts);
-        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+        var tokens = Match(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase);
+        if (!tokens.Groups[1].Success)
+        {
+            var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
+            localDusts.AddRange(rootDusts);
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+        }
+        else
+        {
+            var dusts = goldMiner.RootAllSetMatrix();
+            localDusts.AddRange(dusts);
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
+
+        }
     }
     else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
     {
@@ -263,24 +278,25 @@ while (true)
         // Parse for subset name, if none default to Omega
         var tokens = Match(command, vsPattern, RegexOptions.IgnoreCase);
         var title = tokens.Groups[4].Success ? command.Split('-') : [command];
+
         if (!tokens.Success)
         {
             Console.WriteLine($"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0, (Omega|Beta)'");
             continue;
         }
 
-        CreateSelector sel;
+        IEnumerable<Dust> dusts = [];
         try
         {
-            sel = new CreateSelector(title[0]);
+             dusts = goldMiner.GoldDust(title[0]);
         }
         catch (Exception error)
         {
-            Console.WriteLine(error.Message);
-            continue;
+            Console.WriteLine($"Error generating regression for '{title[0]}': {error.Message}");
+            continue;   
         }
 
-        var dust = localDusts.Where(d => d.RegressionName.Equals(sel.Title));
+        localDusts.AddRange(dusts);
 
         List<SetName> useSets = [];
 
@@ -300,12 +316,12 @@ while (true)
         }
 
         // Look up existing chart
-        if (dust.Any())
+        if (dusts.Any())
         {
             foreach (var item in useSets)
-                DustsToCvs(dust.Where(d => d.SetName.Equals(item)));
+                DustsToCvs(dusts.Where(d => d.SetName.Equals(item)));
 
-            DustsToRegressionList(dust);
+            DustsToRegressionList(dusts);
             Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
         }
         else // create new dusts
