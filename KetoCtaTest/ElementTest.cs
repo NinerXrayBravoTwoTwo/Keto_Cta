@@ -68,7 +68,7 @@ public class ElementTest(ITestOutputHelper testOutputHelper)
         var result = element.ToString();
         // Assert
         var id = "d4e5f";
-        Assert.Contains($"ParticipantId: {id}", result);
+        Assert.Contains($"Id: {id}", result);
         Assert.Equal(2, element.Visits.Count);
     }
 

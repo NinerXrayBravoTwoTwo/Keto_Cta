@@ -142,51 +142,6 @@ public class GoldMiner
     #endregion
 
     /// <summary>
-    /// Calculates a regression analysis based on the provided elements and selector function.
-    /// </summary>
-    /// <remarks>Elements for which the <paramref name="selector"/> function throws an <see
-    /// cref="ArgumentException"/> are skipped, and a message is logged to the console with the provided <paramref
-    /// name="label"/>.</remarks>
-    /// <param name="targetElements">A collection of elements to be analyzed. Cannot be <see langword="null"/>.</param>
-    /// <param name="label">A label used for logging or identification purposes. Can be <see langword="null"/> or empty.</param>
-    /// <param name="selector">A function that maps each element to a tuple containing the x and y values for the regression analysis. Cannot
-    /// be <see langword="null"/>. If the function throws an <see cref="ArgumentException"/>, the corresponding element
-    /// is skipped.</param>
-    /// <returns>A <see cref="MineRegression"/> object containing the results of the regression analysis.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="targetElements"/> or <paramref name="selector"/> is <see langword="null"/>.</exception>
-    private MineRegression CalculateRegression(IEnumerable<Element> targetElements, string label,
-        Func<Element, (string id, double x, double y)> selector)
-    {
-        try
-        {
-            if (targetElements == null) throw new ArgumentNullException(nameof(targetElements));
-            if (selector == null) throw new ArgumentNullException(nameof(selector));
-        }
-        catch (Exception error)
-        {
-            System.Diagnostics.Debug.WriteLine($"Local RegressionPValue; {error.Message} {label}");
-            throw;
-        }
-
-        var dataPoints = new List<(string id, double x, double y)>();
-        foreach (var element in targetElements)
-        {
-            try
-            {
-                dataPoints.Add(selector(element));
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine($"Skipping data point in {label}: {ex.Message}");
-            }
-        }
-
-        return new MineRegression(dataPoints);
-    }
-
-
-
-    /// <summary>
     /// Generates an array of gold dust data based on the specified chart title.
     /// </summary>
     /// <remarks>This method creates gold dust data for a predefined set of names and filters out any null
@@ -222,15 +177,16 @@ public class GoldMiner
             return null;
         }
 
-        if (!_selectorCache.TryGetValue(chartTitle, out var selector))
+        if (!_selectorCache.TryGetValue(chartTitle.ToLower(), out var selector))
         {
             try
             {
                 selector = new CreateSelector(chartTitle);
+                _selectorCache.Add(chartTitle.ToLower(), selector);
             }
             catch (ArgumentException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message} Note that 'vs' must be a seperate token with white space seperation from dependent vs regressor.");
+                System.Diagnostics.Debug.WriteLine($"Invalid chart title {chartTitle}: {ex.Message} Note that 'vs' must be a separate token with white space separation from dependent vs regressor.");
 
                 return null;
             }
@@ -479,17 +435,17 @@ public class GoldMiner
         List<string> result = [];
 
         if (isPrintHeader)
-            result.Add("Index,Regression,Set,Mean X,moe X, Mean Y,moe Y, Slope,R^2,p-value");
+            result.Add("Index,Regression,Set,Mean X,moe X, Mean Y,moe Y, Slope,Rp-value");
 
         var index = 1;
         result.AddRange(from item in dusts
                         let moeX = item.Regression.MarginOfError()
                         let moeY = item.Regression.MarginOfError(useY: true)
-                        select $"{index++},{item.ChartTitle},{item.SetName} {item.Regression.N},"
+                        select $"{index++},{item.RegressionName},{item.SetName} {item.Regression.N},"
                                + $"{moeX.Mean:F3},{moeX.MarginOfError:F4},"
                                + $"{moeY.Mean:F3},{moeY.MarginOfError:F4},"
                                + $"{item.Regression.Slope():F3},"
-                               + $"{item.Regression.RSquared():F3},{item.Regression.PValue():F11}");
+                               + $"{item.Regression.PValue():F11}");
 
         return string.Join('\n', result.ToArray());
     }

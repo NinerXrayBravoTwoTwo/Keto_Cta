@@ -5,8 +5,6 @@ namespace DataMiner
 {
     public partial class CreateSelector
     {
-
-
         public static (Token token, string numerator, string denominator) Compile(string regressorOrDependent)
         {
             // G4 is num, no denominator
@@ -169,8 +167,9 @@ namespace DataMiner
         private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(
             "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|Tps|Cac|Ncpv|Tcpv|Pav|Qangio"
                 .Split('|')
-                .SelectMany(att => new[] { new KeyValuePair<string, string>(att.ToLower(), att),
-                                  new KeyValuePair<string, string>("ln" + att.ToLower(), "Ln" + att) })
+                .SelectMany(att => new[] {
+                                            new KeyValuePair<string, string>(att.ToLower(), att),
+                                            new KeyValuePair<string, string>("ln" + att.ToLower(), "Ln" + att) })
         );
 
 

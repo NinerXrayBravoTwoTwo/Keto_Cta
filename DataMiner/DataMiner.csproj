@@ -18,7 +18,9 @@
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="CreateSelectorA.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
+    <Compile Remove="ParseToDataMap.cs" />
     <Compile Remove="RatioVariableDicer.cs" />
+    <Compile Remove="RegressionParser.cs" />
     <Compile Remove="SaltMiner.cs" />
     <Compile Remove="SimpleVariableDicer.cs" />
   </ItemGroup>

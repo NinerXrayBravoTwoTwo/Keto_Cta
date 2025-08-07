@@ -5,14 +5,7 @@ namespace DataMiner
     public class MineRegression : RegressionPvalue
     {
         public MineRegression(IEnumerable<(string id, double x, double y)> kxyList) : base(kxyList.Select(tuple => (tuple.x, tuple.y)).ToList())
-        {
-            DataPointIds = kxyList.Select(tuple => tuple.id).ToArray();
-
-            //List <(double x, double y)> xyList = kxyList.Select(tuple => (tuple.x, tuple.y)).ToList();
-
-            //base.DataPoints = xyList;
-
-        }
+        { }
 
         public string[] DataPointIds { get; init; }
 

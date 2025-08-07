@@ -1,6 +1,8 @@
 ﻿using DataMiner;
 using Keto_Cta;
+using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -57,29 +59,30 @@ foreach (var item in dataPoints)
 #endregion
 
 #region Chart Specific Regression
-void ChartARegressionExcel(Dictionary<SetName, MineRegression> setRegressions, SetName set)
-{
-    if (!setRegressions.TryGetValue(set, out var target) || !target.DataPoints.Any()) return;
 
-    Console.WriteLine($"\n-,-,'regression - {set}' slope; {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6}\n");
-    Console.WriteLine($"p-value, p-value SD");
-    foreach (var point in target.DataPoints)
+void DustsToRegressionList(IEnumerable<Dust> dusts)
+{
+    // header
+    Console.WriteLine($"Regression,Phenotype,Mean X, moe X, Mean Y, moe Y,p-value,R^2");
+    var orderBypVal = dusts.OrderBy(d => d.Regression.PValue);
+    foreach (var item in dusts.OrderBy(d => d.Regression.PValue))
     {
-        Console.WriteLine($"{point.x}, {point.y}");
+        var moeX = item.Regression.MarginOfError();
+        var moeY = item.Regression.MarginOfError(true);
+        Console.WriteLine($"{item.RegressionName},{item.SetName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3},{item.Regression.PValue:F8},{item.Regression.RSquared:F5}");
     }
 }
-
-void ChartToCvs(IEnumerable<Dust> dust)
+void DustsToCvs(IEnumerable<Dust> dust)
 {
     foreach (var dust1 in dust)
     {
         var target = dust1.Regression;
-        var parts = Split(dust1.ChartTitle, @"\s+vs.\s*");
+        var parts = Split(dust1.RegressionName, @"\s+vs.\s*");
         if (parts.Length < 2) continue; // Handle invalid titles
         var regressor = parts[1];
         var dependent = parts[0];
 
-        Console.WriteLine($"\n-,-,{dust1.ChartTitle} -- {dust1.SetName}" +
+        Console.WriteLine($"\n-,-,{dust1.RegressionName} -- {dust1.SetName}" +
                           $"\n-,-,Slope: {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
         Console.WriteLine($"{regressor}, {dependent}");
         foreach (var point in target.DataPoints)
@@ -97,7 +100,7 @@ string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
 {
     localDusts.AddRange(miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts));
     var dusts = miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts);
-    var report = miner.Report();
+    var report = miner.Report(dusts);
 
     return report;
 }
@@ -106,6 +109,7 @@ string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
 
 //ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
 
+var vsPattern = @"^([A-Z\d\s\(/\(\)]+)\s(vs\.?)\s([A-Z\d\s\(/\(\)]+)\s*(-.+)?$";
 
 // Wait for user input before closing the console window
 Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'Cac0 vs. Cac1'):");
@@ -115,108 +119,217 @@ while (true)
     Console.Write("> ");
     var command = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(command)) continue;
+
     // Check for exit commands
     if (IsMatch(command, @"^(exit|quit|end|q)$", RegexOptions.IgnoreCase))
         break;
 
-    if (!string.IsNullOrWhiteSpace(command))
+    if (string.IsNullOrWhiteSpace(command)) continue;
+
+    if (IsMatch(command, @"^beta", RegexOptions.IgnoreCase))
     {
-        if (IsMatch(command, @"beta", RegexOptions.IgnoreCase))
+        var myData = goldMiner.PrintBetaElements(SetName.Beta);
+        foreach (var item in myData)
         {
-            var myData = goldMiner.PrintBetaElements(SetName.Beta);
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
+            Console.WriteLine(item);
         }
-        else if (IsMatch(command, @"Element\s*", RegexOptions.IgnoreCase))
+    }
+    else if (IsMatch(command, @"^Ele\w+ (\d{1,3}|\w*)", RegexOptions.IgnoreCase))
+    {
+        Match match = Regex.Match(command, @"^Ele\w+ (\d{1,3}|\w*)", RegexOptions.IgnoreCase);
+        if (match.Success)
         {
-            Match match = Regex.Match(command, @"Element (\d{1,3})",RegexOptions.IgnoreCase);
-            if (match.Success)
+            List<LeafSetName> leafSets = [];
+
+            //Element Id ?
+            var isElementId = int.TryParse(match.Groups[1].Value, out int elementId);
+            if (!isElementId)
             {
-                int elementId = int.Parse(match.Groups[1].Value);
-                var element = goldMiner.Elements.FirstOrDefault(e => e.Id == elementId.ToString());
-                if (element != null)
+                // Or phenotype name
+
+                var inst = match.Groups[1].Value.ToLower();
+
+                // Scan decorations for set names
+                foreach (var item in Enum.GetNames(typeof(LeafSetName)))
                 {
-                    Console.WriteLine(element);
+                    if (inst.Contains(item.ToLower()))
+                    {
+                        if (Enum.TryParse(item, true, out LeafSetName result))
+                            leafSets.Add(result);
+
+                        break;
+                    }
                 }
-                else
-                {
-                    Console.WriteLine($"Element with ID {elementId} not found.");
-                }
             }
-        }
-        else if (IsMatch(command, @"mine", RegexOptions.IgnoreCase))
-        {
-            localDusts.Clear();
-            localDusts.AddRange(mineRegressions.GenerateGoldRegression(goldMiner, true));
-            var myData = mineRegressions.Report();
 
-            Console.WriteLine(localDusts);
-        }
-        else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
-        {
-            mineRegressions.ClearDust();
-            localDusts.Clear();
+            IEnumerable<Element> elements;
+            if (match.Groups[1].Value.Contains("angio"))
+            {
+                elements = goldMiner.Elements.Where(e => !double.IsNaN(e.DQangio)).OrderBy(e => e.MemberSet);
 
-        }
-        else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
-        {
-            var myData = goldMiner.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
-        }
-        else if (IsMatch(command, @"all\s*matrix", RegexOptions.IgnoreCase))
-        {
-            var dusts = goldMiner.RootAllSetMatrix();
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
-
-        }
-        else if (IsMatch(command, @"matrix", RegexOptions.IgnoreCase))
-        {
-            Dust[] myDusts;
-            var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
-        }
-        else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
-        {
-            var myData = goldMiner.PrintKetoCta();
-            foreach (var item in myData)
-            {
-                Console.WriteLine(item);
-            }
-        }
-        else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
-        {
-            Console.WriteLine("Possible Commands: 'independent vs. regressor', BetaUZeta, mine, gamma, dust, matrix, " +
-                              "all matrix, keto, clear dusts, q|exit|quit|end|help");
-        }
-        else if (IsMatch(command, @"dust", RegexOptions.IgnoreCase))
-        {
-            GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
-        }
-        else // Get the data for a chart
-        {
-            var dust = localDusts.Where(d => d.ChartTitle.Equals(command, StringComparison.OrdinalIgnoreCase)).ToArray();
-            if (dust.Any())
-            {
-                ChartToCvs(dust);
-                Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
             }
             else
             {
-                Console.WriteLine($"Generating regression for '{command}'...");
-                var newDusts = goldMiner.GoldDust(command);
+                elements = isElementId
+                   ? goldMiner.Elements.Where(e => e.Id.Equals(elementId.ToString()))
+                   : goldMiner.Elements.Where(e => e.MemberSet.Equals(leafSets.FirstOrDefault()));
+            }
+
+            var enumerable = elements as Element[] ?? elements.ToArray();
+            if (enumerable.Any())
+            {
+                foreach (var item in enumerable)
+                    Console.WriteLine(item + "\n");
+            }
+            else
+            {
+                Console.WriteLine($"Element with ID {elementId} not found.");
+            }
+        }
+    }
+    else if (IsMatch(command, @"^mine$", RegexOptions.IgnoreCase))
+    {
+        localDusts.Clear();
+        var start = DateTime.Now;
+
+        localDusts.AddRange(mineRegressions.GenerateGoldRegression(goldMiner, true).OrderBy(d => d.Regression.PValue));
+
+        var end = DateTime.Now;
+        var interval = end - start;
+
+        Console.WriteLine($"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
+        var myData = mineRegressions.Report(localDusts);
+
+        foreach (var speck in myData)
+        {
+            Console.WriteLine(speck);
+        }
+        Console.WriteLine($"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
+
+
+    }
+    else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
+    {
+        mineRegressions.ClearDust();
+        localDusts.Clear();
+
+    }
+    else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
+    {
+        var myData = goldMiner.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
+        foreach (var item in myData)
+        {
+            Console.WriteLine(item);
+        }
+    }
+    else if (IsMatch(command, @"^all\s*matrix", RegexOptions.IgnoreCase))
+    {
+        var dusts = goldMiner.RootAllSetMatrix();
+        localDusts.AddRange(dusts);
+        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
+
+    }
+    else if (IsMatch(command, @"matrix", RegexOptions.IgnoreCase))
+    {
+        Dust[] myDusts;
+        var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
+        localDusts.AddRange(rootDusts);
+        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+    }
+    else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
+    {
+        var myData = goldMiner.PrintKetoCta();
+        foreach (var item in myData)
+        {
+            Console.WriteLine(item);
+        }
+    }
+    else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
+    {
+        Console.WriteLine("Possible Commands: 'independent vs. regressor', BetaUZeta, mine, gamma, dust, matrix, " +
+                          "all matrix, keto, clear dusts, q|exit|quit|end|help");
+    }
+    else if (IsMatch(command, @"^dust$", RegexOptions.IgnoreCase))
+    {
+        GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
+        foreach (var speck in localDusts.OrderBy(d => d.Regression.PValue))
+        {
+            Console.WriteLine(speck);
+        }
+    }
+    // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
+    else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
+    {
+        // Parse for subset name, if none default to Omega
+        var tokens = Match(command, vsPattern, RegexOptions.IgnoreCase);
+        var title = tokens.Groups[4].Success ? command.Split('-') : [command];
+        if (!tokens.Success)
+        {
+            Console.WriteLine($"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0, (Omega|Beta)'");
+            continue;
+        }
+
+        CreateSelector sel;
+        try
+        {
+            sel = new CreateSelector(title[0]);
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(error.Message);
+            continue;
+        }
+
+        var dust = localDusts.Where(d => d.RegressionName.Equals(sel.Title));
+
+        List<SetName> useSets = [];
+
+        // User wants specific LMHR sub phenotype set
+
+        var inst = tokens.Groups[4].Success ? title[1].ToLower() : string.Empty;
+        var isAllPhenotypes = inst.Contains("all");
+
+        // Scan decorations for set names
+        foreach (var item in Enum.GetNames(typeof(SetName)))
+        {
+            if (isAllPhenotypes | inst.Contains(item.ToLower()))
+            {
+                if (Enum.TryParse(item, true, out SetName result))
+                    useSets.Add(result);
+            }
+        }
+
+        // Look up existing chart
+        if (dust.Any())
+        {
+            foreach (var item in useSets)
+                DustsToCvs(dust.Where(d => d.SetName.Equals(item)));
+
+            DustsToRegressionList(dust);
+            Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
+        }
+        else // create new dusts
+        {
+            Console.WriteLine($"Generating regression for '{title[0]}'...");
+            try
+            {
+                var newDusts = goldMiner.GoldDust(title[0]);
                 if (newDusts.Length == 0)
                 {
-                    Console.WriteLine($"Regression '{command}' can not be generated. Try again or 'exit' to quit:");
+                    Console.WriteLine($"Regression '{title[0]}' can not be generated.");
                     continue;
                 }
 
                 localDusts.AddRange(newDusts);
-                ChartToCvs(newDusts);
+
+                DustsToRegressionList(newDusts);
+                // var requestedDust = newDusts.Where(d => d.SetName.Equals());
+
+                //;
+            }
+            catch (KeyNotFoundException)
+            {
+                Console.WriteLine("Please us valid data names");
             }
         }
     }

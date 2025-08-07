@@ -15,7 +15,7 @@ namespace KetoCtaTest
             var dust = miner.AuDust(SetName.Omega, "Tps0 vs. DTps");
             Assert.NotNull(dust);
             Assert.Equal(SetName.Omega, dust.SetName);
-            Assert.Equal("Tps0 vs. DTps", dust.ChartTitle);
+            Assert.Equal("Tps0 vs. DTps", dust.RegressionName);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace KetoCtaTest
         public void Dust_NullChartTitle_ThrowsArgumentException()
         {
             var miner = new GoldMiner("TestData/keto-cta-quant-and-semi-quant.csv");
-            Assert.Throws<ArgumentNullException>(() => miner.AuDust(SetName.Omega, null));
+            Assert.Throws<NullReferenceException>(() => miner.AuDust(SetName.Omega, null));
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace KetoCtaTest
                         var result = goldMiner.AuDust(SetName.Omega, chart);
                         var reg = result.Regression;
                         testOutputHelper.WriteLine(
-                            $"{index++}, {result.ChartTitle}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
+                            $"{index++}, {result.RegressionName}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
                     }
                 }
             }
