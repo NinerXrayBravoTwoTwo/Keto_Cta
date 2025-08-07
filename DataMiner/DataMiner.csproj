@@ -18,6 +18,7 @@
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="CreateSelectorA.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
+    <Compile Remove="MineRegression.cs" />
     <Compile Remove="ParseToDataMap.cs" />
     <Compile Remove="RatioVariableDicer.cs" />
     <Compile Remove="RegressionParser.cs" />
@@ -26,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LinearRegression.Pvalues" Version="1.0.7" />
+    <PackageReference Include="LinearRegression.Pvalues" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -87,7 +87,7 @@ public class MineRegressionsWithGold()
         #endregion
 
 
-        _dust = _dust.Distinct().OrderBy(d => d.Regression.PValue()).ToList();
+        _dust = _dust.Distinct().OrderBy(d => d.Regression.PValue).ToList();
         return _dust.ToArray();
     }
 
@@ -139,7 +139,7 @@ public class MineRegressionsWithGold()
                     var chartb = $"{dependent} vs. Ln({numerator} / {denominator})";
 
                     chartMapb.Add(chartb);
-                    
+
                 }
             }
         }
@@ -167,30 +167,31 @@ public class MineRegressionsWithGold()
             return _report.ToArray();
 
         _report.Clear();
-        _report.Add($"Total Regressions: {dusts.Count()}");
+        var myDusts = dusts as Dust[] ?? dusts.ToArray();
+        _report.Add($"Total Regressions: {myDusts.Count()}");
 
         #region Print regression Csv table
         _report.Add($"In Order of PValue (Interesting Regressions Highlighted):");
         _report.Add($"Index, Regression,sub-phenotype,N,MeanX, moeX,MeanY,moeY, Slope, p-value");
         var totalRegressions = 0;
         var index = 0;
-        var sortedDust = dusts.OrderBy(d => d.Regression.PValue());
+        var sortedDust = myDusts.OrderBy(d => d.Regression.PValue);
         foreach (var dust in sortedDust)
         {
             totalRegressions++;
-            if (dust.IsInteresting)
-            {
-                var reg = dust.Regression;
-                var moeX = reg.MarginOfError();
-                var moeY = reg.MarginOfError(true);
-                _report.Add($"{index++}, {dust.RegressionName}, {dust.SetName} {reg.N}," +
-                            $"{moeX.Mean},{moeX.MarginOfError},{moeY.Mean},{moeY.MarginOfError}" +
-                            $"{reg.Slope():F4},{reg.PValue():F6}");
-            }
+            if (!dust.IsInteresting) continue;
+
+            var reg = dust.Regression;
+            var moeX = reg.MarginOfError();
+            var moeY = reg.MarginOfError(true);
+            _report.Add($"{index++}, {dust.RegressionName}, {dust.SetName} {reg.N}," +
+                        $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
+                        $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
+                        $"{reg.Slope:F4},{reg.PValue:F6}");
         }
         _report.Add($"\nTotal regressions calculated {totalRegressions}");
         _report.Add($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {_uninterestingSkip}");
-        _report.Add($"Total interesting regressions: {dusts.Count(d => d.IsInteresting)}");
+        _report.Add($"Total interesting regressions: {myDusts.Count(d => d.IsInteresting)}");
         _report.Add($"Interesting remaining regressions: {index}");
         #endregion
 

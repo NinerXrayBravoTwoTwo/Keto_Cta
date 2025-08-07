@@ -453,7 +453,7 @@ public class ParseKetoCtaTest(ITestOutputHelper testOutputHelper)
 
     private static string Message(string label, RegressionPvalue regression)
     {
-        return $"'{label}' slope: {regression.Slope():F5} N: {regression.N} R2: {regression.RSquared():F5} PValue: {regression.PValue():F5} Y-intercept: {regression.YIntercept():F4}";
+        return $"'{label}' slope: {regression.Slope:F5} N: {regression.N} R2: {regression.RSquared:F5} PValue: {regression.PValue:F5} Y-intercept: {regression.YIntercept:F4}";
     }
 
     private static List<Element> ReadCsvFile(string path)

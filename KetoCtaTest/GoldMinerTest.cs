@@ -110,7 +110,7 @@ namespace KetoCtaTest
                         var result = goldMiner.AuDust(SetName.Omega, chart);
                         var reg = result.Regression;
                         testOutputHelper.WriteLine(
-                            $"{index++}, {result.RegressionName}, {result.SetName}, {reg.Slope():F4}, {reg.PValue():F4}, {reg.Correlation():F4}");
+                            $"{index++}, {result.RegressionName}, {result.SetName}, {reg.Slope:F4}, {reg.PValue:F4}, {reg.Correlation:F4}");
                     }
                 }
             }

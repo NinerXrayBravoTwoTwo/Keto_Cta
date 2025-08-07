@@ -3,6 +3,7 @@ using Keto_Cta;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -38,18 +39,18 @@ var dataPoints = new Dictionary<SetName, List<(string id, double x, double y)>>
 foreach (var dust in localDusts)
 {
     dataPoints[dust.SetName].Add(("NA", dust.Regression.PValue, dust.Regression.StdDevX));
-    var bucket = (int)(dust.Regression.PValue() * 5);
+    var bucket = (int)(dust.Regression.PValue * 5);
     histograms[dust.SetName][Math.Min(bucket, 5)]++; // Clamp to 5 for NaN bin
 }
 
-var subsetRegressions = new Dictionary<SetName, MineRegression>();
+var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
 Console.WriteLine("\nCalculated Subset Regressions:\nSet, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
 foreach (var item in dataPoints)
 {
     var data = dataPoints[item.Key];
     if (data.Count != 0)
     {
-        var regression = new MineRegression(data);
+        var regression = new RegressionPvalue(data);
         subsetRegressions[item.Key] = regression;
         var hist = histograms[item.Key];
         Console.WriteLine(
@@ -63,15 +64,21 @@ foreach (var item in dataPoints)
 void DustsToRegressionList(IEnumerable<Dust> dusts)
 {
     // header
-    Console.WriteLine($"Regression,Phenotype,Mean X, moe X, Mean Y, moe Y,p-value,R^2");
-    var orderBypVal = dusts.OrderBy(d => d.Regression.PValue);
-    foreach (var item in dusts.OrderBy(d => d.Regression.PValue))
+    Console.WriteLine($"Regression,Phenotype,Mean X,moe X,Mean Y,moe Y,Slope,xSD,p-value");
+    var myDusts = dusts as Dust[] ?? dusts.ToArray();
+    var orderBypVal = myDusts.OrderBy(d => d.Regression.PValue);
+    foreach (var item in orderBypVal)
     {
         var moeX = item.Regression.MarginOfError();
         var moeY = item.Regression.MarginOfError(true);
-        Console.WriteLine($"{item.RegressionName},{item.SetName},{moeX.Mean:F3},{moeX.MarginOfError:F3},{moeY.Mean:F3},{moeY.MarginOfError:F3},{item.Regression.PValue:F8},{item.Regression.RSquared:F5}");
+        Console.WriteLine($"{item.RegressionName},{item.SetName}," +
+                          $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
+                          $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
+                          $"{item.Regression.Slope:F4},{item.Regression.StdDevX:F3}," +
+                          $"{item.Regression.PValue:F8}");
     }
 }
+
 void DustsToCvs(IEnumerable<Dust> dust)
 {
     foreach (var dust1 in dust)
@@ -83,7 +90,7 @@ void DustsToCvs(IEnumerable<Dust> dust)
         var dependent = parts[0];
 
         Console.WriteLine($"\n-,-,{dust1.RegressionName} -- {dust1.SetName}" +
-                          $"\n-,-,Slope: {target.Slope():F4} N={target.N} R^2: {target.RSquared():F4} p-value: {target.PValue():F6} y-int {target.YIntercept():F4}");
+                          $"\n-,-,Slope: {target.Slope:F4} N={target.N} R^2: {target.RSquared:F4} p-value: {target.PValue:F6} y-int {target.YIntercept:F4}");
         Console.WriteLine($"{regressor}, {dependent}");
         foreach (var point in target.DataPoints)
         {
@@ -242,13 +249,25 @@ while (true)
             var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
             localDusts.AddRange(rootDusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+            continue;
         }
-        else
+
+        //else G1 is there :) !!!
         {
+            var setName = tokens.Groups[1].Value;
+            if (Enum.TryParse(setName, true, out SetName result))
+            {
+                var rootDusts = goldMiner.RootStatisticMatrix(result);
+                localDusts.AddRange(rootDusts);
+                Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+                continue;
+            }
+
+            // ... but G1 did not parse as  a valid set soo ... try to do something useful     
+
             var dusts = goldMiner.RootAllSetMatrix();
             localDusts.AddRange(dusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
-
         }
     }
     else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
@@ -288,12 +307,12 @@ while (true)
         IEnumerable<Dust> dusts = [];
         try
         {
-             dusts = goldMiner.GoldDust(title[0]);
+            dusts = goldMiner.GoldDust(title[0]);
         }
         catch (Exception error)
         {
             Console.WriteLine($"Error generating regression for '{title[0]}': {error.Message}");
-            continue;   
+            continue;
         }
 
         localDusts.AddRange(dusts);
@@ -339,9 +358,6 @@ while (true)
                 localDusts.AddRange(newDusts);
 
                 DustsToRegressionList(newDusts);
-                // var requestedDust = newDusts.Where(d => d.SetName.Equals());
-
-                //;
             }
             catch (KeyNotFoundException)
             {

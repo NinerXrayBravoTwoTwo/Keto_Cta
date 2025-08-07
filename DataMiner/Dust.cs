@@ -1,10 +1,11 @@
 ﻿using Keto_Cta;
+using LinearRegression;
 
 namespace DataMiner;
 
 public class Dust
 {
-    public Dust(SetName set, string title, MineRegression regression)
+    public Dust(SetName set, string title, RegressionPvalue regression)
     {
         SetName = set;
         RegressionName = title;
@@ -23,17 +24,17 @@ public class Dust
     {
         SetName = set;
         RegressionName = title;
-        Regression = new MineRegression([]); // Initialize with a default value
+        Regression = new RegressionPvalue(); // Initialize with a default value
     }
 
     public readonly SetName SetName;
     public readonly string RegressionName;
-    public MineRegression Regression;
-    public bool IsInteresting => Regression.N >= 2 && Regression.PValue() > 0.0 && Regression.PValue() <= 0.601;
+    public RegressionPvalue Regression;
+    public bool IsInteresting => Regression is { N: >= 2, PValue: > 0.0 and <= 0.601 };
 
     public override string ToString()
     {
-        return $"{RegressionName},{SetName} {Regression.N},Slope {Regression.Slope():F5}," +
-               $"p-value: {Regression.PValue():F3}";
+        return $"{RegressionName},{SetName} {Regression.N},Slope {Regression.Slope:F5}," +
+               $"p-value: {Regression.PValue:F3}";
     }
 }

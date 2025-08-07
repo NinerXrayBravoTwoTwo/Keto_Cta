@@ -110,7 +110,6 @@ namespace DataMiner
                             ? Compile(denG5)
                             : Compile(denG3);
 
-
                     if (numerator.token == Token.Ratio || denominator.token == Token.Ratio)
                         throw new SyntaxErrorException(
                             $"No, I am not going to do recursive trees of ratios of ratios, <sigh/>, 'ratio vs ratio' is okay however ... call me <Grin/> Re: {regDep})");
@@ -137,7 +136,7 @@ namespace DataMiner
 
                 // Check for visit attribute
                 var visitElement = Regex.Match(numerator, @"^\s*((Ln|LnD)?[A-Z)]+)(\d)?\s*$", RegexOptions.IgnoreCase);
-                if (tokens.Success)
+                if (visitElement.Success)
                 {
                     // if there is a G3 this is a Visit attribute else element attribute
                     bool isVisit = visitElement.Groups[3].Success && visitElement.Groups[1].Success;
@@ -148,7 +147,7 @@ namespace DataMiner
                     string comp =
                         isVisit
                             ? $"Visits[{visitElement.Groups[3]}].{visitElement.Groups[1].Value}"
-                            : tokens.Groups[1].Value;
+                            : visitElement.Groups[1].Value;
 
                     return (
                         isVisit ? Token.VisitAttribute : Token.ElementAttribute,

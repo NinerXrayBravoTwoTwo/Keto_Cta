@@ -46,7 +46,7 @@ namespace KetoCtaTest
                     testOutputHelper.WriteLine($"Normalized attribute: {attLn} -> {normalized}");
                     var compiled = CreateSelector.Compile(normalized);
                     // look up the expected normalized attLn
-                    var reflectValue = (double)CreateSelector.GetNestedPropertyValue(element, compiled.numerator);
+                    var reflectValue = (double)(CreateSelector.GetNestedPropertyValue(element, compiled.numerator) ?? double.NaN);
                     testOutputHelper.WriteLine($"\tCompiled   attribute: {attLn} -> {compiled} -> {reflectValue:F2}");
 
                 }
@@ -80,11 +80,11 @@ namespace KetoCtaTest
             var regression = new RegressionPvalue(xyList);
 
             // Act 2
-            var regression2 = new MineRegression(selResult.ToList());
+            var regression2 = new RegressionPvalue(selResult.ToList());
             Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
-            Assert.Equal(0.00003316389, regression.PValue(), 0.000033);
+            Assert.Equal(0.00003316389, regression.PValue, 0.000033);
             testOutputHelper.WriteLine($"Regression: {regression.ToString()}");
         }
 
@@ -108,17 +108,18 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(path);
 
             const string ratio = "Cac0 / Ncpv1 vs Cac0";
+            
             // Act
             var c2 = new CreateSelector(ratio);
 
             // Assert
-            var sel = goldMiner.Zeta.Select(c2.Selector);
+            var sel = goldMiner.Zeta.Select(c2.Selector).ToList();
             Assert.NotNull(sel);
-            var regression = new MineRegression(sel);
+            var regression = new RegressionPvalue(sel.ToList());
             testOutputHelper.WriteLine($"Ratio Regression: {ratio}");
             testOutputHelper.WriteLine(c2.ToString());
 
-            var valueTriples = sel as (string id, double x, double y)[] ?? sel.ToArray();
+            var valueTriples = sel.ToArray() as (string id, double x, double y)[] ?? sel.ToArray();
             foreach (var (id, x, y) in valueTriples)
             {
                 testOutputHelper.WriteLine($"Element ID: {id}, X: {x}, Y: {y}");

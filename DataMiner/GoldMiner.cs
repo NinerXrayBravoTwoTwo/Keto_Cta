@@ -1,4 +1,5 @@
 ﻿using Keto_Cta;
+using LinearRegression;
 
 namespace DataMiner;
 
@@ -196,7 +197,7 @@ public class GoldMiner
 
         var selectedData = data.Select(selector.Selector);
 
-        var regression = new MineRegression(selectedData);
+        var regression = new RegressionPvalue(selectedData.ToList());
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
     }
@@ -408,9 +409,9 @@ public class GoldMiner
         dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
         dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
 
-        var locDusts = dusts.OrderBy(d => d.Regression.PValue()).ToArray<Dust>();
+        var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray<Dust>();
 
-        return locDusts.OrderBy(d => d.Regression.PValue()).ToArray();
+        return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
     }
 
     public Dust[] RootStatisticMatrix(SetName setName, bool header = true)
@@ -448,10 +449,10 @@ public class GoldMiner
                         select $"{index++},{item.RegressionName},{item.SetName} {item.Regression.N},"
                                + $"{moeX.Mean:F3},{moeX.MarginOfError:F4},"
                                + $"{moeY.Mean:F3},{moeY.MarginOfError:F4},"
-                               + $"{item.Regression.Slope():F3},"
+                               + $"{item.Regression.Slope:F3},"
                                + $"{item.Regression.StdDevX:F3},"
                                + $"{item.Regression.StdDevY:F3},"
-                               + $"{item.Regression.PValue():F11}");
+                               + $"{item.Regression.PValue:F11}");
 
         return string.Join('\n', result.ToArray());
     }
