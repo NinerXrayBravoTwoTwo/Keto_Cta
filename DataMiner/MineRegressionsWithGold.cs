@@ -6,18 +6,13 @@ public class MineRegressionsWithGold()
 {
     private List<Dust> _dust = [];
 
-    private int _logMismatch = 0;
-
     private int _uninterestingSkip = 0;
 
-    private int _inverseRatiosIncluded = 0;
 
     public void ClearDust()
     {
         _dust.Clear();
-        _logMismatch =
-            _uninterestingSkip =
-                _inverseRatiosIncluded = 0;
+        _uninterestingSkip = 0;
     }
 
 
@@ -38,20 +33,9 @@ public class MineRegressionsWithGold()
         {
             for (var y = 0; y < elementDelta.Length; y++)
             {
-                if (x != y)
-                {
-                    var chart = $"{elementDelta[y]} vs. {elementDelta[x]}";
-                    try
-                    {
-                        var selector = new CreateSelector(chart);
-
-                        _dust.AddRange(myMine.GoldDust(chart));
-                    }
-                    catch (ArgumentException)
-                    {
-                        _logMismatch++; // technically this is a regression against self error  
-                    }
-                }
+                if (x == y) continue;
+                var chart = $"{elementDelta[y]} vs. {elementDelta[x]}";
+                _dust.AddRange(myMine.GoldDust(chart));
             }
         }
         #endregion
@@ -61,16 +45,8 @@ public class MineRegressionsWithGold()
         for (var x = 0; x < visit.Length; x++)
         {
             var chart = $"{visit[x]}1 vs. {visit[x]}0";
-            try
-            {
-                var selector = new CreateSelector(chart);
+            _dust.AddRange(myMine.GoldDust(chart));
 
-                _dust.AddRange(myMine.GoldDust(chart));
-            }
-            catch (ArgumentException)
-            {
-                _logMismatch++;
-            }
         }
         #endregion
 
@@ -83,16 +59,8 @@ public class MineRegressionsWithGold()
             {
 
                 var chart = $"{visit0}0 vs. {delta}";
-                try
-                {
-                    var selector = new CreateSelector(chart);
-
-                    _dust.AddRange(myMine.GoldDust(chart));
-                }
-                catch (ArgumentException)
-                {
-                    _logMismatch++;
-                }
+                //var selector = new CreateSelector(chart);
+                _dust.AddRange(myMine.GoldDust(chart));
             }
         }
         #endregion
@@ -109,18 +77,12 @@ public class MineRegressionsWithGold()
             if (Regex.IsMatch(chart, @"LnCac1 vs. Ln\(Cac0", RegexOptions.IgnoreCase))
                 listOfcacRatios.Add(chart);
 
-            try
-            {
-                var selector = new CreateSelector(chart);
+            // var selector = new CreateSelector(chart);
 
-                //System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
+            //System.Diagnostics.Debug.WriteLine($"Accept: {chart}, LogErc-{selector.IsLogMismatch}, ComponentOverlap={selector.HasComponentOverlap}");
 
-                _dust.AddRange(myMine.GoldDust(chart));
-            }
-            catch (ArgumentException)
-            {
-                _logMismatch++;
-            }
+            _dust.AddRange(myMine.GoldDust(chart));
+
         }
         #endregion
 
@@ -155,12 +117,7 @@ public class MineRegressionsWithGold()
         var allAttributes = elementAttributes.Concat(bothVisits).ToList();
         List<string> chartMapa = [];
         List<string> chartMapb = [];
-        var inverseDetected = 0;
-        var dependentInRatio = 0;
-        var numEqualDenom = 0;
-        var isSkipInverse = true;
 
-        List<string> showme = [];
         foreach (var numerator in allAttributes)
         {
             foreach (var denominator in allAttributes)
@@ -182,12 +139,7 @@ public class MineRegressionsWithGold()
                     var chartb = $"{dependent} vs. Ln({numerator} / {denominator})";
 
                     chartMapb.Add(chartb);
-
-                    //"Chart: LnCac1 vs. Ln(Cac0 / Ncpv0)"
-                    //"Chart: LnCac1 vs. Ln(Cac0 / Ncpv1)"
-
-                    //if (chartb.StartsWith("LnCac1 vs. Ln(Cac0"))
-                    //    showme.Add($"Chart: {chartb}"); // debug
+                    
                 }
             }
         }
@@ -209,35 +161,36 @@ public class MineRegressionsWithGold()
     /// 10, the current report is returned without modification. Otherwise,  the report is cleared and
     /// regenerated.</remarks>
     /// <returns>An array of strings containing the generated report. Each string represents a line in the report.</returns>
-    public string[] Report()
+    public string[] Report(IEnumerable<Dust> dusts)
     {
         if (_report.Count > 10)
             return _report.ToArray();
+
         _report.Clear();
-        _report.Add($"Total Regressions: {_dust.Count}");
+        _report.Add($"Total Regressions: {dusts.Count()}");
 
         #region Print regression Csv table
         _report.Add($"In Order of PValue (Interesting Regressions Highlighted):");
-        _report.Add($"Index, Chart, Subset, N, Slope, p-value, R^2, Y-intercept, X-mean, Y-mean, SD, CC");
+        _report.Add($"Index, Regression,sub-phenotype,N,MeanX, moeX,MeanY,moeY, Slope, p-value");
         var totalRegressions = 0;
         var index = 0;
-        var sortedDust = _dust.OrderBy(d => d.Regression.PValue());
+        var sortedDust = dusts.OrderBy(d => d.Regression.PValue());
         foreach (var dust in sortedDust)
         {
             totalRegressions++;
             if (dust.IsInteresting)
             {
                 var reg = dust.Regression;
-                _report.Add($"{index++}, {dust.ChartTitle}, {dust.SetName}, {reg.N}, {reg.Slope():F4}, "
-                                  + $"{reg.PValue():F4}, {reg.RSquared():F4}, "
-                                  + $"{reg.YIntercept():F4}, {reg.MeanX():F4}, {reg.MeanY():F4}, {reg.StdDevX():F4}, {reg.Correlation():F4}");
+                var moeX = reg.MarginOfError();
+                var moeY = reg.MarginOfError(true);
+                _report.Add($"{index++}, {dust.RegressionName}, {dust.SetName} {reg.N}," +
+                            $"{moeX.Mean},{moeX.MarginOfError},{moeY.Mean},{moeY.MarginOfError}" +
+                            $"{reg.Slope():F4},{reg.PValue():F6}");
             }
         }
         _report.Add($"\nTotal regressions calculated {totalRegressions}");
-        _report.Add($"Log mismatch regressions skipped: {_logMismatch}");
-        _report.Add($"Inverse Ratio regressions included: {_inverseRatiosIncluded}");
         _report.Add($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {_uninterestingSkip}");
-        _report.Add($"Total interesting regressions: {_dust.Count(d => d.IsInteresting)}");
+        _report.Add($"Total interesting regressions: {dusts.Count(d => d.IsInteresting)}");
         _report.Add($"Interesting remaining regressions: {index}");
         #endregion
 
