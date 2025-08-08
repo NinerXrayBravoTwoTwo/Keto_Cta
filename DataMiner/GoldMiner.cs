@@ -484,4 +484,8 @@ public class GoldMiner
         return myData.ToArray();
     }
 
+    public void Clear()
+    {
+        _selectorCache.Clear();
+    }
 }

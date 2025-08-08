@@ -68,22 +68,31 @@ namespace DataMiner
                 return e =>
                 {
                     var id = e.Id;
-                    var valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
-                    var valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
+                    var valueN = (double)(GetNestedPropertyValue(e, numerator) ?? double.NaN);
+                    var valueD = (double)(GetNestedPropertyValue(e, denominator) ?? double.NaN);
+
+
+                    //var valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
+                    //var valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
 
 
                     // Handle division by zero
                     if (valueN == 0)
                         return (id, 0);
 
-                    var ratio =
-                        valueD == 0
-                        ? valueN / 0.01  // ToDo; make configurable
-                        : valueN / valueD;
+                    //var ratio =
+                    //    valueD == 0
+                    //    ? valueN / 0.01  // ToDo; make configurable
+                    //    : valueN / valueD;
+
+                    //return token == Token.LnRatio
+                    //    ? (id, Visit.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
+                    //    : (id, ratio);
 
                     return token == Token.LnRatio
-                        ? (id, Visit.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
-                        : (id, ratio);
+                        ? (id, Visit.Ln(valueD == 0 ? valueN / 0.01 : valueN / valueD))
+                        : (id, valueD == 0 ? valueN / 0.01 : valueN / valueD);
+
                 };
             }
             return e =>

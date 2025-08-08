@@ -1,4 +1,5 @@
-﻿using DataMiner;
+﻿using System.ComponentModel.Design.Serialization;
+using DataMiner;
 using Keto_Cta;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
@@ -9,7 +10,7 @@ using static System.Text.RegularExpressions.Regex;
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
-var localDusts = new List<Dust>();
+var miner = new MineRegressionsWithGold();
 
 #region Set Order regression histogram
 var histograms = new Dictionary<SetName, int[]>
@@ -36,7 +37,7 @@ var dataPoints = new Dictionary<SetName, List<(string id, double x, double y)>>
     { SetName.BetaUZeta, [] }
 };
 
-foreach (var dust in localDusts)
+foreach (var dust in miner.Dusts)
 {
     dataPoints[dust.SetName].Add(("NA", dust.Regression.PValue, dust.Regression.StdDevX));
     var bucket = (int)(dust.Regression.PValue * 5);
@@ -102,15 +103,14 @@ void DustsToCvs(IEnumerable<Dust> dust)
 
 #region Mine!
 
-var mineRegressions = new MineRegressionsWithGold();
-string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
-{
-    localDusts.AddRange(miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts));
-    var dusts = miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts);
-    var report = miner.Report(dusts);
+//string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
+//{
+//    localDusts.AddRange(miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts));
+//    var dusts = miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts);
+//    var report = miner.Report(dusts);
 
-    return report;
-}
+//    return report;
+//}
 
 #endregion
 
@@ -196,19 +196,25 @@ while (true)
             }
         }
     }
-    else if (IsMatch(command, @"^mine$", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^mine", RegexOptions.IgnoreCase))
     {
-        localDusts.Clear();
+        var tokens = Match(command, @"^Mine\s*([A-Z]+)?\s*(\d{1}k)?$", RegexOptions.IgnoreCase); //G2 = size, G1=Type of Mining
+        if (!tokens.Success)
+        {
+            Console.WriteLine("Invalid 'mine' syntax. Try 'mine root','mine ratios', 'mine deltas' ...");
+            continue;
+        }
         var start = DateTime.Now;
 
-        localDusts.AddRange(mineRegressions.GenerateGoldRegression(goldMiner, true).OrderBy(d => d.Regression.PValue));
+        miner.GenerateGoldRegression(goldMiner);
 
         var end = DateTime.Now;
         var interval = end - start;
 
         Console.WriteLine(
-            $"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
-        var myData = mineRegressions.Report(localDusts);
+            $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
+
+        var myData = miner.Report(2);
 
         foreach (var speck in myData)
         {
@@ -216,14 +222,12 @@ while (true)
         }
 
         Console.WriteLine(
-            $"{localDusts.Count} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {localDusts.Count / interval.Milliseconds}");
-
-
+            $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
     }
     else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
     {
-        mineRegressions.ClearDust();
-        localDusts.Clear();
+        miner.Clear();
+        goldMiner.Clear();
 
     }
     else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
@@ -236,9 +240,9 @@ while (true)
     }
     else if (IsMatch(command, @"^all\s*matrix", RegexOptions.IgnoreCase))
     {
-        var dusts = goldMiner.RootAllSetMatrix();
-        localDusts.AddRange(dusts);
-        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
+        List<Dust> dusts = [];
+        dusts.AddRange(goldMiner.RootAllSetMatrix());
+        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts.ToArray()), true));
 
     }
     else if (IsMatch(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase))
@@ -247,7 +251,6 @@ while (true)
         if (!tokens.Groups[1].Success)
         {
             var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
-            localDusts.AddRange(rootDusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
             continue;
         }
@@ -258,7 +261,6 @@ while (true)
             if (Enum.TryParse(setName, true, out SetName result))
             {
                 var rootDusts = goldMiner.RootStatisticMatrix(result);
-                localDusts.AddRange(rootDusts);
                 Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
                 continue;
             }
@@ -266,7 +268,6 @@ while (true)
             // ... but G1 did not parse as  a valid set soo ... try to do something useful     
 
             var dusts = goldMiner.RootAllSetMatrix();
-            localDusts.AddRange(dusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
         }
     }
@@ -285,11 +286,11 @@ while (true)
     }
     else if (IsMatch(command, @"^dust$", RegexOptions.IgnoreCase))
     {
-        GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
-        foreach (var speck in localDusts.OrderBy(d => d.Regression.PValue))
-        {
-            Console.WriteLine(speck);
-        }
+        //GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
+        //foreach (var speck in localDusts.OrderBy(d => d.Regression.PValue))
+        //{
+        //    Console.WriteLine(speck);
+        //}
     }
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
@@ -315,7 +316,7 @@ while (true)
             continue;
         }
 
-        localDusts.AddRange(dusts);
+        //localDusts.AddRange(dusts);
 
         List<SetName> useSets = [];
 
@@ -355,7 +356,7 @@ while (true)
                     continue;
                 }
 
-                localDusts.AddRange(newDusts);
+                //localDusts.AddRange(newDusts);
 
                 DustsToRegressionList(newDusts);
             }
