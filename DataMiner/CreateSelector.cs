@@ -78,7 +78,7 @@ namespace DataMiner
 
                     var ratio =
                         valueD == 0
-                        ? valueN / 0.001
+                        ? valueN / 0.01  // ToDo; make configurable
                         : valueN / valueD;
 
                     return token == Token.LnRatio
