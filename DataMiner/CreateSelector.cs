@@ -110,9 +110,9 @@ namespace DataMiner
             return $"{Title}";
         }
 
-        public (Token token, string numerator, string denominator) DependentCompile { get; private set; }
+        public (Token token, string numerator, string denominator) DependentCompile { get; }
 
-        public (Token token, string numerator, string denominator) RegressorCompile { get; private set; }
+        public (Token token, string numerator, string denominator) RegressorCompile { get; }
 
     }
 }

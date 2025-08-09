@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LinearRegression.Pvalues" Version="1.1.1" />
+    <PackageReference Include="LinearRegression.Pvalues" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>

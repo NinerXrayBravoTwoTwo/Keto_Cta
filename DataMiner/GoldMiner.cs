@@ -429,7 +429,6 @@ public class GoldMiner
 
         List<Dust> localDusts = [];
         localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList());
-        //var sortedDust = localDust.OrderBy(d => d.Regression.PValue());
 
         return localDusts.ToArray();
 

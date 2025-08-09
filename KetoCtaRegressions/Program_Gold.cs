@@ -101,21 +101,6 @@ void DustsToCvs(IEnumerable<Dust> dust)
 }
 #endregion
 
-#region Mine!
-
-//string[] Mine(MineRegressionsWithGold miner, bool isIncludeRatioCharts = false)
-//{
-//    localDusts.AddRange(miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts));
-//    var dusts = miner.GenerateGoldRegression(goldMiner, isIncludeRatioCharts);
-//    var report = miner.Report(dusts);
-
-//    return report;
-//}
-
-#endregion
-
-//ChartToExcel(Dust.Where(d => d.ChartTitle.Equals("LnDPav / LnTps0 vs. LnDTcpv".Trim()))); // for 'command?' extension 
-
 var vsPattern = @"^([A-Z\d\s\(/\(\)]+)\s(vs\.?)\s([A-Z\d\s\(/\(\)]+)\s*(-.+)?$";
 
 // Wait for user input before closing the console window
@@ -206,7 +191,7 @@ while (true)
         }
         var start = DateTime.Now;
 
-        miner.GenerateGoldRegression(goldMiner);
+        miner.GenerateGoldRegressions(goldMiner, 1);
 
         var end = DateTime.Now;
         var interval = end - start;
@@ -214,7 +199,7 @@ while (true)
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
 
-        var myData = miner.Report(2);
+        var myData = miner.Report("qangio", 10);
 
         foreach (var speck in myData)
         {
@@ -238,19 +223,13 @@ while (true)
             Console.WriteLine(item);
         }
     }
-    else if (IsMatch(command, @"^all\s*matrix", RegexOptions.IgnoreCase))
-    {
-        List<Dust> dusts = [];
-        dusts.AddRange(goldMiner.RootAllSetMatrix());
-        Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts.ToArray()), true));
-
-    }
     else if (IsMatch(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase))
     {
         var tokens = Match(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase);
         if (!tokens.Groups[1].Success)
         {
             var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
+            miner.AddRange(rootDusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
             continue;
         }
@@ -262,12 +241,14 @@ while (true)
             {
                 var rootDusts = goldMiner.RootStatisticMatrix(result);
                 Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+                miner.AddRange(rootDusts);
                 continue;
             }
 
             // ... but G1 did not parse as  a valid set soo ... try to do something useful     
 
             var dusts = goldMiner.RootAllSetMatrix();
+            miner.AddRange(dusts);
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
         }
     }
@@ -284,13 +265,14 @@ while (true)
         Console.WriteLine("Possible Commands: 'independent vs. regressor', BetaUZeta, mine, gamma, dust, matrix, " +
                           "all matrix, keto, clear dusts, q|exit|quit|end|help");
     }
-    else if (IsMatch(command, @"^dust$", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^dust", RegexOptions.IgnoreCase))
     {
-        //GoldMiner.ToStringFormatRegressionsInDusts(localDusts.ToArray());
-        //foreach (var speck in localDusts.OrderBy(d => d.Regression.PValue))
-        //{
-        //    Console.WriteLine(speck);
-        //}
+        var tokens = Match(command, @"^dust\s*(\w+)\s*(\d+)?$", RegexOptions.IgnoreCase);
+        var filter = tokens.Groups[1].Value;
+        var limit = double.TryParse(tokens.Groups[2].Value, out var max) ? max : 10;
+
+        foreach (var line in miner.Report(filter, limit))
+            Console.WriteLine(line);
     }
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
