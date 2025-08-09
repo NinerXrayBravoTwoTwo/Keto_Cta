@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
@@ -10,12 +11,9 @@ public class MineRegressionsWithGold()
 
     public int DustCount => _dust.Count;
 
-    private int _uninterestingSkip = 0;
-
     public void Clear()
     {
         _dust.Clear();
-        _uninterestingSkip = 0;
     }
 
     public void AddRange(IEnumerable<Dust> dusts)
@@ -36,16 +34,16 @@ public class MineRegressionsWithGold()
         }
 
         #region Load dust  Element Delta vs. Element Delt
-        var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,DQangio,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio".Split(",");
-        for (var x = 0; x < elementDelta.Length; x++)
-        {
-            for (var y = 0; y < elementDelta.Length; y++)
-            {
-                if (x == y) continue;
-                var chart = $"{elementDelta[y]} vs. {elementDelta[x]}";
-                _dust.AddRange(myMine.GoldDust(chart));
-            }
-        }
+
+        var elementDelta = "DTps,DCac,DNcpv,DTcpv,DPav,DQangio";//.Split(",");
+        var elementLnDelta = "LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio";
+
+        var deltaAttCharts = GenerateElementDeltaCharts(elementDelta.Split(','));
+        var deltaLLnAttCharts = GenerateElementDeltaCharts(elementLnDelta.Split(','));
+
+        foreach (var ttl in deltaLLnAttCharts.Concat(deltaAttCharts))
+            _dust.AddRange(myMine.GoldDust(ttl));
+
         #endregion
 
         #region Load dust x Baseline, y Year later  
@@ -66,7 +64,7 @@ public class MineRegressionsWithGold()
         {
             foreach (var delta in eDelta)
             {
-                var chart = $"{delta} vs. {visit}0";
+                var chart = $"{delta} vs. {visit0}0";
                 _dust.AddRange(myMine.GoldDust(chart));
             }
         }
@@ -74,89 +72,140 @@ public class MineRegressionsWithGold()
 
         #region Add Ratio  charts
 
-        //  var listOfcacRatios = new List<string>();
-
         var ratioCharts = RatioCharts();
 
         foreach (var chart in ratioCharts)
-        {
-            //if (Regex.IsMatch(chart, @"LnCac1 vs. Ln\(Cac0", RegexOptions.IgnoreCase))
-            //    listOfcacRatios.Add(chart);
-
             _dust.AddRange(myMine.GoldDust(chart));
-        }
+
         #endregion
 
         var productionDusts = Deduplication.RemoveDuplicatesByGuid(_dust.ToArray()).OrderBy(d => d.Regression.PValue);
-
+        _dust.Clear();
+        _dust.AddRange(productionDusts);
         Success = true;
         return Success;
+
+        string[] GenerateElementDeltaCharts(string[] elementAttributes)
+        {
+            List<string> titles = [];
+            for (var x = 0; x < elementAttributes.Length; x++)
+            {
+                for (var y = 0; y < elementAttributes.Length; y++)
+                {
+                    if (x == y) continue;
+                    titles.Add($"{elementAttributes[y]} vs. {elementAttributes[x]}");
+
+                }
+            }
+
+            return titles.ToArray();
+        }
     }
 
     public bool Success { get; internal set; }
 
     /// <summary>
-    /// Generates a list of ratio-based chart descriptions by combining attributes as numerators, denominators, and
-    /// dependents.
+    /// Generates a collection of ratio chart titles based on permutations of independent 
+    /// and dependent attributes for regression analysis.
     /// </summary>
-    /// <remarks>The method iterates through combinations of attributes to create unique ratio-based chart
-    /// descriptions.  If duplicate or inverse relationships are detected, they are counted and included in the
-    /// output.</remarks>
-    /// <param name="inverseIncluded">Outputs the number of inverse relationships detected and included in the chart descriptions.</param>
-    /// <returns>A list of strings representing ratio-based chart descriptions in the format  "<c>numerator / denominator vs.
-    /// dependent</c>".</returns>
-    /// 
+    /// <remarks>
+    /// This method combines various independent attributes (both visit-based and element-based) 
+    /// to create ratio chart titles. The generated titles are sorted alphabetically before being returned.
+    /// </remarks>
+    /// <returns>
+    /// An array of strings representing the titles of ratio charts.
+    /// </returns>
     public string[] RatioCharts()
     {
-        var elementAttributes = "DTps,DCac,DNcpv,DTcpv,DPav,DQangio,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio".Split(',');
-        var visitAttributes = "Tps,Cac,Ncpv,Tcpv,Pav,Qangio,LnTps,LnCac,LnNcpv,LnTcpv,LnPav,LnQangio".Split(',');
+        string elementAttString = "DTps,DCac,DNcpv,DTcpv,DPav,DQangio";
+        string elementLnString = "LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio";
 
-        var bothVisits = new List<string>();
-        foreach (var visit in visitAttributes)
+        string visitAtt = "Tps,Cac,Ncpv,Tcpv,Pav,Qangio";
+        string visitLn = "LnTps,LnCac,LnNcpv,LnTcpv,LnPav,LnQangio";
+
+        var independElementAtt = elementAttString.Split(',');
+        var independElementLn = elementLnString.Split(',');
+
+        var independVisitAtt = visitAtt.Split(',');
+        var independVisitLn = visitLn.Split(',');
+
+        var dependElemAtt = elementAttString.Split(',').Concat(elementLnString.Split(',')).ToArray();
+        var dependVisitAtt = visitAtt.Split(',').Concat(visitLn.Split(',')).ToArray();
+
+        List<string> results = [];
+
+        results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitAtt, independElementAtt));
+        results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitLn, independElementLn));
+
+        return results.OrderBy(n => n).ToArray();
+
+    }
+
+    private static List<string> GenerateRatioPermutations(
+        string[] depVisitAtt, string[] depElementAtt,
+        string[] regVisitAttributes, string[] regElementAttributes)
+    {
+        var regBothVisits = BothVisits(regVisitAttributes);
+        var allRegAttributes = regElementAttributes.Concat(regBothVisits).ToList();
+
+        var depBothVisits = BothVisits(depVisitAtt);
+        var depAllAttributes = depElementAtt.Concat(depBothVisits).ToArray();
+
+        List<string> chartMapA = [];
+        List<string> chartMapB = [];
+
+        foreach (var numerator in allRegAttributes)
         {
-            bothVisits.Add($"{visit}0");
-            bothVisits.Add($"{visit}1");
-        }
-
-        var allAttributes = elementAttributes.Concat(bothVisits).ToList();
-        List<string> chartMapa = [];
-        List<string> chartMapb = [];
-
-        foreach (var numerator in allAttributes)
-        {
-            foreach (var denominator in allAttributes)
+            foreach (var denominator in allRegAttributes)
             {
-                if (numerator == denominator) continue; // skip 
+                if (numerator == denominator) continue; // ToDo: Sanity filter method, skip, regressor of 1 is not very exciting :) 
 
-                foreach (var dependent in allAttributes)
+                foreach (var dependent in depAllAttributes)
                 {
-                    // if (!dependent.StartsWith("LnCac1")) continue; // skip, only interested in lnCac0 for now
+                    if (DependentInRegressor(dependent, $"{numerator}/{denominator}")) // ToDo: Sanity method
+                        continue;
 
-                    string[] reg = [numerator, denominator];
-                    var key = string.Join(',', reg) + $",{dependent}";
+                    bool DependentInRegressor(string dependent, string regressor)
+                    {
+                        return 
+                            regressor.ToLower()
+                            .Contains(dependent.ToLower());
+                        return false;
+                    }
 
-                    var charta = $"{dependent} vs. {numerator}/{denominator}";
-                    chartMapa.Add(charta);
+                    var chartA = $"{dependent} vs. {numerator}/{denominator}";
+                    chartMapA.Add(chartA);
 
-                    if (denominator.StartsWith("Ln") || numerator.StartsWith("Ln")) continue;
+                    if (denominator.StartsWith("Ln") || numerator.StartsWith("Ln"))
+                        continue; // ToDo: Sanity Filter method, ln(LnVar/var) ?? reject  
 
                     // skip Ln / Ln, should use Ln(numerator/denominator) instead
-                    var chartb = $"{dependent} vs. Ln({numerator}/{denominator})";
+                    var chartB = $"{dependent} vs. Ln({numerator}/{denominator})";
 
                     // todo: add Ln(depNum/depDen) vs Ln(num/den)
-                    // todo: Ln(depnum/deDen) vs regressor
+                    // todo: Ln(dep_num/dep_den) vs regressor
                     // todo: Ln(Sqrt(a*b)) vs regressor
-                    chartMapb.Add(chartb);
+                    chartMapB.Add(chartB);
                 }
             }
         }
 
         List<string> result = [];
-        result.AddRange(chartMapb);
-        result.AddRange(chartMapa);
+        result.AddRange(chartMapB);
+        result.AddRange(chartMapA);
+        return result;
 
-        return result.Distinct().ToArray();
+        List<string> BothVisits(string[] visitAttributes)
+        {
+            var list = new List<string>();
+            foreach (var visit in visitAttributes)
+            {
+                list.Add($"{visit}0");
+                list.Add($"{visit}1");
+            }
 
+            return list;
+        }
     }
 
     private readonly List<string> _report = [];
@@ -175,7 +224,6 @@ public class MineRegressionsWithGold()
         _report.Add($"Total Regressions: {_dust.Count}");
 
         #region Print regression Csv table
-        _report.Add($"In Order of PValue (Interesting Regressions Highlighted):");
         _report.Add($"Index, Regression,sub-phenotype N,MeanX,moeX,MeanY,moeY,Slope,R^2,p-value");
         var totalRegressions = 0;
         var index = 0;
@@ -203,7 +251,6 @@ public class MineRegressionsWithGold()
         }
 
         _report.Add($"\nTotal regressions calculated {totalRegressions}");
-        _report.Add($"Uninteresting regressions included in calculated (See Dust.IsInteresting flag): {_uninterestingSkip}");
         _report.Add($"Total interesting regressions: {_dust.Count(d => d.IsInteresting)}");
         _report.Add($"Interesting remaining regressions: {index}");
         #endregion

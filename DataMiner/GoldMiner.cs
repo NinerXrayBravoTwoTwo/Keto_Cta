@@ -468,17 +468,17 @@ public class GoldMiner
             ?
             [
                 "Index,Set,"+
-                "Tps0,Tps1,Cac0,Cac1,Ncpv0,Ncpv1,Tcpv0,Tcpv1,Pav0,Pav1," +
-                "LnTps0,LnTps1,LnCac0,LnCac1,LnNcpv0,LnNcpv1,LnTcpv0,LnTcpv1,LnPav0,LnPav1," +
-                "DTps,DCac,DNcpv,DTcpv,DPav,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav"
+                "Tps0,Tps1,Cac0,Cac1,Ncpv0,Ncpv1,Tcpv0,Tcpv1,Pav0,Pav1,Qangio0,Qangio1," +
+                "LnTps0,LnTps1,LnCac0,LnCac1,LnNcpv0,LnNcpv1,LnTcpv0,LnTcpv1,LnPav0,LnPav1,LnQangio0,LnQangio1," +
+                "DTps,DCac,DNcpv,DTcpv,DPav,DQangio,LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio"
             ]
             : [];
 
         myData.AddRange(elements.Select(item =>
             $"{item.Id},{item.MemberSet}," +
-            $"{item.Visits[0].Tps},{item.Visits[1].Tps},{item.Visits[0].Cac},{item.Visits[1].Cac},{item.Visits[0].Ncpv},{item.Visits[1].Ncpv},{item.Visits[0].Tcpv},{item.Visits[1].Tcpv},{item.Visits[0].Pav},{item.Visits[1].Pav}," +
-            $"{item.Visits[0].LnTps},{item.Visits[1].LnTps},{item.Visits[0].LnCac},{item.Visits[1].LnCac},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},{item.Visits[0].Pav},{item.Visits[0].LnTcpv},{item.Visits[1].LnTcpv},{item.Visits[0].LnPav},{item.Visits[1].LnPav}" +
-            $"{item.DTps},{item.DCac},{item.DNcpv},{item.DTcpv},{item.DPav},{item.LnDTps},{item.LnDCac},{item.LnDNcpv},{item.LnDTcpv},{item.LnDPav}"));
+            $"{item.Visits[0].Tps},{item.Visits[1].Tps},{item.Visits[0].Cac},{item.Visits[1].Cac},{item.Visits[0].Ncpv},{item.Visits[1].Ncpv},{item.Visits[0].Tcpv},{item.Visits[1].Tcpv},{item.Visits[0].Pav},{item.Visits[1].Pav},{item.Visits[0].Qangio},{item.Visits[1].Qangio}," +
+            $"{item.Visits[0].LnTps},{item.Visits[1].LnTps},{item.Visits[0].LnCac},{item.Visits[1].LnCac},{item.Visits[0].LnNcpv},{item.Visits[1].LnNcpv},{item.Visits[0].Pav},{item.Visits[0].LnTcpv},{item.Visits[1].LnTcpv},{item.Visits[0].LnPav},{item.Visits[1].LnPav},{item.Visits[0].LnQangio},{item.Visits[1].LnQangio}," +
+            $"{item.DTps},{item.DCac},{item.DNcpv},{item.DTcpv},{item.DPav},{item.DQangio},{item.LnDTps},{item.LnDCac},{item.LnDNcpv},{item.LnDTcpv},{item.LnDPav},{item.LnDQangio}"));
 
         return myData.ToArray();
     }
