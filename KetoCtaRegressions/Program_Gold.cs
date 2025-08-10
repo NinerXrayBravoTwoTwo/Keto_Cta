@@ -1,64 +1,12 @@
-﻿using System.ComponentModel.Design.Serialization;
-using DataMiner;
+﻿using DataMiner;
 using Keto_Cta;
-using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
 var miner = new MineRegressionsWithGold();
-
-#region Set Order regression histogram
-var histograms = new Dictionary<SetName, int[]>
-{
-    { SetName.Omega, new int[6] },
-    { SetName.Alpha, new int[6] },
-    { SetName.Beta, new int[6] },
-    { SetName.Zeta, new int[6] },
-    { SetName.Gamma, new int[6] },
-    { SetName.Theta, new int[6] },
-    { SetName.Eta, new int[6] },
-    { SetName.BetaUZeta, new int[6] }
-};
-
-var dataPoints = new Dictionary<SetName, List<(string id, double x, double y)>>
-{
-    { SetName.Omega, [] },
-    { SetName.Alpha, [] },
-    { SetName.Beta, [] },
-    { SetName.Zeta, [] },
-    { SetName.Gamma, [] },
-    { SetName.Theta, [] },
-    { SetName.Eta, [] },
-    { SetName.BetaUZeta, [] }
-};
-
-foreach (var dust in miner.Dusts)
-{
-    dataPoints[dust.SetName].Add(("NA", dust.Regression.PValue, dust.Regression.StdDevX));
-    var bucket = (int)(dust.Regression.PValue * 5);
-    histograms[dust.SetName][Math.Min(bucket, 5)]++; // Clamp to 5 for NaN bin
-}
-
-var subsetRegressions = new Dictionary<SetName, RegressionPvalue>();
-Console.WriteLine("\nCalculated Subset Regressions:\nSet, 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0, NaN");
-foreach (var item in dataPoints)
-{
-    var data = dataPoints[item.Key];
-    if (data.Count != 0)
-    {
-        var regression = new RegressionPvalue(data);
-        subsetRegressions[item.Key] = regression;
-        var hist = histograms[item.Key];
-        Console.WriteLine(
-            $"{item.Key}, {hist[0]}, {hist[1]}, {hist[2]}, {hist[3]}, {hist[4]}, {hist[5]}");
-    }
-}
-#endregion
 
 #region Chart Specific Regression
 
@@ -89,13 +37,15 @@ void DustsToCvs(IEnumerable<Dust> dust)
         if (parts.Length < 2) continue; // Handle invalid titles
         var regressor = parts[1];
         var dependent = parts[0];
+        var ids = dust1.Regression.IdPoints.ToArray();
 
         Console.WriteLine($"\n-,-,{dust1.RegressionName} -- {dust1.SetName}" +
                           $"\n-,-,Slope: {target.Slope:F4} N={target.N} R^2: {target.RSquared:F4} p-value: {target.PValue:F6} y-int {target.YIntercept:F4}");
-        Console.WriteLine($"{regressor}, {dependent}");
+        Console.WriteLine($"Id, {regressor}, {dependent}");
+        var n = 0;
         foreach (var point in target.DataPoints)
         {
-            Console.WriteLine($"{point.x}, {point.y}");
+            Console.WriteLine($"{ids[n++]}, {point.x}, {point.y}");
         }
     }
 }
@@ -199,7 +149,7 @@ while (true)
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
 
-        var myData = miner.Report("qangio", 10);
+        var myData = miner.Report("qangio");
 
         foreach (var speck in myData)
         {
@@ -230,7 +180,7 @@ while (true)
         {
             var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
             miner.AddRange(rootDusts);
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts)));
             continue;
         }
 
@@ -240,7 +190,7 @@ while (true)
             if (Enum.TryParse(setName, true, out SetName result))
             {
                 var rootDusts = goldMiner.RootStatisticMatrix(result);
-                Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts, true)));
+                Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts)));
                 miner.AddRange(rootDusts);
                 continue;
             }
@@ -249,7 +199,7 @@ while (true)
 
             var dusts = goldMiner.RootAllSetMatrix();
             miner.AddRange(dusts);
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts, true)));
+            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts)));
         }
     }
     else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
@@ -269,17 +219,18 @@ while (true)
     {
         try
         {
-            var tokens = Regex.Match(command, @"^dust\s*(?:(\w+\)?\,?)?\s*(?:(\d+(?:\.\d+))?\.?)?)$", RegexOptions.IgnoreCase);
+            var tokens = Regex.Match(command, @"^dust\s*(?:(,?\w+\)?\,?)?\s*(?:(\d+(?:\.\d+)?)?\.?)?)$", RegexOptions.IgnoreCase);
             var filter = tokens.Groups[1].Value;
             var limit = double.TryParse(tokens.Groups[2].Value, out var max) ? max : 0.5;
 
             foreach (var line in miner.Report(filter, limit))
                 Console.WriteLine(line);
-            Console.WriteLine($"debug: {tokens.Success} : {tokens.Groups[1].Value} : {tokens.Groups[2].Value}");
+            
+            Console.WriteLine($"dust Command Parse: Success: {tokens.Success} : Select: {tokens.Groups[1].Value} : Limit: (i.e. 0.1) {tokens.Groups[2].Value}");
         }
         catch (Exception error)
         {
-            Console.WriteLine($"command parse error '{error.Message}'");
+            Console.WriteLine($"Command parse error '{error.Message}'");
         }
     }
 
@@ -303,7 +254,7 @@ while (true)
             continue;
         }
 
-        IEnumerable<Dust> dusts = [];
+        IEnumerable<Dust> dusts;
         try
         {
             dusts = goldMiner.GoldDust(title[0]);

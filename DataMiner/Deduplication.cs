@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace DataMiner;
+﻿namespace DataMiner;
 
 public static class Deduplication
 {
@@ -10,7 +6,7 @@ public static class Deduplication
     {
         // Use HashSet to track seen GUIDs
         var seenGuids = new HashSet<Guid>();
-            
+
         // Use List to store unique objects, preserving order
         var result = new List<Dust>(objects.Length);
 

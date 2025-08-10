@@ -39,17 +39,17 @@ public class Dust
     public bool IsInteresting => Regression is { N: >= 2, PValue: > 0.0 and <= 0.601 };
     public Guid UniqueKey = Guid.Empty;
 
-    public static Guid GenerateGuidMd5(string hashMeHarder )
+    public static Guid GenerateGuidMd5(string hashMeHarder)
     {
         byte[] inputBytes = Encoding.UTF8.GetBytes(hashMeHarder);
 
         using var md5 = MD5.Create();
         byte[] hashBytes = md5.ComputeHash(inputBytes);
-        
+
         // MD5 is already 16 bytes, perfect for Guid
         return new Guid(hashBytes);
     }
-    
+
     public override string ToString()
     {
         return $"{RegressionName},{SetName} {Regression.N},Slope {Regression.Slope:F5}," +

@@ -1,9 +1,6 @@
-﻿using System.Reflection;
-using System.Text.RegularExpressions;
+﻿namespace DataMiner;
 
-namespace DataMiner;
-
-public class MineRegressionsWithGold()
+public class MineRegressionsWithGold
 {
     private List<Dust> _dust = [];
 
@@ -171,12 +168,11 @@ public class MineRegressionsWithGold()
                     if (DependentInRegressor(dependent, $"{numerator}/{denominator}")) // ToDo: Sanity method
                         continue;
 
-                    bool DependentInRegressor(string dependent, string regressor)
+                    bool DependentInRegressor(string dep, string regressor)
                     {
                         return
                             regressor.ToLower()
-                            .Contains(dependent.ToLower());
-                        return false;
+                            .Contains(dep.ToLower());
                     }
 
                     var chartA = $"{dependent} vs. {numerator}/{denominator}";
@@ -244,7 +240,8 @@ public class MineRegressionsWithGold()
 
             if (string.IsNullOrEmpty(match)
                 || match.Contains("any", StringComparison.InvariantCultureIgnoreCase)
-                || Regex.IsMatch(dust.ToString(), match.Trim(), RegexOptions.IgnoreCase))
+                //|| Regex.IsMatch(dust.ToString(), match.Trim(), RegexOptions.IgnoreCase)) // Problematic, and probably a security hole as well
+                || dust.ToString().ToLower().Contains(match.ToLower()))
             {
                 var reg = dust.Regression;
                 var moeX = reg.MarginOfError();
@@ -268,5 +265,5 @@ public class MineRegressionsWithGold()
     {
         DeduplicateAndSortDusts();
         return HistogramTool.Build(Dusts.ToArray());
-    } 
+    }
 }

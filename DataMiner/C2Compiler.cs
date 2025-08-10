@@ -7,7 +7,7 @@ namespace DataMiner
     {
         public static (Token token, string numerator, string denominator) Compile(string regressorOrDependent)
         {
-           
+
             #region design
             //A- single attribute, Cac0, LnDCac1, DTps2, etc.
             //    o Group[4].success. Contents equal group[1].
@@ -119,7 +119,6 @@ namespace DataMiner
             {
                 // Group[4] is the numerator, no denominator
                 var numerator = AttributeCaseNormalize(tokens.Groups[4].Value);
-                var denominator = string.Empty;
 
                 // Check for visit attribute
                 var visitElement = Regex.Match(numerator, @"^\s*((Ln|LnD)?[A-Z)]+)(\d)?\s*$", RegexOptions.IgnoreCase);
