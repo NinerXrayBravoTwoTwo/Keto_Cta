@@ -79,9 +79,8 @@ public class MineRegressionsWithGold()
 
         #endregion
 
-        var productionDusts = Deduplication.RemoveDuplicatesByGuid(_dust.ToArray()).OrderBy(d => d.Regression.PValue);
-        _dust.Clear();
-        _dust.AddRange(productionDusts);
+        DeduplicateAndSortDusts();
+
         Success = true;
         return Success;
 
@@ -100,6 +99,13 @@ public class MineRegressionsWithGold()
 
             return titles.ToArray();
         }
+    }
+
+    protected void DeduplicateAndSortDusts()
+    {
+        var productionDusts = Deduplication.RemoveDuplicatesByGuid(_dust.ToArray()).OrderBy(d => d.Regression.PValue);
+        _dust.Clear();
+        _dust.AddRange(productionDusts);
     }
 
     public bool Success { get; internal set; }
@@ -167,7 +173,7 @@ public class MineRegressionsWithGold()
 
                     bool DependentInRegressor(string dependent, string regressor)
                     {
-                        return 
+                        return
                             regressor.ToLower()
                             .Contains(dependent.ToLower());
                         return false;
@@ -257,4 +263,10 @@ public class MineRegressionsWithGold()
 
         return _report.ToArray();
     }
+
+    public string[] RegressionHistogram()
+    {
+        DeduplicateAndSortDusts();
+        return HistogramTool.Build(Dusts.ToArray());
+    } 
 }

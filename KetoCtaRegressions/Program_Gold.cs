@@ -267,11 +267,27 @@ while (true)
     }
     else if (IsMatch(command, @"^dust", RegexOptions.IgnoreCase))
     {
-        var tokens = Match(command, @"^dust\s*(\w+)\s*(\d+)?$", RegexOptions.IgnoreCase);
-        var filter = tokens.Groups[1].Value;
-        var limit = double.TryParse(tokens.Groups[2].Value, out var max) ? max : 10;
+        try
+        {
+            var tokens = Regex.Match(command, @"^dust\s*(?:(\w+\)?\,?)?\s*(?:(\d+(?:\.\d+))?\.?)?)$", RegexOptions.IgnoreCase);
+            var filter = tokens.Groups[1].Value;
+            var limit = double.TryParse(tokens.Groups[2].Value, out var max) ? max : 0.5;
 
-        foreach (var line in miner.Report(filter, limit))
+            foreach (var line in miner.Report(filter, limit))
+                Console.WriteLine(line);
+            Console.WriteLine($"debug: {tokens.Success} : {tokens.Groups[1].Value} : {tokens.Groups[2].Value}");
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine($"command parse error '{error.Message}'");
+        }
+    }
+
+    else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
+    {
+        var report = miner.RegressionHistogram();
+
+        foreach (var line in report)
             Console.WriteLine(line);
     }
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
