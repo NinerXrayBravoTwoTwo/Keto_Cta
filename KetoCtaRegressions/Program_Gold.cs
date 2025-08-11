@@ -10,7 +10,7 @@ var miner = new MineRegressionsWithGold();
 
 #region Chart Specific Regression
 
-void DustsToRegressionList(IEnumerable<Dust> dusts)
+void DustsToRegressionList(IEnumerable<Dust> dusts, bool isDoNotPrintNaNregressions = false)
 {
     // header
     Console.WriteLine($"Regression,Phenotype,Mean X,moe X,Mean Y,moe Y,Slope,xSD,p-value");
@@ -18,6 +18,8 @@ void DustsToRegressionList(IEnumerable<Dust> dusts)
     var orderBypVal = myDusts.OrderBy(d => d.Regression.PValue);
     foreach (var item in orderBypVal)
     {
+        if (isDoNotPrintNaNregressions && double.IsNaN(item.Regression.PValue)) continue;
+
         var moeX = item.Regression.MarginOfError();
         var moeY = item.Regression.MarginOfError(true);
         Console.WriteLine($"{item.RegressionName},{item.SetName}," +
@@ -225,7 +227,7 @@ while (true)
 
             foreach (var line in miner.Report(filter, limit))
                 Console.WriteLine(line);
-            
+
             Console.WriteLine($"dust Command Parse: Success: {tokens.Success} : Select: {tokens.Groups[1].Value} : Limit: (i.e. 0.1) {tokens.Groups[2].Value}");
         }
         catch (Exception error)
@@ -288,9 +290,9 @@ while (true)
         if (dusts.Any())
         {
             foreach (var item in useSets)
-                DustsToCvs(dusts.Where(d => d.SetName.Equals(item)));
+                DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic
 
-            DustsToRegressionList(dusts);
+            DustsToRegressionList(dusts, true);
             Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
         }
         else // create new dusts
@@ -304,8 +306,6 @@ while (true)
                     Console.WriteLine($"Regression '{title[0]}' can not be generated.");
                     continue;
                 }
-
-                //localDusts.AddRange(newDusts);
 
                 DustsToRegressionList(newDusts);
             }
