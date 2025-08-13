@@ -13,7 +13,7 @@ namespace KetoCtaTest
         {
             // Arrange
             // Act
-            var (token, numerator, denominator) = CreateSelector.Compile("LnTps1");
+            var (token, numerator, denominator) = Compile.Build("LnTps1");
             // Assert
             Assert.Equal(Token.VisitAttribute, token);
             Assert.Equal("Visits[1].LnTps", numerator);
@@ -40,9 +40,9 @@ namespace KetoCtaTest
                 foreach (var attribute in allAttributes)
                 {
                     var attLn = x % 2 == 0 ? "ln" + attribute : attribute;
-                    var normalized = CreateSelector.AttributeCaseNormalize(attLn);
+                    var normalized = Compile.AttributeCaseNormalize(attLn);
                     testOutputHelper.WriteLine($"Normalized attribute: {attLn} -> {normalized}");
-                    var compiled = CreateSelector.Compile(normalized);
+                    var compiled = Compile.Build(normalized);
                     // look up the expected normalized attLn
                     var reflectValue = (double)(CreateSelector.GetNestedPropertyValue(element, compiled.numerator) ?? double.NaN);
                     testOutputHelper.WriteLine($"\tCompiled   attribute: {attLn} -> {compiled} -> {reflectValue:F2}");
@@ -93,7 +93,7 @@ namespace KetoCtaTest
             const string ratio = "LnCac0/LnNcpv1";
 
             // Act
-            var compile = CreateSelector.Compile(ratio);
+            var compile = Compile.Build(ratio);
             Assert.Equal("Visits[0].LnCac", compile.numerator);
             Assert.Equal("Visits[1].LnNcpv", compile.denominator);
         }

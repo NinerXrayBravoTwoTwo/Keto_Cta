@@ -31,8 +31,8 @@ namespace DataMiner
             var regressor = match.Groups[5].Value;
             Title = $"{dependent} vs {regressor}";
 
-            DependentCompile = Compile(dependent);
-            RegressorCompile = Compile(regressor);
+            DependentCompile = DataMiner.Compile.Build(dependent);
+            RegressorCompile = DataMiner.Compile.Build(regressor);
             System.Diagnostics.Debug.WriteLine($"After Compile: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
 
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);

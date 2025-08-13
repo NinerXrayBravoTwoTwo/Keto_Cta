@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Remove="AlternateSelector.cs" />
     <Compile Remove="BaseVariableDicer.cs" />
+    <Compile Remove="C2Compiler.cs" />
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="CreateSelectorA.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
