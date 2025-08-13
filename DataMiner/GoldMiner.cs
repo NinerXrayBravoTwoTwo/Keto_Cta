@@ -203,7 +203,7 @@ public partial class GoldMiner
 
         var regression = new RegressionPvalue(selectedData.ToList());
 
-        return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression);
+        return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression, selector.DependentCompile.token, selector.RegressorCompile.token);
     }
 
     public string[] PrintBetaElements(SetName setName)

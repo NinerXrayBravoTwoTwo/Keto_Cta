@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using DataMiner;
 using Keto_Cta;
 using System.Text.RegularExpressions;
@@ -60,6 +61,9 @@ var vsPattern = @"^([A-Z\d\s\(/\(\)]+)\s(vs\.?)\s([A-Z\d\s\(/\(\)]+)\s*(-.+)?$";
 // Wait for user input before closing the console window
 Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'Cac0 vs. Cac1'):");
 
+// Preload a small set
+miner.AddRange(goldMiner.RootAllSetMatrix());
+
 while (true)
 {
     Console.Write("> ");
@@ -113,7 +117,7 @@ while (true)
         Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
 
         // Regression names
-        var names = new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue)>();
+        var names = new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue, Token depToken, Token regToken)>();
 
         // load dust strings
         foreach (var dust in miner.Dusts)
@@ -134,23 +138,24 @@ while (true)
             else
             {
                 var pValue = double.IsNaN(dust.Regression.PValue) ? 1 : dust.Regression.PValue;
-                names.Add(key, (dust.RegressionName, 1, pValue, pValue));
+                names.Add(key, (dust.RegressionName, 1, pValue, pValue, dust.DepToken, dust.RegToken));
             }
         }
 
         var uniqueName = 0;
         var reportBuffer = new List<string>();
 
-        var line = 1;
         foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
         {
             if (filters.Count == 0 || PassesFilters(item.title, filters.ToArray()))
             {
-                var n = item.n;
-                var name = item.title;
-                var pvalue = item.sumPvalue / n;
-                var minPvalue = item.minPvalue;
-                reportBuffer.Add($"{line++}\t{n}\t{minPvalue:F6}\t{pvalue:F4}\t{name}");
+                var sb = new StringBuilder();
+                sb.Append($"{item.title}".PadRight(32));
+                sb.Append($"{item.depToken} vs {item.regToken}".PadRight(24));
+                sb.Append($"{item.sumPvalue / item.n:F4}".PadRight(14));
+                sb.Append($"{item.minPvalue:F6}".PadRight(14));
+                reportBuffer.Add(sb.ToString());
+
                 uniqueName++;
             }
 
@@ -168,7 +173,11 @@ while (true)
             }
         }
 
-        Console.WriteLine("index\tn\tmin p-value\tmean p-value\tregression");
+        Console.WriteLine("regression".PadRight(32)+
+                          "token".PadRight(24)+
+                          "avg p-value".PadRight(14) +
+                          "min p-value".PadRight(14)
+                          );
         var count = 0;
         foreach (var row in reportBuffer)
         {

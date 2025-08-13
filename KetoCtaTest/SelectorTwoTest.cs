@@ -15,7 +15,7 @@ namespace KetoCtaTest
             // Act
             var (token, numerator, denominator) = Compile.Build("LnTps1");
             // Assert
-            Assert.Equal(Token.VisitAttribute, token);
+            Assert.Equal(Token.Visit, token);
             Assert.Equal("Visits[1].LnTps", numerator);
             Assert.Equal(string.Empty, denominator);
         }

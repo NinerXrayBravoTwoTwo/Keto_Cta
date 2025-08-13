@@ -17,7 +17,7 @@ namespace KetoCtaTest
 
             var regression = new RegressionPvalue(dataPoints);
 
-            var dust = new Dust(SetName.Alpha, "Ncpv1 vs Ncpv0", regression);
+            var dust = new Dust(SetName.Alpha, "Ncpv1 vs Ncpv0", regression, Token.Eleme, Token.Visit);
 
             //Act
 

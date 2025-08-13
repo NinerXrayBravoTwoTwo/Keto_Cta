@@ -8,7 +8,7 @@ namespace DataMiner;
 
 public class Dust
 {
-    public Dust(SetName set, string title, RegressionPvalue regression)
+    public Dust(SetName set, string title, RegressionPvalue regression, Token depToken, Token regToken)
     {
         SetName = set;
         RegressionName = title;
@@ -24,7 +24,13 @@ public class Dust
 
         var hashMe = $"{RegressionName}{SetName}{regression.RSquared:F5}".ToLower();
         UniqueKey = GenerateGuidMd5(Regex.Replace(hashMe, @"\s*", string.Empty));
+        DepToken = depToken;
+        RegToken = regToken;
     }
+
+    public Token RegToken { get; private set; }
+
+    public Token DepToken { get; private set; }
 
     public Dust(SetName set, string title)
     {

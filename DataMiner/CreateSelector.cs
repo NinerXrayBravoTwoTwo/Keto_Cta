@@ -3,8 +3,8 @@ using System.Text.RegularExpressions;
 
 public enum Token
 {
-    VisitAttribute,
-    ElementAttribute,
+    Visit,
+    Eleme,
     Ratio,
     LnRatio,
     GeoMetricMean
@@ -38,8 +38,6 @@ namespace DataMiner
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);
             XSelector = InternalCreateSelector(RegressorCompile.numerator, RegressorCompile.denominator, RegressorCompile.token);
             System.Diagnostics.Debug.WriteLine($"After InternalCreate: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
-
-
         }
 
         public Func<Element, (string id, double x, double y)> Selector
@@ -92,7 +90,7 @@ namespace DataMiner
 
                     return token == Token.LnRatio
                         ? (id, Visit.Ln(valueD == 0 ? 0 : valueN / valueD))
-                        : (id, valueD == 0 ? 0: valueN / valueD);
+                        : (id, valueD == 0 ? 0 : valueN / valueD);
 
                 };
             }

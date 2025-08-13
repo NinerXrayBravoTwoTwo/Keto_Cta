@@ -322,7 +322,6 @@ namespace DataMiner
 
             return myData.ToArray();
             /***************  */
-            return myData.ToArray();
         }
     }
 }

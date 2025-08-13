@@ -78,8 +78,8 @@ public static class Compile
                 string denominator = string.Empty;
 
                 return (isVisit
-                        ? Token.VisitAttribute
-                        : Token.ElementAttribute,
+                        ? Token.Visit
+                        : Token.Eleme,
                     numerator, denominator);
             }
         }
@@ -144,7 +144,7 @@ public static class Compile
                         : visitElement.Groups[1].Value;
 
                 return (
-                    isVisit ? Token.VisitAttribute : Token.ElementAttribute,
+                    isVisit ? Token.Visit : Token.Eleme,
                     comp,
                     string.Empty
                 );
