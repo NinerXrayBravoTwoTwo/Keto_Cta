@@ -146,8 +146,7 @@ namespace DataMiner
 
             throw new SyntaxErrorException($"Unexpected regression compile failure; Possibly not a valid element or visit attribute: {regDep}");
         }
-
-
+        
         #region Case normalize
         private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(
             "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|Tps|Cac|Ncpv|Tcpv|Pav|Qangio"

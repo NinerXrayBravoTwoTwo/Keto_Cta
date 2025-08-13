@@ -1,6 +1,8 @@
-﻿using DataMiner;
+﻿using System.Reflection;
+using DataMiner;
 using Keto_Cta;
 using System.Text.RegularExpressions;
+using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -77,6 +79,106 @@ while (true)
         {
             Console.WriteLine(item);
         }
+    }
+    else if (IsMatch(command, @"^title\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase))
+    {
+
+        // parse filters and limit
+        var tokens = Regex.Match(command, @"^title\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase);
+
+        if (!tokens.Success)
+        {
+            Console.WriteLine("Syntax error");
+        }
+
+        int limit = 0;
+        Queue<string> filters = new Queue<string>();
+
+        var isFoundALimit = false;
+        for (var x = 0; x < tokens.Groups[3].Captures.Count; x++)
+        {
+            var param = tokens.Groups[3].Captures[x].Value;
+            if (int.TryParse(param, out limit))
+            {
+                isFoundALimit = true;
+            }
+            else
+            {
+                filters.Enqueue(param);
+            }
+        }
+
+        if (!isFoundALimit || limit < 1) limit = 30;
+
+        Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
+
+        // Regression names
+        var names = new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue)>();
+
+        // load dust strings
+        foreach (var dust in miner.Dusts)
+        {
+            var key = dust.RegressionName.ToLower();
+            if (names.ContainsKey(key))
+            {
+                var pv = double.IsNaN(dust.Regression.PValue)
+                    ? 1
+                    : dust.Regression.PValue;
+
+                var rec = names[key];
+                rec.n += 1;
+                rec.minPvalue = double.Min(rec.minPvalue, pv);
+                rec.sumPvalue += Math.Abs(pv - 1) < 0.999999 ? 0 : pv;
+                names[key] = rec;
+            }
+            else
+            {
+                var pValue = double.IsNaN(dust.Regression.PValue) ? 1 : dust.Regression.PValue;
+                names.Add(key, (dust.RegressionName, 1, pValue, pValue));
+            }
+        }
+
+        var uniqueName = 0;
+        var reportBuffer = new List<string>();
+
+        var line = 1;
+        foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
+        {
+            if (filters.Count == 0 || PassesFilters(item.title, filters.ToArray()))
+            {
+                var n = item.n;
+                var name = item.title;
+                var pvalue = item.sumPvalue / n;
+                var minPvalue = item.minPvalue;
+                reportBuffer.Add($"{line++}\t{n}\t{minPvalue:F6}\t{pvalue:F4}\t{name}");
+                uniqueName++;
+            }
+
+            continue;
+
+            bool PassesFilters(string thisTitle, string[] findMe)
+            {
+                var result = true;
+
+                foreach (var token in findMe)
+                    if (!thisTitle.Contains(token, StringComparison.OrdinalIgnoreCase))
+                        result = false;
+
+                return result;
+            }
+        }
+
+        Console.WriteLine("index\tn\tmin p-value\tmean p-value\tregression");
+        var count = 0;
+        foreach (var row in reportBuffer)
+        {
+            count++;
+            if (reportBuffer.Count < count + limit)
+                Console.WriteLine(row);
+        }
+
+        Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
+        Console.WriteLine($"Unique regression names:{uniqueName}");
     }
     else if (IsMatch(command, @"^Ele\w+ (\d{1,3}|\w*)", RegexOptions.IgnoreCase))
     {
@@ -212,11 +314,6 @@ while (true)
             Console.WriteLine(item);
         }
     }
-    else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
-    {
-        Console.WriteLine("Possible Commands: 'independent vs. regressor', BetaUZeta, mine, gamma, dust, matrix, " +
-                          "all matrix, keto, clear dusts, q|exit|quit|end|help");
-    }
     else if (IsMatch(command, @"^dust", RegexOptions.IgnoreCase))
     {
         try
@@ -235,13 +332,18 @@ while (true)
             Console.WriteLine($"Command parse error '{error.Message}'");
         }
     }
-
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
         var report = miner.RegressionHistogram();
 
         foreach (var line in report)
             Console.WriteLine(line);
+    }
+
+    else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
+    {
+        Console.WriteLine("Possible Commands: 'independent vs. regressor', dust Search  1 (prints thousands of lines, ,01 = 10, mine takes a minite, matrix, " +
+                          "keto, clear, histogram, Element, q|exit|quit|end|help");
     }
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
@@ -315,4 +417,5 @@ while (true)
             }
         }
     }
+
 }

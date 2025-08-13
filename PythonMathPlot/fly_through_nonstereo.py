@@ -87,16 +87,16 @@ ax.set_zlim(min(z_zeta_3d.min(), z_theta_3d.min(), z_eta_3d.min()) - 5,
 # Add grid
 ax.grid(True)
 
-# Add regression stats
-stats_text = (
-    "Ln(CAC₀/NCPV₀) vs Ln(CAC₁)\n"
-    "Slope: 4.4436 | R²: 0.8359 | p: 0.0315\n\n"
-    "Ln(CAC₀/NCPV₁) vs Ln(CAC₁)\n"
-    "Slope: 4.7533 | R²: 0.8502 | p: 0.0235"
-)
+# # Add regression stats
+# stats_text = (
+#     "Ln(CAC₀/NCPV₀) vs Ln(CAC₁)\n"
+#     "Slope: 4.4436 | R²: 0.8359 | p: 0.0315\n\n"
+#     "Ln(CAC₀/NCPV₁) vs Ln(CAC₁)\n"
+#     "Slope: 4.7533 | R²: 0.8502 | p: 0.0235"
+# )
 
-ax.text2D(0.05, 0.95, stats_text, transform=ax.transAxes, fontsize=8, 
-          verticalalignment='top', bbox=dict(facecolor='white', alpha=0.8))
+# ax.text2D(0.05, 0.95, stats_text, transform=ax.transAxes, fontsize=8, 
+#           verticalalignment='top', bbox=dict(facecolor='white', alpha=0.8))
 
 # Fly-through animation (non-stereo for stability)
 def update_view(i):

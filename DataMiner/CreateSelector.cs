@@ -6,7 +6,8 @@ public enum Token
     VisitAttribute,
     ElementAttribute,
     Ratio,
-    LnRatio
+    LnRatio,
+    GeoMetricMean
 }
 
 namespace DataMiner
@@ -90,8 +91,8 @@ namespace DataMiner
                     //    : (id, ratio);
 
                     return token == Token.LnRatio
-                        ? (id, Visit.Ln(valueD == 0 ? double.NaN : valueN / valueD))
-                        : (id, valueD == 0 ? Double.NaN: valueN / valueD);
+                        ? (id, Visit.Ln(valueD == 0 ? 0 : valueN / valueD))
+                        : (id, valueD == 0 ? 0: valueN / valueD);
 
                 };
             }
