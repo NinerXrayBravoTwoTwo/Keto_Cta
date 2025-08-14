@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Text;
 
 namespace DataMiner;
 
@@ -292,20 +290,20 @@ public class MineRegressionsWithGold
                 }
 
         foreach (var reg in elementAttributes)   //regressor loop
-        foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
-        foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
-        {
-            if (!num.Equals(den))
-            {
-                //for (var x = 0; x < 2; x++)
-                for (var y = 0; y < 2; y++)
-               //for (var z = 0; z < 2; z++)
+            foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 {
-                    permutations.Add($"{num}/{den}{y} vs. {reg}");
-                    permutations.Add($"Ln({num}/{den}{y}) vs. {reg}");
+                    if (!num.Equals(den))
+                    {
+                        //for (var x = 0; x < 2; x++)
+                        for (var y = 0; y < 2; y++)
+                        //for (var z = 0; z < 2; z++)
+                        {
+                            permutations.Add($"{num}/{den}{y} vs. {reg}");
+                            permutations.Add($"Ln({num}/{den}{y}) vs. {reg}");
+                        }
+                    }
                 }
-            }
-        }
 
         return permutations.OrderBy(p => p).ToList();
     }
@@ -366,11 +364,6 @@ public class MineRegressionsWithGold
                 sb.Append($"{reg.RSquared:F3}".PadLeft(10));
                 sb.Append($"{reg.PValue:F6}".PadLeft(12));
                 _report.Add(sb.ToString());
-
-                //_report.Add($"{index++},{dust.RegressionName},{dust.SetName} {reg.N}," +
-                //            $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
-                //            $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                //            $"{reg.Slope:F4},{reg.RSquared:F3},{reg.PValue:F6}");
             }
         }
 

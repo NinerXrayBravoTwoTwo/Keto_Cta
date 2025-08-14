@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Reflection;
-using System.Text;
-using DataMiner;
+﻿using DataMiner;
 using Keto_Cta;
+using System.Text;
 using System.Text.RegularExpressions;
-using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -161,7 +158,7 @@ while (true)
 
         foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
         {
-            if (filters.Count == 0 && depToken==Token.None && regToken == Token.None
+            if (filters.Count == 0 && depToken == Token.None && regToken == Token.None
                 || PassesFilters(item.title, filters.Keys.ToArray())
                 && FilterTokens(item.depToken, item.regToken, depToken, regToken))
             {
