@@ -82,7 +82,7 @@ namespace KetoCtaTest
             var goldMiner = new GoldMiner(filePath);
 
             var result = goldMiner.AuDust(SetName.Omega, "DNcpv vs. DCac");
-            testOutputHelper.WriteLine(result.Regression.ToString());
+            testOutputHelper.WriteLine(result?.Regression.ToString());
         }
 
         [Fact]
@@ -108,9 +108,9 @@ namespace KetoCtaTest
                         var selector = new CreateSelector(chart);
 
                         var result = goldMiner.AuDust(SetName.Omega, chart);
-                        var reg = result.Regression;
+                        var reg = result?.Regression;
                         testOutputHelper.WriteLine(
-                            $"{index++}, {result.RegressionName}, {result.SetName}, {reg.Slope:F4}, {reg.PValue:F4}, {reg.Correlation:F4}");
+                            $"{index++}, {result?.RegressionName}, {result?.SetName}, {reg?.Slope:F4}, {reg?.PValue:F4}, {reg?.Correlation:F4}");
                     }
                 }
             }

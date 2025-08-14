@@ -25,8 +25,8 @@ namespace KetoCtaTest
         {
             List<Visit> visits =
             [
-                new Visit("1", DateTime.Now.AddDays(-365), 100, 50, 20.5, 30.0, 15.0),
-                new Visit("2", DateTime.Now, 110, 55, 22.0, 33.0, 16.5)
+                new("1", DateTime.Now.AddDays(-365), 100, 50, 20.5, 30.0, 15.0),
+                new("2", DateTime.Now, 110, 55, 22.0, 33.0, 16.5)
             ];
 
             var element = new Element("1", visits);
@@ -58,7 +58,7 @@ namespace KetoCtaTest
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "Cac1 vs. Cac0";
+            const string? title = "Cac1 vs. Cac0";
             var c2Selector = new CreateSelector(title);
 
             var selResult = goldMiner.Zeta.Select(c2Selector.Selector);
@@ -105,7 +105,7 @@ namespace KetoCtaTest
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string ratio = "Cac0 / Ncpv1 vs Cac0";
+            const string? ratio = "Cac0 / Ncpv1 vs Cac0";
 
             // Act
             var c2 = new CreateSelector(ratio);
@@ -139,7 +139,7 @@ namespace KetoCtaTest
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             _ = new GoldMiner(path);
 
-            string[] titles = ["Cac0 / Ncpv0 vs Cac0", "Cac1 vs Cac0", "Ncpv1 vs Ncpv0"];
+            string?[] titles = ["Cac0 / Ncpv0 vs Cac0", "Cac1 vs Cac0", "Ncpv1 vs Ncpv0"];
             foreach (var title in titles)
             {
                 var selector = new CreateSelector(title);

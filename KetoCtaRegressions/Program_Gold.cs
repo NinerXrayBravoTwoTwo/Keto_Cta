@@ -111,12 +111,12 @@ while (true)
                 if (regToken == Token.None && param.StartsWith("reg"))
                 {
                     var xxxx = param.Substring("reg".Length);
-                    if (Token.TryParse(param.Substring("reg".Length), true, out regToken))
+                    if (Enum.TryParse(param.Substring("reg".Length), true, out regToken))
                         continue;
                 }
 
                 if (depToken == Token.None && param.StartsWith("dep"))
-                    if (Token.TryParse(param.Substring("dep".Length), true, out depToken))
+                    if (Enum.TryParse(param.Substring("dep".Length), true, out depToken))
                         continue;
 
                 _ = filters.TryAdd(param.ToLower(), 1);
@@ -381,7 +381,7 @@ while (true)
     {
         // Parse for subset name, if none default to Omega
         var tokens = Match(command, vsPattern, RegexOptions.IgnoreCase);
-        var title = tokens.Groups[4].Success ? command.Split('-') : [command];
+        string?[] title = tokens.Groups[4].Success ? command.Split('-') : [command];
 
         if (!tokens.Success)
         {

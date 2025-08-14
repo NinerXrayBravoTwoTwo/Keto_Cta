@@ -5,7 +5,7 @@ namespace DataMiner;
 
 public static class Compile
 {
-    private static readonly Dictionary<string, string> AttributeDictionary = new Dictionary<string, string>(
+    private static readonly Dictionary<string, string> AttributeDictionary = new(
         "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|Tps|Cac|Ncpv|Tcpv|Pav|Qangio"
             .Split('|')
             .SelectMany(att => new[] {

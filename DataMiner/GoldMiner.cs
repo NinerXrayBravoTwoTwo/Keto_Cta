@@ -153,7 +153,7 @@ public partial class GoldMiner
     /// entries. The resulting array contains only valid <see cref="Dust"/> objects.</remarks>
     /// <param name="chartTitle">The title of the chart used to generate the gold dust data.</param>
     /// <returns>An array of <see cref="Dust"/> objects representing the gold dust data.  The array will exclude any null values.</returns>
-    public Dust[] GoldDust(string chartTitle)
+    public Dust[] GoldDust(string? chartTitle)
     {
         return new List<Dust?>
         {
@@ -175,7 +175,7 @@ public partial class GoldMiner
     /// <param name="setName"></param>
     /// <param name="chartTitle"></param>
     /// <returns></returns>
-    public Dust? AuDust(SetName setName, string chartTitle)
+    public Dust? AuDust(SetName setName, string? chartTitle)
     {
         if (!_setNameToData.TryGetValue(setName, out var data) || data.Length == 0)
         {
