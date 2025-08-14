@@ -3,11 +3,12 @@ using System.Text.RegularExpressions;
 
 public enum Token
 {
-    Visit,
-    Eleme,
-    Ratio,
-    LnRatio,
-    GeoMetricMean
+    None = 0,
+    Visit = 1,
+    Element = 2,
+    Ratio = 3,
+    LnRatio = 4,
+    GeoMean = 5,
 }
 
 namespace DataMiner

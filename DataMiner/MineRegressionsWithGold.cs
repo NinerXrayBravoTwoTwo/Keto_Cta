@@ -1,4 +1,8 @@
-﻿namespace DataMiner;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+
+namespace DataMiner;
 
 public class MineRegressionsWithGold
 {
@@ -136,7 +140,7 @@ public class MineRegressionsWithGold
         var dependVisitAtt = visitAtt.Split(',').Concat(visitLn.Split(',')).ToArray();
 
         List<string> results = [];
-
+        results.AddRange(GenerateRatioVsVisitElementPermutations());
         results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitAtt, independElementAtt));
         results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitLn, independElementLn));
 
@@ -210,6 +214,102 @@ public class MineRegressionsWithGold
         }
     }
 
+    private static List<string> GenerateRatioVsVisitElementPermutations()
+    {
+        string[] visitAttributes =
+        {
+            "Tps", "Cac", "Ncpv", "Tcpv", "Pav", "Qangio", "LnTps", "LnCac", "LnNcpv", "LnTcpv", "LnPav", "LnQangio"
+        };
+        string[] elementAttributes =
+        {
+            "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
+        };
+
+        List<string> permutations = [];
+
+        foreach (var reg in visitAttributes)   //regressor loop z
+            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln"))) // y
+                foreach (var den in visitAttributes.Where(a => !a.StartsWith("Ln"))) //x
+                {
+                    if (!num.Equals(den))
+                    {
+                        for (var x = 0; x < 2; x++)
+                            for (var y = 0; y < 2; y++)
+                                for (var z = 0; z < 2; z++)
+                                {
+                                    permutations.Add($"{num}{x}/{den}{y} vs. {reg}{z}");
+                                    permutations.Add($"Ln({num}{x}/{den}{y}) vs. {reg}{z}");
+                                }
+                    }
+                }
+
+        foreach (var reg in elementAttributes)   //regressor loop
+            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                {
+                    if (!num.Equals(den))
+                    {
+                        for (var x = 0; x < 2; x++)
+                            for (var y = 0; y < 2; y++)
+                            //for (var z = 0; z < 2; z++)
+                            {
+                                permutations.Add($"{num}{x}/{den}{y} vs. {reg}");
+                                permutations.Add($"Ln({num}{x}/{den}{y}) vs. {reg}");
+                            }
+                    }
+                }
+
+        foreach (var reg in elementAttributes)   //regressor loop
+            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                {
+                    if (!num.Equals(den))
+                    {
+                        for (var x = 0; x < 2; x++)
+                        //for (var y = 0; y < 2; y++)
+                        //for (var z = 0; z < 2; z++)
+                        {
+                            permutations.Add($"{num}{x}/{den} vs. {reg}");
+                            permutations.Add($"Ln({num}{x}/{den} vs. {reg}");
+                        }
+                    }
+                }
+
+        foreach (var reg in elementAttributes)   //regressor loop
+            foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                {
+                    if (!num.Equals(den))
+                    {
+                        //for (var x = 0; x < 2; x++)
+                        //for (var y = 0; y < 2; y++)
+                        //for (var z = 0; z < 2; z++)
+                        {
+                            permutations.Add($"{num}/{den} vs. {reg}");
+                            permutations.Add($"Ln({num}/{den} vs. {reg}");
+                        }
+                    }
+                }
+
+        foreach (var reg in elementAttributes)   //regressor loop
+        foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
+        foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
+        {
+            if (!num.Equals(den))
+            {
+                //for (var x = 0; x < 2; x++)
+                for (var y = 0; y < 2; y++)
+               //for (var z = 0; z < 2; z++)
+                {
+                    permutations.Add($"{num}/{den}{y} vs. {reg}");
+                    permutations.Add($"Ln({num}/{den}{y}) vs. {reg}");
+                }
+            }
+        }
+
+        return permutations.OrderBy(p => p).ToList();
+    }
+
     private readonly List<string> _report = [];
     /// <summary>
     /// Generates a detailed report of regression analysis results.
@@ -226,7 +326,16 @@ public class MineRegressionsWithGold
         _report.Add($"Total Regressions: {_dust.Count}");
 
         #region Print regression Csv table
-        _report.Add($"Index, Regression,sub-phenotype N,MeanX,moeX,MeanY,moeY,Slope,R^2,p-value");
+        _report.Add("index".PadRight(6) +
+                    "regression".PadRight(33) +
+                    "set".PadRight(10) +
+                    "mean X".PadLeft(10) +
+                    "moe X".PadLeft(10) +
+                    "mean Y".PadLeft(10) +
+                    "moe Y".PadLeft(10) +
+                    "slope".PadLeft(10) +
+                    "R^2".PadLeft(10) +
+                    "p-value".PadLeft(12));
         var totalRegressions = 0;
         var index = 0;
         //
@@ -240,16 +349,28 @@ public class MineRegressionsWithGold
 
             if (string.IsNullOrEmpty(match)
                 || match.Contains("any", StringComparison.InvariantCultureIgnoreCase)
-                //|| Regex.IsMatch(dust.ToString(), match.Trim(), RegexOptions.IgnoreCase)) // Problematic, and probably a security hole as well
                 || dust.ToString().ToLower().Contains(match.ToLower()))
             {
                 var reg = dust.Regression;
                 var moeX = reg.MarginOfError();
                 var moeY = reg.MarginOfError(true);
-                _report.Add($"{index++},{dust.RegressionName},{dust.SetName} {reg.N}," +
-                            $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
-                            $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                            $"{reg.Slope:F4},{reg.RSquared:F3},{reg.PValue:F6}");
+                var sb = new StringBuilder();
+                sb.Append($"{index++}".PadRight(6));
+                sb.Append($"{dust.RegressionName}".PadRight(33));
+                sb.Append($"{dust.SetName}".PadRight(10));
+                sb.Append($"{reg.MeanX:F3}".PadLeft(10));
+                sb.Append($"{moeX.MarginOfError:F3}".PadLeft(10));
+                sb.Append($"{reg.MeanY:F3}".PadLeft(10));
+                sb.Append($"{moeY.MarginOfError:F3}".PadLeft(10));
+                sb.Append($"{reg.Slope:F4}".PadLeft(10));
+                sb.Append($"{reg.RSquared:F3}".PadLeft(10));
+                sb.Append($"{reg.PValue:F6}".PadLeft(12));
+                _report.Add(sb.ToString());
+
+                //_report.Add($"{index++},{dust.RegressionName},{dust.SetName} {reg.N}," +
+                //            $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
+                //            $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
+                //            $"{reg.Slope:F4},{reg.RSquared:F3},{reg.PValue:F6}");
             }
         }
 

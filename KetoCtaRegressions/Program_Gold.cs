@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 using System.Text;
 using DataMiner;
 using Keto_Cta;
@@ -96,7 +97,9 @@ while (true)
         }
 
         int limit = 0;
-        Queue<string> filters = new Queue<string>();
+        var filters = new Dictionary<string, int>();
+        var depToken = Token.None;
+        var regToken = Token.None;
 
         var isFoundALimit = false;
         for (var x = 0; x < tokens.Groups[3].Captures.Count; x++)
@@ -108,7 +111,18 @@ while (true)
             }
             else
             {
-                filters.Enqueue(param);
+                if (regToken == Token.None && param.StartsWith("reg"))
+                {
+                    var xxxx = param.Substring("reg".Length);
+                    if (Token.TryParse(param.Substring("reg".Length), true, out regToken))
+                        continue;
+                }
+
+                if (depToken == Token.None && param.StartsWith("dep"))
+                    if (Token.TryParse(param.Substring("dep".Length), true, out depToken))
+                        continue;
+
+                _ = filters.TryAdd(param.ToLower(), 1);
             }
         }
 
@@ -147,7 +161,9 @@ while (true)
 
         foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
         {
-            if (filters.Count == 0 || PassesFilters(item.title, filters.ToArray()))
+            if (filters.Count == 0 && depToken==Token.None && regToken == Token.None
+                || PassesFilters(item.title, filters.Keys.ToArray())
+                && FilterTokens(item.depToken, item.regToken, depToken, regToken))
             {
                 var sb = new StringBuilder();
                 sb.Append($"{item.title}".PadRight(32));
@@ -171,10 +187,19 @@ while (true)
 
                 return result;
             }
+
+
+            bool FilterTokens(Token itemDepToken, Token itemRegToken, Token depToken, Token regToken)
+            {
+                return (depToken == Token.None || itemDepToken == depToken)
+                       && (regToken == Token.None || itemRegToken == regToken);
+            }
+
+
         }
 
-        Console.WriteLine("regression".PadRight(32)+
-                          "token".PadRight(24)+
+        Console.WriteLine("regression".PadRight(32) +
+                          "token".PadRight(24) +
                           "avg p-value".PadRight(14) +
                           "min p-value".PadRight(14)
                           );
@@ -229,10 +254,10 @@ while (true)
                     : goldMiner.Elements.Where(e => e.MemberSet.Equals(leafSets.FirstOrDefault()));
             }
 
-            var enumerable = elements as Element[] ?? elements.ToArray();
-            if (enumerable.Any())
+            var elem = elements as Element[] ?? elements.ToArray();
+            if (elem.Any())
             {
-                foreach (var item in enumerable)
+                foreach (var item in elem)
                     Console.WriteLine(item + "\n");
             }
             else
@@ -272,13 +297,13 @@ while (true)
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
     }
-    else if (IsMatch(command, @"clear*", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^clear*", RegexOptions.IgnoreCase))
     {
         miner.Clear();
         goldMiner.Clear();
 
     }
-    else if (IsMatch(command, @"gamma", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^gamma", RegexOptions.IgnoreCase))
     {
         var myData = goldMiner.PrintOmegaElementsFor3DGammaStudy(SetName.Omega);
         foreach (var item in myData)
@@ -315,7 +340,7 @@ while (true)
             Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts)));
         }
     }
-    else if (IsMatch(command, @"keto.*", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
     {
         var myData = goldMiner.PrintKetoCta();
         foreach (var item in myData)
