@@ -49,7 +49,7 @@ public partial class GoldMiner
     public Element[] Qangio;
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
-    private readonly Dictionary<string, CreateSelector> _selectorCache = new();
+    private readonly Dictionary<string?, CreateSelector> _selectorCache = new();
 
     #region load Data
 
@@ -79,8 +79,8 @@ public partial class GoldMiner
 #pragma warning restore CS8602
 
             index++;
-            var qa1 = double.NaN;
-            var qa2 = double.NaN;
+            double qa1;
+            double qa2;
             if (qAngioData != null)
             {
                 var qa = qAngioData.FirstOrDefault(q => q.Id == index);
@@ -113,7 +113,7 @@ public partial class GoldMiner
         return list;
     }
 
-    private static List<QAngio>? ReadQangioCsvFile(string qAngioPath)
+    private static List<QAngio> ReadQangioCsvFile(string qAngioPath)
     {
         if (string.IsNullOrEmpty(qAngioPath)) return [];
 
@@ -183,12 +183,12 @@ public partial class GoldMiner
             return null;
         }
 
-        if (!_selectorCache.TryGetValue(chartTitle.ToLower(), out var selector))
+        if (!_selectorCache.TryGetValue(chartTitle?.ToLower(), out var selector))
         {
             try
             {
                 selector = new CreateSelector(chartTitle);
-                _selectorCache.Add(chartTitle.ToLower(), selector);
+                _selectorCache.Add(chartTitle?.ToLower(), selector);
             }
             catch (ArgumentException ex)
             {
@@ -253,14 +253,14 @@ public partial class GoldMiner
         dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
         dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
 
-        var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray<Dust>();
+        var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray();
 
         return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
     }
 
     public Dust[] RootStatisticMatrix(SetName setName, bool header = true)
     {
-        if (!_setNameToData.TryGetValue(setName, out var elements))
+        if (!_setNameToData.TryGetValue(setName, out _))
             return [];
 
         string[] chartTitles =
