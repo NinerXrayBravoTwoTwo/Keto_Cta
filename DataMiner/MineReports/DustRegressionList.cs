@@ -8,11 +8,12 @@ public static class DustRegressionList
     private const string HeaderFormat = "{0,-32}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
     private const string RowFormat = HeaderFormat;
 
-    public static string[] Build(IEnumerable<Dust>? dusts, string[] matchName, int limit, bool notNaN = false)
+    public static string[] Build(IEnumerable<Dust>? dusts, string[] matchName, int limit=500, bool notNaN = false)
     {
         if (dusts == null) return [];
 
-        var orderedDusts = dusts.Where(d => matchName.Length > 0 && PassesFilters(d.RegressionName, matchName))
+        var orderedDusts = dusts
+            .Where(d => matchName.Length == 0 || PassesFilters(d.RegressionName, matchName))
             .OrderByDescending(d => d.Regression.PValue)
             .TakeLast(limit);
 

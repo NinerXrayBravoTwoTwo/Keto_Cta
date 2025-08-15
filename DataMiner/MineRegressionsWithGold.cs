@@ -103,8 +103,12 @@ public class MineRegressionsWithGold
 
     protected void DeduplicateAndSortDusts()
     {
-        var productionDusts = Deduplication.RemoveDuplicatesByGuid(_dust.ToArray()).OrderBy(d => d.Regression.PValue);
         _dust.Clear();
+        var productionDusts = Deduplication
+            .RemoveDuplicatesByGuid(_dust
+            .ToArray())
+            .OrderByDescending(d => d.Regression.PValue);
+        
         _dust.AddRange(productionDusts);
     }
 
