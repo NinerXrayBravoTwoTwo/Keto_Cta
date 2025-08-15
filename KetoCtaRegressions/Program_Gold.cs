@@ -1,8 +1,8 @@
 ﻿using DataMiner;
 using Keto_Cta;
+using MineReports;
 using System.Text;
 using System.Text.RegularExpressions;
-using MineReports;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -266,13 +266,10 @@ while (true)
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
 
-        var myData = miner.Report("qangio");
+      
+        foreach (var row in DustRegressionList.Build(miner.Dusts, Token.Visit, Token.Visit, 30, true)) Console.WriteLine(row);
 
-        foreach (var speck in myData)
-        {
-            Console.WriteLine(speck);
-        }
-
+      
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
     }
@@ -331,11 +328,49 @@ while (true)
     {
         try
         {
-            var tokens = Regex.Match(command, @"^dust\s*(?:(,?\w+\)?\,?)?\s*(?:(\d+(?:\.\d+)?)?\.?)?)$", RegexOptions.IgnoreCase);
-            var filter = tokens.Groups[1].Value;
-            var limit = double.TryParse(tokens.Groups[2].Value, out var max) ? max : 0.5;
+            var tokens = Regex.Match(command, @"^dust\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase);
 
-            foreach (var line in miner.Report(filter, limit))
+            if (!tokens.Success)
+            {
+                Console.WriteLine("Syntax error");
+            }
+
+            #region parse dust parameters
+            int limit = 0;
+            var filters = new Dictionary<string, int>();
+            var depToken = Token.None;
+            var regToken = Token.None;
+
+            var isFoundALimit = false;
+            for (var x = 0; x < tokens.Groups[3].Captures.Count; x++)
+            {
+                var param = tokens.Groups[3].Captures[x].Value;
+                if (int.TryParse(param, out limit))
+                {
+                    isFoundALimit = true;
+                }
+                else
+                {
+                    if (regToken == Token.None && param.StartsWith("reg"))
+                        if (Enum.TryParse(param.Substring("reg".Length), true, out regToken))
+                            continue;
+
+
+                    if (depToken == Token.None && param.StartsWith("dep"))
+                        if (Enum.TryParse(param.Substring("dep".Length), true, out depToken))
+                            continue;
+
+                    _ = filters.TryAdd(param.ToLower(), 1);
+                }
+            }
+
+            if (!isFoundALimit || limit < 1) limit = 30;
+
+            Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
+
+            #endregion
+
+            foreach (var line in MineReports.DustRegressionList.Build(miner.Dusts, filters.Keys.ToArray(), limit, false))
                 Console.WriteLine(line);
 
             Console.WriteLine($"dust Command Parse: Success: {tokens.Success} : Select: {tokens.Groups[1].Value} : Limit: (i.e. 0.1) {tokens.Groups[2].Value}");
@@ -407,7 +442,9 @@ while (true)
             foreach (var item in useSets)
                 DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic
 
-            DustsPvalueHistogram.Build(dusts.ToArray());
+            foreach (var row in DustRegressionList.Build(dusts.ToArray()))
+                Console.WriteLine(row);
+
             Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
         }
         else // create new dusts
@@ -422,7 +459,8 @@ while (true)
                     continue;
                 }
 
-                DustsPvalueHistogram.Build(newDusts);
+                foreach (var row in DustRegressionList.Build(dusts.ToArray()))
+                    Console.WriteLine(row);
             }
             catch (KeyNotFoundException)
             {
