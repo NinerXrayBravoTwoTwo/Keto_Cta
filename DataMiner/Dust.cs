@@ -8,7 +8,7 @@ namespace DataMiner;
 
 public class Dust
 {
-    public Dust(SetName set, string? title, RegressionPvalue regression, Token depToken, Token regToken)
+    public Dust(SetName set, string title, RegressionPvalue regression, Token depToken, Token regToken)
     {
         SetName = set;
         RegressionName = title;
@@ -32,7 +32,7 @@ public class Dust
 
     public Token DepToken { get; private set; }
 
-    public Dust(SetName set, string? title)
+    public Dust(SetName set, string title)
     {
         SetName = set;
         RegressionName = title;
@@ -40,7 +40,7 @@ public class Dust
     }
 
     public readonly SetName SetName;
-    public readonly string? RegressionName;
+    public readonly string RegressionName;
     public RegressionPvalue Regression;
     public bool IsInteresting => Regression is { N: >= 2, PValue: > 0.0 and <= 0.601 };
     public Guid UniqueKey = Guid.Empty;

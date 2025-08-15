@@ -18,6 +18,7 @@
     <Compile Remove="C2Compiler.cs" />
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="CreateSelectorA.cs" />
+    <Compile Remove="HistogramTool.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
     <Compile Remove="MineRegression.cs" />
     <Compile Remove="ParseToDataMap.cs" />

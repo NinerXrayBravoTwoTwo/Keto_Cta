@@ -15,7 +15,7 @@ namespace DataMiner
 {
     public partial class CreateSelector
     {
-        public CreateSelector(string? dependentVsRegressor)
+        public CreateSelector(string dependentVsRegressor)
         {
             // delete any whitespace
             var regressionString = dependentVsRegressor.Trim();

@@ -2,6 +2,7 @@
 using Keto_Cta;
 using System.Text;
 using System.Text.RegularExpressions;
+using MineReports;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -11,25 +12,6 @@ var miner = new MineRegressionsWithGold();
 
 #region Chart Specific Regression
 
-void DustsToRegressionList(IEnumerable<Dust> dusts, bool isDoNotPrintNaNregressions = false)
-{
-    // header
-    Console.WriteLine($"Regression,Phenotype,Mean X,moe X,Mean Y,moe Y,Slope,xSD,p-value");
-    var myDusts = dusts as Dust[] ?? dusts.ToArray();
-    var orderBypVal = myDusts.OrderBy(d => d.Regression.PValue);
-    foreach (var item in orderBypVal)
-    {
-        if (isDoNotPrintNaNregressions && double.IsNaN(item.Regression.PValue)) continue;
-
-        var moeX = item.Regression.MarginOfError();
-        var moeY = item.Regression.MarginOfError(true);
-        Console.WriteLine($"{item.RegressionName},{item.SetName}," +
-                          $"{moeX.Mean:F3},{moeX.MarginOfError:F3}," +
-                          $"{moeY.Mean:F3},{moeY.MarginOfError:F3}," +
-                          $"{item.Regression.Slope:F4},{item.Regression.StdDevX:F3}," +
-                          $"{item.Regression.PValue:F8}");
-    }
-}
 
 void DustsToCvs(IEnumerable<Dust> dust)
 {
@@ -381,7 +363,7 @@ while (true)
     {
         // Parse for subset name, if none default to Omega
         var tokens = Match(command, vsPattern, RegexOptions.IgnoreCase);
-        string?[] title = tokens.Groups[4].Success ? command.Split('-') : [command];
+        string[] title = tokens.Groups[4].Success ? command.Split('-') : [command];
 
         if (!tokens.Success)
         {
@@ -406,8 +388,8 @@ while (true)
 
         // User wants specific LMHR sub phenotype set
 
-        var inst = tokens.Groups[4].Success ? title[1].ToLower() : string.Empty;
-        var isAllPhenotypes = inst.Contains("all");
+        var inst = tokens.Groups[4].Success ? title[1]?.ToLower() : string.Empty;
+        var isAllPhenotypes = inst != null && inst.Contains("all");
 
         // Scan decorations for set names
         foreach (var item in Enum.GetNames(typeof(SetName)))
@@ -425,7 +407,7 @@ while (true)
             foreach (var item in useSets)
                 DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic
 
-            DustsToRegressionList(dusts, true);
+            DustsPvalueHistogram.Build(dusts.ToArray());
             Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
         }
         else // create new dusts
@@ -440,7 +422,7 @@ while (true)
                     continue;
                 }
 
-                DustsToRegressionList(newDusts);
+                DustsPvalueHistogram.Build(newDusts);
             }
             catch (KeyNotFoundException)
             {
