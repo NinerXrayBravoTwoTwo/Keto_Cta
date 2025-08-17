@@ -1,4 +1,5 @@
-﻿using Keto_Cta;
+﻿using System.Collections;
+using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -258,46 +259,42 @@ public partial class GoldMiner
     //    return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
     //}
 
-    public Dust[] RootComboRatio(SetName setName, bool header = true)
+    public Dust[] RootComboRatio()
     {
-        if (!_setNameToData.TryGetValue(setName, out _))
-            return [];
-
-        var chartTitles = MineRegressionsWithGold.
+        var names = MineRegressionsWithGold.
             PermutationsCc(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
-        List<Dust> localDusts = [];
-        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart))
-            .OfType<Dust>()
-            .ToList());
 
-        return localDusts.ToArray();
+        var dusts = names.Select(GoldDust)
+            .SelectMany(d => d)
+            //.Where(d => d.IsInteresting)
+            .OrderByDescending(d => d.Regression.PValue)
+            .ToArray();
+
+        int notInteresting = dusts.Count(d => !d.IsInteresting);
+
+        return dusts.Where(d => d.IsInteresting).ToArray();
     }
 
-    public Dust[] RootRatioMatrix(SetName setName, bool header = true)
+    public Dust[] RootRatioMatrix()
     {
-        if (!_setNameToData.TryGetValue(setName, out _))
-            return [];
-
-        var chartTitles = MineRegressionsWithGold.
+        var names = MineRegressionsWithGold.
             PermutationsA(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
-        List<Dust> localDusts = [];
-        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart))
-            .OfType<Dust>()
-            .ToList());
-
-        return localDusts.ToArray();
+        return names.Select(GoldDust)
+            .SelectMany(d => d)
+            .Where(d => d.IsInteresting)
+            .OrderByDescending(d => d.Regression.PValue)
+            .ToArray();
     }
     /// <summary>
     /// #1
-    /// </summary>
+    /// </summary>0
     /// <returns></returns>
     public Dust[] V1vsV0matrix()
     {
 
-        var names = MineRegressionsWithGold
-            .VisitAttributes
+        var names = MineRegressionsWithGold.VisitAttributes
             .Select(visit => $"{visit}1 vs. {visit}0").ToList();
 
         return names.Select(GoldDust)
@@ -307,6 +304,53 @@ public partial class GoldMiner
                .ToArray();
     }
 
+    /// <summary>
+    /// #2 Ratio vs Delta
+    /// </summary>
+    /// <returns></returns>
+    public Dust[] RatioVsDelta()
+    {
+        var names = new List<string>();
+        foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
+                    .Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
+            foreach (var eAttr in MineRegressionsWithGold.ElementAttributes
+                         .Where(e => !e.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
+            {
+                names.Add($"{vAttr}1/{vAttr}0 vs. {eAttr}");
+                names.Add($"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
+            }
+
+
+        return names.Select(GoldDust)
+            .SelectMany(d => d)
+            .Where(d => d.IsInteresting)
+            .OrderByDescending(d => d.Regression.PValue)
+            .ToArray();
+    }
+
+    public Dust[] CoolMatrix()
+    {
+        string[] names =
+        [
+            "Cac1/Cac0 vs. Ncpv1/Ncpv0",
+            "Cac0/Cac1 vs. Ncpv0/Ncpv1",
+            "Qangio1/Qangio0 vs. Ncpv1/Ncpv0",
+            "Qangio0/Qangio1 vs. Cac1/Cac0",
+
+            "Ln(Cac1/Cac0) vs. Ln(Ncpv1/Ncpv0)",
+            "Ln(Cac0/Cac1) vs. Ln(Ncpv0/Ncpv1)",
+            "Ln(Qangio1/Qangio0) vs. Ln(Ncpv1/Ncpv0)",
+            "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)",
+
+        ];
+
+
+        return names.Select(GoldDust)
+            .SelectMany(d => d)
+            .Where(d => d.IsInteresting)
+            .OrderByDescending(d => d.Regression.PValue)
+            .ToArray();
+    }
     public string[] PrintKetoCta(bool header = true)
     {
         if (!_setNameToData.TryGetValue(SetName.Omega, out var elements))

@@ -224,16 +224,18 @@ while (true)
         var end = DateTime.Now;
         var interval = end - start;
 
-        Console.WriteLine(
-            $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
+        if (interval.Seconds > 3)
+            Console.WriteLine(
+                $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
 
 
         foreach (var row in DustRegressionList.Build(miner.Dusts, Token.Visit, Token.Visit, 30, true))
             Console.WriteLine(row);
 
 
-        Console.WriteLine(
-            $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
+        if (interval.Seconds > 3)
+            Console.WriteLine(
+                $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
     }
     else if (IsMatch(command, @"^clear*", RegexOptions.IgnoreCase))
     {
@@ -253,10 +255,9 @@ while (true)
     {
         var result = new CommandParser("matrix").Parse(command);
         IEnumerable<string> newFilterTerms = [];
-        //Console.WriteLine(result);
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'baseline' 'ratio', ...\n{result.ToString()}");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' ...");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -274,13 +275,23 @@ while (true)
                     break;
 
                 case "ratio":
-                    miner.AddRange(goldMiner.RootRatioMatrix(SetName.Omega, true));
+                    miner.AddRange(goldMiner.RootRatioMatrix());
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "comratio":
-                    miner.AddRange(goldMiner.RootComboRatio(SetName.Beta));
-                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
+                    miner.AddRange(goldMiner.RootComboRatio());
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("comratio", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "ratiovsdelta":
+                    miner.AddRange(goldMiner.RatioVsDelta());
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratiovsdelta", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "cool":
+                    miner.AddRange(goldMiner.CoolMatrix());
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("cool", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 //case "mine":
@@ -290,21 +301,25 @@ while (true)
                     break;
             }
         }
+        if (miner.DustCount == 0)
+            Console.WriteLine("No dust to report.");
+        else
+        {
+            var report = DustRegressionList.Build(
+                miner.Dusts,
+                newFilterTerms.ToArray(),
+                result.DependentToken,
+                result.RegressionToken,
+                result.Limit);
 
-        var report = DustRegressionList.Build(
-            miner.Dusts,
-            newFilterTerms.ToArray(),
-            result.DependentToken,
-            result.RegressionToken,
-            result.Limit);
+            if (report.Length < 2)
+                Console.WriteLine(result);
 
-        if (report.Length < 2)
-            Console.WriteLine(result);
+            foreach (var row in report)
+                Console.WriteLine(row);
 
-        foreach (var row in report)
-            Console.WriteLine(row);
-
-        Console.WriteLine($"Total Regressions: {miner.DustCount}");
+            Console.WriteLine($"Total Regressions: {miner.DustCount}");
+        }
     }
     else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
     {
@@ -316,30 +331,25 @@ while (true)
     }
     else if (IsMatch(command, @"^dust", RegexOptions.IgnoreCase))
     {
-        try
-        {
-            var result = new CommandParser("title").Parse(command);
+        var result = new CommandParser("dust").Parse(command);
 
-            if (!result.IsSuccess)
-            {
-                Console.WriteLine("Command dust syntax error; Try 'dust' 50 or 'dust Cac 30'");
-            }
-            else
-            {
-                foreach (var line in DustRegressionList.Build(
-                             miner.Dusts, result.SearchTerms,
-                             result.DependentToken, result.RegressionToken,
-                             result.Limit, true))
-                {
-                    Console.WriteLine(line);
-                }
-            }
-        }
-        catch (Exception error)
+        if (!result.IsSuccess)
         {
-            Console.WriteLine($"Command parse error '{error.Message}'");
+            Console.WriteLine("Command dust syntax error; Try 'dust' 50 or 'dust Cac 30'");
+        }
+        else
+        {
+            foreach (var line in DustRegressionList.Build(
+                         miner.Dusts, result.SearchTerms,
+                         result.DependentToken, result.RegressionToken,
+                         result.Limit, true))
+            {
+                Console.WriteLine(line);
+            }
+            Console.WriteLine($"Totatoe ;) #nuggets: {miner.DustCount}");
         }
     }
+
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
         var report = MineReports.DustsPvalueHistogram.Build(miner.Dusts.ToArray());
@@ -371,6 +381,7 @@ while (true)
         try
         {
             dusts = goldMiner.GoldDust(title[0]);
+            miner.AddRange(dusts);
         }
         catch (Exception error)
         {

@@ -146,7 +146,6 @@ namespace KetoCtaTest
             Assert.Equal(Token.None, result.RegressionToken);
             Assert.Empty(result.SetNames);
         }
-
     }
 
 }

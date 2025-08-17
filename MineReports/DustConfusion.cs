@@ -21,7 +21,4 @@ public static class DustConfusion
     public static IEnumerable<Dust> GetInterestingDustsWithRegressionName(SetName setName, string regressionName) =>
         GetDusts(setName, regressionName).Where(x => x.IsInteresting);
 
-    public static IEnumerable<Dust> GetDustsByRegressionAndInteresting(SetName setName, string regressionName) =>
-        GetDusts(setName, regressionName).Where(x => x.IsInteresting);
-
-}
+ }

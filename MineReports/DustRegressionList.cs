@@ -7,7 +7,7 @@ namespace MineReports;
 public static class DustRegressionList
 {
 
-    private const string HeaderFormat = "{0,-32}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
+    private const string HeaderFormat = "{0,-35}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
     private const string RowFormat = HeaderFormat;
 
     public static string[] Build(IEnumerable<Dust>? dusts, bool notNaN = false)
@@ -15,7 +15,7 @@ public static class DustRegressionList
         if (dusts == null) return [];
 
         var orderedDusts = dusts
-            .Where(d => (!notNaN || !double.IsNaN(d.Regression.PValue)))
+            .Where(d => !double.IsNaN(d.Regression.PValue))
             .OrderByDescending(d => d.Regression.PValue);
 
         return ReportBuffer(notNaN, orderedDusts).ToArray();
@@ -26,7 +26,7 @@ public static class DustRegressionList
         if (dusts == null) return [];
 
         var orderedDusts = dusts
-            .Where(d => (!notNaN || !double.IsNaN(d.Regression.PValue)))
+            .Where(d => !double.IsNaN(d.Regression.PValue))
             .OrderByDescending(d => d.Regression.PValue)
             .TakeLast(limit);
 
@@ -38,7 +38,7 @@ public static class DustRegressionList
         if (dusts == null) return [];
 
         var orderedDusts = dusts.Where(d =>
-                (notNaN && !double.IsNaN(d.Regression.PValue) || !notNaN)
+                (!double.IsNaN(d.Regression.PValue) || !notNaN)
                 && IsTokenMatch(d.DepToken, d.RegToken, depToken, regToken))
             .OrderByDescending(d => d.Regression.PValue)
             .TakeLast(limit);
@@ -123,7 +123,7 @@ public static class DustRegressionList
         string setName = dust.SetName.ToString();
 
         // Truncate strings to avoid overflow, compatible with older C#
-        regressionName = regressionName.Length > 32 ? regressionName.Substring(0, 32) : regressionName;
+        regressionName = regressionName.Length > 35 ? regressionName.Substring(0, 35) : regressionName;
         setName = setName.Length > 10 ? setName.Substring(0, 10) : setName;
 
         var moeX = dust.Regression.MarginOfError();
