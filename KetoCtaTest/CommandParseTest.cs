@@ -115,14 +115,15 @@ namespace KetoCtaTest
         public void ParseCommandWithInvalidInput()
         {
             // Arrange
-            var cmdParser = new CommandParser("todo");
-            string cmdRequest = "todo invalid input 100, meMeMeAndMeAgain,";
+            var cmdParser = new CommandParser("matrix");
+            string cmdRequest = "matrix invalid input 100, meMeMeAndMeAgain,";
             // Act
             var result = cmdParser.Parse(cmdRequest);
             // Assert
             Assert.NotEqual(100, result.Limit);
             Assert.False(result.IsSuccess);
-            Assert.Empty(result.SearchTerms);
+            Assert.Equal(4, result.SearchTerms.Length);
+            Assert.True(result.ToString().Contains("Error: Invalid comma", StringComparison.InvariantCultureIgnoreCase));
             Assert.Equal(Token.None, result.DependentToken);
             Assert.Equal(Token.None, result.RegressionToken);
             Assert.Empty(result.SetNames);

@@ -2,7 +2,6 @@
 
 namespace DataMiner
 {
-
     public partial class GoldMiner
     {
         public string[] PrintOmegaElementsFor3DGammaStudy(SetName setName)
