@@ -1,4 +1,5 @@
 ﻿using DataMiner;
+
 // ReSharper disable FormatStringProblem
 
 namespace MineReports;
@@ -47,37 +48,39 @@ public static class DustRegressionList
 
 
     public static string[] Build(
-        IEnumerable<Dust>? dusts, 
-        string[] matchName,
-        Token depToken, Token regToken, 
+        IEnumerable<Dust>? dusts,
+        string[]? matchName,
+        Token depToken, Token regToken,
         int limit = 500, bool notNaN = false)
     {
         if (dusts == null) return [];
 
-        var orderedDusts = dusts
-            .Where(d =>
-                (!notNaN || !double.IsNaN(d.Regression.PValue))
-                && IsTokenMatch(d.DepToken, d.RegToken, depToken, regToken)
-                && (matchName.Length == 0 || IsFilterMatch(d.RegressionName, matchName)))
-            .OrderByDescending(d => d.Regression.PValue)
-            .TakeLast(limit);
-
-        return ReportBuffer(notNaN, orderedDusts).ToArray();
+        var dustBuffer = new List<Dust>();
+        var enumerable = dusts as Dust[] ?? dusts.ToArray();
+        foreach (var dust in enumerable)
+        {
+            if (!double.IsNaN(dust.Regression.PValue)
+                && IsTokenMatch(dust.DepToken, dust.RegToken, depToken, regToken)
+                && IsFilterMatch(dust.RegressionName, matchName))
+                dustBuffer.Add(dust);
+        }
+        return ReportBuffer(notNaN, dustBuffer
+                             .OrderByDescending(d => d.Regression.PValue)
+                             .TakeLast(limit))
+                             .ToArray();
     }
-
-
 
     private static bool IsFilterMatch(string thisTitle, string[] findMe)
     {
-        var result = true;
-
+        if (findMe.Length == 0) return true;
+        var result = false;
         foreach (var token in findMe)
-            if (!thisTitle.Contains(token, StringComparison.OrdinalIgnoreCase))
-                result = false;
+            if (thisTitle.Contains(token, StringComparison.OrdinalIgnoreCase))
+                result = true;
 
         return result;
-
     }
+
     private static bool IsTokenMatch(Token itemDepToken, Token itemRegToken, Token depToken, Token regToken)
     {
         return (depToken == Token.None || itemDepToken == depToken)

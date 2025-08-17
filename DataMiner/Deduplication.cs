@@ -9,19 +9,7 @@ public static class Deduplication
 
         // Use List to store unique objects, preserving order
         var result = new List<Dust>(objects.Length);
-
-        foreach (var obj in objects)
-        {
-            // Add to result only if GUID hasn't been seen
-            if (seenGuids.Add(obj.UniqueKey))
-            {
-                result.Add(obj);
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"Duplicate: {obj.RegressionName}");
-            }
-        }
+        result.AddRange(objects.Where(obj => seenGuids.Add(obj.UniqueKey)));
 
         return result;
     }

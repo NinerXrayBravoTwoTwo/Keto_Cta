@@ -1,6 +1,4 @@
-﻿
-using System;
-using DataMiner;
+﻿using DataMiner;
 
 namespace MineReports
 {

@@ -35,6 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DataMiner\DataMiner.csproj" />
     <ProjectReference Include="..\Keto_Cta\Keto_Cta.csproj" />
+    <ProjectReference Include="..\MineReports\MineReports.csproj" />
   </ItemGroup>
 
   <ItemGroup>

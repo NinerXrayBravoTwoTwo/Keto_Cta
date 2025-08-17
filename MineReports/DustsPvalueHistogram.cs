@@ -2,6 +2,8 @@
 using Keto_Cta;
 using LinearRegression;
 
+namespace MineReports;
+
 public class DustsPvalueHistogram
 {
     public static string[] Build(Dust[] dusts, string[]? args = null)

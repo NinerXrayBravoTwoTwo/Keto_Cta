@@ -42,7 +42,7 @@ var vsPattern = @"^([A-Z\d\s\(/\(\)]+)\s(vs\.?)\s([A-Z\d\s\(/\(\)]+)\s*(-.+)?$";
 Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regression data (e.g., 'Cac0 vs. Cac1'):");
 
 // Preload a small set
-miner.AddRange(goldMiner.RootAllSetMatrix());
+//miner.AddRange(goldMiner.RootAllSetMatrix());
 
 while (true)
 {
@@ -64,53 +64,14 @@ while (true)
             Console.WriteLine(item);
         }
     }
-    else if (IsMatch(command, @"^title\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^title\s?", RegexOptions.IgnoreCase))
     {
-
         // parse filters and limit
-        var tokens = Regex.Match(command, @"^title\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase);
-
-        if (!tokens.Success)
-        {
-            Console.WriteLine("Syntax error");
-        }
-
-        int limit = 0;
-        var filters = new Dictionary<string, int>();
-        var depToken = Token.None;
-        var regToken = Token.None;
-
-        var isFoundALimit = false;
-        for (var x = 0; x < tokens.Groups[3].Captures.Count; x++)
-        {
-            var param = tokens.Groups[3].Captures[x].Value;
-            if (int.TryParse(param, out limit))
-            {
-                isFoundALimit = true;
-            }
-            else
-            {
-                if (regToken == Token.None && param.StartsWith("reg"))
-                {
-                    var xxxx = param.Substring("reg".Length);
-                    if (Enum.TryParse(param.Substring("reg".Length), true, out regToken))
-                        continue;
-                }
-
-                if (depToken == Token.None && param.StartsWith("dep"))
-                    if (Enum.TryParse(param.Substring("dep".Length), true, out depToken))
-                        continue;
-
-                _ = filters.TryAdd(param.ToLower(), 1);
-            }
-        }
-
-        if (!isFoundALimit || limit < 1) limit = 30;
-
-        Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
+        var result = new CommandParser("title").Parse(command);
 
         // Regression names
-        var names = new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue, Token depToken, Token regToken)>();
+        var names =
+            new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue, Token depToken, Token regToken)>();
 
         // load dust strings
         foreach (var dust in miner.Dusts)
@@ -140,9 +101,9 @@ while (true)
 
         foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
         {
-            if (filters.Count == 0 && depToken == Token.None && regToken == Token.None
-                || PassesFilters(item.title, filters.Keys.ToArray())
-                && FilterTokens(item.depToken, item.regToken, depToken, regToken))
+            if (result.SearchTerms.Length == 0 && result.DependentToken == Token.None && result.RegressionToken == Token.None
+                || PassesFilters(item.title, result.SearchTerms)
+                && FilterTokens(item.depToken, item.regToken, result.DependentToken, result.RegressionToken))
             {
                 var sb = new StringBuilder();
                 sb.Append($"{item.title}".PadRight(32));
@@ -156,7 +117,7 @@ while (true)
 
             continue;
 
-            bool PassesFilters(string thisTitle, string[] findMe)
+            bool PassesFilters(string thisTitle, string[]? findMe)
             {
                 var result = true;
 
@@ -167,13 +128,11 @@ while (true)
                 return result;
             }
 
-
             bool FilterTokens(Token itemDepToken, Token itemRegToken, Token depToken, Token regToken)
             {
                 return (depToken == Token.None || itemDepToken == depToken)
                        && (regToken == Token.None || itemRegToken == regToken);
             }
-
 
         }
 
@@ -181,16 +140,16 @@ while (true)
                           "token".PadRight(24) +
                           "avg p-value".PadRight(14) +
                           "min p-value".PadRight(14)
-                          );
+        );
         var count = 0;
         foreach (var row in reportBuffer)
         {
             count++;
-            if (reportBuffer.Count < count + limit)
+            if (reportBuffer.Count < count + result.Limit)
                 Console.WriteLine(row);
         }
 
-        Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
+        Console.WriteLine(result.ToString());
         Console.WriteLine($"Unique regression names:{uniqueName}");
     }
     else if (IsMatch(command, @"^Ele\w+ (\d{1,3}|\w*)", RegexOptions.IgnoreCase))
@@ -250,12 +209,14 @@ while (true)
     }
     else if (IsMatch(command, @"^mine", RegexOptions.IgnoreCase))
     {
-        var tokens = Match(command, @"^Mine\s*([A-Z]+)?\s*(\d{1}k)?$", RegexOptions.IgnoreCase); //G2 = size, G1=Type of Mining
+        var tokens =
+            Match(command, @"^Mine\s*([A-Z]+)?\s*(\d{1}k)?$", RegexOptions.IgnoreCase); //G2 = size, G1=Type of Mining
         if (!tokens.Success)
         {
             Console.WriteLine("Invalid 'mine' syntax. Try 'mine root','mine ratios', 'mine deltas' ...");
             continue;
         }
+
         var start = DateTime.Now;
 
         miner.GenerateGoldRegressions(goldMiner, 1);
@@ -266,10 +227,11 @@ while (true)
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
 
-      
-        foreach (var row in DustRegressionList.Build(miner.Dusts, Token.Visit, Token.Visit, 30, true)) Console.WriteLine(row);
 
-      
+        foreach (var row in DustRegressionList.Build(miner.Dusts, Token.Visit, Token.Visit, 30, true))
+            Console.WriteLine(row);
+
+
         Console.WriteLine(
             $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
     }
@@ -287,34 +249,62 @@ while (true)
             Console.WriteLine(item);
         }
     }
-    else if (IsMatch(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^matrix\s*", RegexOptions.IgnoreCase))
     {
-        var tokens = Match(command, @"^matrix\s*(\w+)?\s*$", RegexOptions.IgnoreCase);
-        if (!tokens.Groups[1].Success)
-        {
-            var rootDusts = goldMiner.RootStatisticMatrix(SetName.Omega);
-            miner.AddRange(rootDusts);
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts)));
-            continue;
-        }
+        var result = new CommandParser("matrix").Parse(command);
+        IEnumerable<string> newFilterTerms = [];
+        //Console.WriteLine(result);
 
-        //else G1 is there :) !!!
+        if (result.SearchTerms is { Length: 0 })
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'baseline' 'ratio', ...\n{result.ToString()}");
+
+        // var myDusts = new List<Dust>();
+        foreach (var filter in result.SearchTerms)
         {
-            var setName = tokens.Groups[1].Value;
-            if (Enum.TryParse(setName, true, out SetName result))
+            // get regression matrix list
+            // turn matrix into AuDust
+            // Create a histogram or regression list report
+
+
+            switch (filter)
             {
-                var rootDusts = goldMiner.RootStatisticMatrix(result);
-                Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(rootDusts)));
-                miner.AddRange(rootDusts);
-                continue;
+                case "visit":
+                    miner.AddRange(goldMiner.V1vsV0matrix());
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("visit", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "ratio":
+                    miner.AddRange(goldMiner.RootRatioMatrix(SetName.Omega, true));
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "comratio":
+                    miner.AddRange(goldMiner.RootComboRatio(SetName.Beta));
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                //case "mine":
+                //    break;
+                default:
+
+                    break;
             }
-
-            // ... but G1 did not parse as  a valid set soo ... try to do something useful     
-
-            var dusts = goldMiner.RootAllSetMatrix();
-            miner.AddRange(dusts);
-            Console.WriteLine(string.Join('\n', GoldMiner.ToStringFormatRegressionsInDusts(dusts)));
         }
+
+        var report = DustRegressionList.Build(
+            miner.Dusts,
+            newFilterTerms.ToArray(),
+            result.DependentToken,
+            result.RegressionToken,
+            result.Limit);
+
+        if (report.Length < 2)
+            Console.WriteLine(result);
+
+        foreach (var row in report)
+            Console.WriteLine(row);
+
+        Console.WriteLine($"Total Regressions: {miner.DustCount}");
     }
     else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
     {
@@ -328,52 +318,22 @@ while (true)
     {
         try
         {
-            var tokens = Regex.Match(command, @"^dust\s*(((?:\s(,?\w+\)?\,?)\s*)+)?)?$", RegexOptions.IgnoreCase);
+            var result = new CommandParser("title").Parse(command);
 
-            if (!tokens.Success)
+            if (!result.IsSuccess)
             {
-                Console.WriteLine("Syntax error");
+                Console.WriteLine("Command dust syntax error; Try 'dust' 50 or 'dust Cac 30'");
             }
-
-            #region parse dust parameters
-            int limit = 0;
-            var filters = new Dictionary<string, int>();
-            var depToken = Token.None;
-            var regToken = Token.None;
-
-            var isFoundALimit = false;
-            for (var x = 0; x < tokens.Groups[3].Captures.Count; x++)
+            else
             {
-                var param = tokens.Groups[3].Captures[x].Value;
-                if (int.TryParse(param, out limit))
+                foreach (var line in DustRegressionList.Build(
+                             miner.Dusts, result.SearchTerms,
+                             result.DependentToken, result.RegressionToken,
+                             result.Limit, true))
                 {
-                    isFoundALimit = true;
-                }
-                else
-                {
-                    if (regToken == Token.None && param.StartsWith("reg"))
-                        if (Enum.TryParse(param.Substring("reg".Length), true, out regToken))
-                            continue;
-
-
-                    if (depToken == Token.None && param.StartsWith("dep"))
-                        if (Enum.TryParse(param.Substring("dep".Length), true, out depToken))
-                            continue;
-
-                    _ = filters.TryAdd(param.ToLower(), 1);
+                    Console.WriteLine(line);
                 }
             }
-
-            if (!isFoundALimit || limit < 1) limit = 30;
-
-            Console.WriteLine($"Limit: {limit}, Filters: {string.Join(',', filters.ToArray())}");
-
-            #endregion
-
-            foreach (var line in MineReports.DustRegressionList.Build(miner.Dusts, filters.Keys.ToArray(), limit, false))
-                Console.WriteLine(line);
-
-            Console.WriteLine($"dust Command Parse: Success: {tokens.Success} : Select: {tokens.Groups[1].Value} : Limit: (i.e. 0.1) {tokens.Groups[2].Value}");
         }
         catch (Exception error)
         {
@@ -382,16 +342,16 @@ while (true)
     }
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
-        var report = miner.RegressionHistogram();
+        var report = MineReports.DustsPvalueHistogram.Build(miner.Dusts.ToArray());
 
         foreach (var line in report)
             Console.WriteLine(line);
     }
-
     else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
     {
-        Console.WriteLine("Possible Commands: 'independent vs. regressor', dust Search  1 (prints thousands of lines, ,01 = 10, mine takes a minite, matrix, " +
-                          "keto, clear, histogram, Element, q|exit|quit|end|help");
+        Console.WriteLine(
+            "Possible Commands: 'independent vs. regressor', dust Search  1 (prints thousands of lines, ,01 = 10, mine takes a minite, matrix, " +
+            "keto, clear, histogram, Element, q|exit|quit|end|help");
     }
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
@@ -402,7 +362,8 @@ while (true)
 
         if (!tokens.Success)
         {
-            Console.WriteLine($"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0, (Omega|Beta)'");
+            Console.WriteLine(
+                $"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0, (Omega|Beta)'");
             continue;
         }
 
@@ -429,7 +390,7 @@ while (true)
         // Scan decorations for set names
         foreach (var item in Enum.GetNames(typeof(SetName)))
         {
-            if (isAllPhenotypes | inst.Contains(item.ToLower()))
+            if (inst != null && isAllPhenotypes | inst.Contains(item.ToLower()))
             {
                 if (Enum.TryParse(item, true, out SetName result))
                     useSets.Add(result);
@@ -469,4 +430,6 @@ while (true)
         }
     }
 
+    continue;
 }
+

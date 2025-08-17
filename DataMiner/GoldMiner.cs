@@ -240,62 +240,71 @@ public partial class GoldMiner
         return myData.ToArray();
     }
 
-    public Dust[] RootAllSetMatrix()
-    {
-        List<Dust> dusts = [];
+    //public Dust[] RootAllSetMatrix()
+    //{
+    //    List<Dust> dusts = [];
 
-        dusts.AddRange(RootStatisticMatrix(SetName.Omega));
-        dusts.AddRange(RootStatisticMatrix(SetName.Alpha));
-        dusts.AddRange(RootStatisticMatrix(SetName.Zeta));
-        dusts.AddRange(RootStatisticMatrix(SetName.Gamma));
-        dusts.AddRange(RootStatisticMatrix(SetName.Theta));
-        dusts.AddRange(RootStatisticMatrix(SetName.Eta));
-        dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
-        dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Omega));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Alpha));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Zeta));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Gamma));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Theta));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Eta));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
+    //    dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
 
-        var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray();
+    //    var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray();
 
-        return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
-    }
+    //    return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
+    //}
 
-    public Dust[] RootStatisticMatrix(SetName setName, bool header = true)
+    public Dust[] RootComboRatio(SetName setName, bool header = true)
     {
         if (!_setNameToData.TryGetValue(setName, out _))
             return [];
 
-        string[] chartTitles =
-        [
-            "Cac1 vs. Cac0", "Tps1 vs. Tps0", "Ncpv1 vs. Ncpv0", "Tcpv1 vs. Tcpv0", "Pav1 vs. Pav0",
-            "LnCac1 vs. LnCac0", "LnTps1 vs. LnTps0", "LnNcpv1 vs. LnNcpv0", "LnTcpv1 vs. LnTcpv0", "LnPav1 vs. LnPav0",
-            "QAngio1 vs QAngio0","LnQAngio1 vs LnQAngio0"
-        ];
+        var chartTitles = MineRegressionsWithGold.
+            PermutationsCc(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
         List<Dust> localDusts = [];
-        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart)).OfType<Dust>().ToList());
+        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart))
+            .OfType<Dust>()
+            .ToList());
 
         return localDusts.ToArray();
     }
 
-    public static string ToStringFormatRegressionsInDusts(Dust[] dusts, bool isPrintHeader = true)
+    public Dust[] RootRatioMatrix(SetName setName, bool header = true)
     {
-        List<string> result = [];
+        if (!_setNameToData.TryGetValue(setName, out _))
+            return [];
 
-        if (isPrintHeader)
-            result.Add("Index,Regression,Phenotype,Mean X,moe X, Mean Y,moe Y, Slope,xSD,ySD,p-value");
+        var chartTitles = MineRegressionsWithGold.
+            PermutationsA(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
-        var index = 1;
-        result.AddRange(from item in dusts
-                        let moeX = item.Regression.MarginOfError()
-                        let moeY = item.Regression.MarginOfError(useY: true)
-                        select $"{index++},{item.RegressionName},{item.SetName} {item.Regression.N},"
-                   + $"{moeX.Mean:F3},{moeX.MarginOfError:F4},"
-                   + $"{moeY.Mean:F3},{moeY.MarginOfError:F4},"
-                               + $"{item.Regression.Slope:F3},"
-                               + $"{item.Regression.StdDevX:F3},"
-                               + $"{item.Regression.StdDevY:F3},"
-                               + $"{item.Regression.PValue:F11}");
+        List<Dust> localDusts = [];
+        localDusts.AddRange(chartTitles.Select(chart => AuDust(setName, chart))
+            .OfType<Dust>()
+            .ToList());
 
-        return string.Join('\n', result.ToArray());
+        return localDusts.ToArray();
+    }
+    /// <summary>
+    /// #1
+    /// </summary>
+    /// <returns></returns>
+    public Dust[] V1vsV0matrix()
+    {
+
+        var names = MineRegressionsWithGold
+            .VisitAttributes
+            .Select(visit => $"{visit}1 vs. {visit}0").ToList();
+
+        return names.Select(GoldDust)
+               .SelectMany(d => d)
+               .Where(d => d.IsInteresting)
+               .OrderByDescending(d => d.Regression.PValue)
+               .ToArray();
     }
 
     public string[] PrintKetoCta(bool header = true)

@@ -7,8 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MineReports\**" />
     <Compile Remove="Old\**" />
+    <EmbeddedResource Remove="MineReports\**" />
     <EmbeddedResource Remove="Old\**" />
+    <None Remove="MineReports\**" />
     <None Remove="Old\**" />
   </ItemGroup>
 

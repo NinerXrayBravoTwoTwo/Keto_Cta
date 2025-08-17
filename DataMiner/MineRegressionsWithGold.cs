@@ -1,4 +1,4 @@
-﻿using MineReports;
+﻿//using MineReports;
 
 namespace DataMiner;
 
@@ -103,12 +103,12 @@ public class MineRegressionsWithGold
 
     protected void DeduplicateAndSortDusts()
     {
-        _dust.Clear();
+        //    _dust.Clear();
         var productionDusts = Deduplication
             .RemoveDuplicatesByGuid(_dust
             .ToArray())
             .OrderByDescending(d => d.Regression.PValue);
-        
+
         _dust.AddRange(productionDusts);
     }
 
@@ -150,6 +150,15 @@ public class MineRegressionsWithGold
         return results.OrderBy(n => n).ToArray();
 
     }
+
+    public static string[] VisitAttributes =
+    {
+        "Tps", "Cac", "Ncpv", "Tcpv", "Pav", "Qangio", "LnTps", "LnCac", "LnNcpv", "LnTcpv", "LnPav", "LnQangio"
+    };
+    public static string[] ElementAttributes =
+    {
+        "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
+    };
 
     private static List<string> GenerateRatioPermutations(
         string[] depVisitAtt, string[] depElementAtt,
@@ -217,25 +226,16 @@ public class MineRegressionsWithGold
         }
     }
 
-    private static List<string> GenerateRatioVsVisitElementPermutations()
+    public static List<string> GenerateRatioVsVisitElementPermutations()
     {
-        string[] visitAttributes =
-        {
-            "Tps", "Cac", "Ncpv", "Tcpv", "Pav", "Qangio", "LnTps", "LnCac", "LnNcpv", "LnTcpv", "LnPav", "LnQangio"
-        };
-        string[] elementAttributes =
-        {
-            "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
-        };
 
-        var permutations = PermutationsA(visitAttributes, elementAttributes)
-                                    .Concat(PermutationsB(visitAttributes, elementAttributes)
-                                    );
+        var permutations = PermutationsA(VisitAttributes, ElementAttributes)
+                                    .Concat(PermutationsB(VisitAttributes, ElementAttributes));
 
         return permutations.OrderBy(p => p).ToList();
     }
 
-    private static List<string> PermutationsA(string[] visitAttributes, string[] elementAttributes)
+    public static List<string> PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
 
@@ -322,7 +322,7 @@ public class MineRegressionsWithGold
         return permutations;
     }
 
-    private static List<string> PermutationsB(string[] visitAttributes, string[] elementAttributes)
+    public static List<string> PermutationsB(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
 
@@ -377,9 +377,27 @@ public class MineRegressionsWithGold
         return permutations;
     }
 
-    public string[] RegressionHistogram()
+    public static List<string> PermutationsCc(string[] visitAttributes, string[] elementAttributes)
     {
-        DeduplicateAndSortDusts();
-        return DustsPvalueHistogram.Build(Dusts.ToArray());
+        List<string> permutations = [];
+        
+        foreach (var depD in elementAttributes) //regressor loop
+            foreach (var depN in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var regN in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                    foreach (var regD in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                    {
+                        for (var x = 0; x < 2; x++)
+                            for (var y = 0; y < 2; y++)
+                                for (var z = 0; z < 2; z++)
+                                    for (var o = 0; o < 2; o++)
+                                        if (!$"{depD}{x}".Equals($"{depN}{y}") && !$"{regN}{z}".Equals(regD))
+                                        {
+                                            permutations.Add($"{depN}{x}/{depD}{y} vs. {regN}{z}/{regD}{o}");
+                                            permutations.Add($"Ln({depN}{x}/{depD}{y}) vs. Ln({regN}{z}/{regD}{o})");
+                                        }
+
+                    }
+
+        return permutations;
     }
 }
