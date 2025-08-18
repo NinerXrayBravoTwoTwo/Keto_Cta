@@ -5,7 +5,8 @@ namespace DataMiner;
 // Assuming GoldMiner class with DustsQueue
 public partial class GoldMiner
 {
-    public static readonly ConcurrentQueue<string> RegressionNameQueue = new ConcurrentQueue<string>();
+    public readonly ConcurrentQueue<string> RegressionNameQueue = new();
+    public readonly ConcurrentDictionary<Guid, Dust> DustDictionary = new();
 }
 
 public class RegressionNamesProcessor
@@ -14,6 +15,7 @@ public class RegressionNamesProcessor
     private readonly List<ProcessedString> _results = new List<ProcessedString>();
     private readonly CancellationTokenSource _cts = new CancellationTokenSource();
     private readonly object _lock = new object();
+    private readonly GoldMiner _goldMiner;
 
     public class ProcessedString
     {
@@ -24,8 +26,9 @@ public class RegressionNamesProcessor
         public bool Processed { get; set; }
     }
 
-    public RegressionNamesProcessor(ConcurrentQueue<string> inputQueue)
+    public RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue)
     {
+        _goldMiner = goldMiner ?? throw new ArgumentNullException(nameof(goldMiner));
         _inputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
         // Start background processing task
         Task.Run(() => ProcessStringsAsync(_cts.Token));
@@ -46,8 +49,14 @@ public class RegressionNamesProcessor
         {
             try
             {
-                if (_inputQueue.TryDequeue(out string input))
+                if (_inputQueue.TryDequeue(out string? input) && !string.IsNullOrEmpty(input))
                 {
+
+                    foreach (var dust in _goldMiner.GoldDust(input))
+                    {
+                        _ = _goldMiner.DustDictionary.TryAdd(dust.UniqueKey, dust);
+                    }
+
                     // Create metadata using LINQ
                     var processed = new ProcessedString
                     {
@@ -135,51 +144,47 @@ public class RegressionNamesProcessor
     }
 }
 
-class Program
-{
-    // Example PermutationsA method (replace with your actual implementation)
-    static IEnumerable<string> PermutationsA(IEnumerable<string> visitAttributes, IEnumerable<string> elementAttributes)
-    {
-        // Example: Combine attributes into strings (replace with your permutation logic)
-        return from v in visitAttributes
-               from e in elementAttributes
-               select $"{v}-{e}";
-    }
+//class Program
+//{
+//    // Example PermutationsA method (replace with your actual implementation)
+//    static IEnumerable<string> PermutationsA(IEnumerable<string> visitAttributes, IEnumerable<string> elementAttributes)
+//    {
+//        // Example: Combine attributes into strings (replace with your permutation logic)
+//        return from v in visitAttributes
+//               from e in elementAttributes
+//               select $"{v}-{e}";
+//    }
 
-    static async Task Main()
-    {
-        // Initialize processor with GoldMiner.DustsQueue
-        var processor = new RegressionNamesProcessor(GoldMiner.RegressionNameQueue);
+//    static async Task Main(GoldMiner goldMiner)
+//    {
+//        // Initialize processor with GoldMiner.DustsQueue
 
-        // Example data
-        var visitAttributes = new List<string> { "visit1", "visit2" };
-        var elementAttributes = new List<string> { "elem1", "elem2" };
+//        var processor = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);//_goldMiner.RegressionNameQueue);
 
-        // Enqueue permutations using LINQ
-        PermutationsA(visitAttributes, elementAttributes)
-            .ToList() // Materialize to avoid multiple enumerations
-            .ForEach(item => GoldMiner.RegressionNameQueue.Enqueue(item));
+//        // Example data
+//        var visitAttributes = new List<string> { "visit1", "visit2" };
+//        var elementAttributes = new List<string> { "elem1", "elem2" };
 
-        // Wait for processing
-        await Task.Delay(2000);
+//        // Wait for processing
+//        await Task.Delay(2000);
 
-        // Example LINQ queries
-        var longStrings = processor.GetProcessedStrings(r => r.Length > 10);
-        Console.WriteLine("\nStrings longer than 10 characters:");
-        foreach (var result in longStrings)
-        {
-            Console.WriteLine($"Input: {result.Input}, Length: {result.Length}");
-        }
+//        // Example LINQ queries
+//        var longStrings = processor.GetProcessedStrings(r => r.Length > 10);
+//        Console.WriteLine("\nStrings longer than 10 characters:");
+//        foreach (var result in longStrings)
+//        {
+//            Console.WriteLine($"Input: {result.Input}, Length: {result.Length}");
+//        }
 
-        var recentStrings = processor.GetProcessedStrings(r => r.Timestamp > DateTime.UtcNow.AddSeconds(-10));
-        Console.WriteLine("\nStrings processed in last 10 seconds:");
-        foreach (var result in recentStrings)
-        {
-            Console.WriteLine($"Input: {result.Input}, Timestamp: {result.Timestamp:O}");
-        }
+//        var recentStrings = processor.GetProcessedStrings(r => r.Timestamp > DateTime.UtcNow.AddSeconds(-10));
+//        Console.WriteLine("\nStrings processed in last 10 seconds:");
+//        foreach (var result in recentStrings)
+//        {
+//            Console.WriteLine($"Input: {result.Input}, Timestamp: {result.Timestamp:O}");
+//        }
 
-        Console.WriteLine("\nPress any key to stop...");
-        Console.ReadKey();
-        processor.Stop();
-    }
-}
+//        Console.WriteLine("\nPress any key to stop...");
+//        Console.ReadKey();
+//        processor.Stop();
+//    }
+//}

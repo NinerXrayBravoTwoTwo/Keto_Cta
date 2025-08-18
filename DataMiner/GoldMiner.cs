@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Keto_Cta;
+﻿using Keto_Cta;
 using LinearRegression;
 
 namespace DataMiner;
@@ -241,116 +240,6 @@ public partial class GoldMiner
         return myData.ToArray();
     }
 
-    //public Dust[] RootAllSetMatrix()
-    //{
-    //    List<Dust> dusts = [];
-
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Omega));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Alpha));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Zeta));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Gamma));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Theta));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Eta));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.BetaUZeta));
-    //    dusts.AddRange(RootStatisticMatrix(SetName.Qangio));
-
-    //    var locDusts = dusts.OrderBy(d => d.Regression.PValue).ToArray();
-
-    //    return locDusts.OrderBy(d => d.Regression.PValue).ToArray();
-    //}
-
-    public Dust[] RootComboRatio()
-    {
-        var names = MineRegressionsWithGold.
-            PermutationsCc(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
-
-
-        var dusts = names.Select(GoldDust)
-            .SelectMany(d => d)
-            //.Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
-
-        int notInteresting = dusts.Count(d => !d.IsInteresting);
-
-        return dusts.Where(d => d.IsInteresting).ToArray();
-    }
-
-    public Dust[] RootRatioMatrix()
-    {
-        var names = MineRegressionsWithGold.
-            PermutationsA(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
-
-        return names.Select(GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
-    }
-    /// <summary>
-    /// #1
-    /// </summary>0
-    /// <returns></returns>
-    public Dust[] V1vsV0matrix()
-    {
-
-        var names = MineRegressionsWithGold.VisitAttributes
-            .Select(visit => $"{visit}1 vs. {visit}0").ToList();
-
-        return names.Select(GoldDust)
-               .SelectMany(d => d)
-               .Where(d => d.IsInteresting)
-               .OrderByDescending(d => d.Regression.PValue)
-               .ToArray();
-    }
-
-    /// <summary>
-    /// #2 Ratio vs Delta
-    /// </summary>
-    /// <returns></returns>
-    public Dust[] RatioVsDelta()
-    {
-        var names = new List<string>();
-        foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
-                    .Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
-            foreach (var eAttr in MineRegressionsWithGold.ElementAttributes
-                         .Where(e => !e.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
-            {
-                names.Add($"{vAttr}1/{vAttr}0 vs. {eAttr}");
-                names.Add($"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
-            }
-
-
-        return names.Select(GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
-    }
-
-    public Dust[] CoolMatrix()
-    {
-        string[] names =
-        [
-            "Cac1/Cac0 vs. Ncpv1/Ncpv0",
-            "Cac0/Cac1 vs. Ncpv0/Ncpv1",
-            "Qangio1/Qangio0 vs. Ncpv1/Ncpv0",
-            "Qangio0/Qangio1 vs. Cac1/Cac0",
-
-            "Ln(Cac1/Cac0) vs. Ln(Ncpv1/Ncpv0)",
-            "Ln(Cac0/Cac1) vs. Ln(Ncpv0/Ncpv1)",
-            "Ln(Qangio1/Qangio0) vs. Ln(Ncpv1/Ncpv0)",
-            "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)",
-
-        ];
-
-
-        return names.Select(GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
-    }
     public string[] PrintKetoCta(bool header = true)
     {
         if (!_setNameToData.TryGetValue(SetName.Omega, out var elements))
@@ -381,6 +270,10 @@ public partial class GoldMiner
 
     public void Clear()
     {
+        RegressionNameQueue.Clear();
+
+        DustDictionary.Clear();
         _selectorCache.Clear();
+
     }
 }

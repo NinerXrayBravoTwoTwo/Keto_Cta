@@ -2,6 +2,17 @@
 
 public static class Deduplication
 {
+    //protected void DeduplicateAndSortDusts()
+    //{
+    //    //    _dust.Clear();
+    //    var productionDusts = Deduplication
+    //        .RemoveDuplicatesByGuid(_dust
+    //            .ToArray())
+    //        .OrderByDescending(d => d.Regression.PValue);
+
+    //    _dust.AddRange(productionDusts);
+    //}
+
     public static List<Dust> RemoveDuplicatesByGuid(Dust[] objects)
     {
         // Use HashSet to track seen GUIDs

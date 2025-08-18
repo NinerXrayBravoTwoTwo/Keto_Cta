@@ -10,6 +10,8 @@ var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
 var miner = new MineRegressionsWithGold(goldMiner);
 
+RegressionNamesProcessor thread = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
+
 #region Chart Specific Regression
 
 
@@ -74,7 +76,7 @@ while (true)
             new Dictionary<string, (string title, int n, double sumPvalue, double minPvalue, Token depToken, Token regToken)>();
 
         // load dust strings
-        foreach (var dust in miner.Dusts)
+        foreach (var dust in goldMiner.DustDictionary.Values)
         {
             var key = dust.RegressionName.ToLower();
             if (names.ContainsKey(key))
@@ -209,39 +211,28 @@ while (true)
     }
     else if (IsMatch(command, @"^mine", RegexOptions.IgnoreCase))
     {
-        var tokens =
-            Match(command, @"^Mine\s*([A-Z]+)?\s*(\d{1}k)?$", RegexOptions.IgnoreCase); //G2 = size, G1=Type of Mining
-        if (!tokens.Success)
+        var result = new CommandParser("mine").Parse(command);
+
+        if (!result.IsSuccess)
         {
-            Console.WriteLine("Invalid 'mine' syntax. Try 'mine root','mine ratios', 'mine deltas' ...");
-            continue;
+            Console.WriteLine("Command dust syntax error; Try 'dust' 50 or 'dust Cac 30'");
         }
-
-        var start = DateTime.Now;
-
-        //miner.GenerateGoldRegressions(goldMiner, 1);
-        
-        var end = DateTime.Now;
-        var interval = end - start;
-
-        if (interval.Seconds > 3)
-            Console.WriteLine(
-                $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
-
-
-        foreach (var row in DustRegressionList.Build(miner.Dusts, Token.Visit, Token.Visit, 30, true))
-            Console.WriteLine(row);
-
-
-        if (interval.Seconds > 3)
-            Console.WriteLine(
-                $"{miner.DustCount} regressions in {interval.TotalMinutes:F3} min.  Regressions/ms: {miner.DustCount / interval.Milliseconds}");
+        else
+        {
+            miner.MineOperation();
+            foreach (var line in DustRegressionList.Build(
+                         goldMiner.DustDictionary.Values, result.SearchTerms,
+                         result.DependentToken, result.RegressionToken,
+                         result.Limit, true))
+            {
+                Console.WriteLine(line);
+            }
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
+        }
     }
     else if (IsMatch(command, @"^clear*", RegexOptions.IgnoreCase))
     {
-        miner.Clear();
         goldMiner.Clear();
-
     }
     else if (IsMatch(command, @"^gamma", RegexOptions.IgnoreCase))
     {
@@ -267,31 +258,43 @@ while (true)
             // turn matrix into AuDust
             // Create a histogram or regression list report
 
-
             switch (filter)
             {
                 case "visit":
-                    miner.AddRange(goldMiner.V1vsV0matrix());
+                    miner.V1vsV0matrix()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("visit", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "ratio":
-                    miner.AddRange(goldMiner.RootRatioMatrix());
+                    miner.RootRatioMatrix()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "comratio":
-                    miner.AddRange(goldMiner.RootComboRatio());
+                    miner.RootComboRatio()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("comratio", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "ratiovsdelta":
-                    miner.AddRange(goldMiner.RatioVsDelta());
+                    miner.RatioVsDelta()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratiovsdelta", StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "cool":
-                    miner.AddRange(goldMiner.CoolMatrix());
+                    miner.CoolMatrix()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("cool", StringComparison.OrdinalIgnoreCase));
                     break;
 
@@ -302,12 +305,12 @@ while (true)
                     break;
             }
         }
-        if (miner.DustCount == 0)
+        if (goldMiner.DustDictionary.Count == 0)
             Console.WriteLine("No dust to report.");
         else
         {
             var report = DustRegressionList.Build(
-                miner.Dusts,
+                goldMiner.DustDictionary.Values,
                 newFilterTerms.ToArray(),
                 result.DependentToken,
                 result.RegressionToken,
@@ -319,7 +322,7 @@ while (true)
             foreach (var row in report)
                 Console.WriteLine(row);
 
-            Console.WriteLine($"Total Regressions: {miner.DustCount}");
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
         }
     }
     else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
@@ -341,19 +344,19 @@ while (true)
         else
         {
             foreach (var line in DustRegressionList.Build(
-                         miner.Dusts, result.SearchTerms,
+                         goldMiner.DustDictionary.Values, result.SearchTerms,
                          result.DependentToken, result.RegressionToken,
                          result.Limit, true))
             {
                 Console.WriteLine(line);
             }
-            Console.WriteLine($"Totatoe ;) #nuggets: {miner.DustCount}");
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
         }
     }
 
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
-        var report = MineReports.DustsPvalueHistogram.Build(miner.Dusts.ToArray());
+        var report = MineReports.DustsPvalueHistogram.Build(goldMiner.DustDictionary.Values.ToArray());
 
         foreach (var line in report)
             Console.WriteLine(line);
@@ -382,7 +385,7 @@ while (true)
         try
         {
             dusts = goldMiner.GoldDust(title[0]);
-            miner.AddRange(dusts);
+            // miner.AddRange(dusts);
         }
         catch (Exception error)
         {

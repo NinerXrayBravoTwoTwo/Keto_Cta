@@ -1,72 +1,19 @@
-﻿using System.Collections.Concurrent;
-
-namespace DataMiner;
+﻿namespace DataMiner;
 
 public class MineRegressionsWithGold(GoldMiner goldMiner)
 {
-    private List<Dust> _dust = [];
-
-    public IEnumerable<Dust> Dusts => _dust;
-
-    public int DustCount => _dust.Count;
-
-    public void Clear()
-    {
-        _dust.Clear();
-    }
-
-    public void AddRange(IEnumerable<Dust> dusts)
-    {
-        _dust.AddRange(dusts);
-        var productionDusts = Deduplication.RemoveDuplicatesByGuid(_dust.ToArray());
-        _dust = productionDusts.ToList();
-    }
-
     // Load dust  Element Delta vs. Element Delta
-    public bool MineOperation(GoldMiner myMine, int limit = 1000) // that is 10k by the way
+    public bool MineOperation()
     {
-        if (DustCount > 200)
-        {
-            Success = true;
-            return Success;
-        }
-        
-        PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => GoldMiner.RegressionNameQueue.Enqueue(item));
-        PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => GoldMiner.RegressionNameQueue.Enqueue(item));
-        PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => GoldMiner.RegressionNameQueue.Enqueue(item));
-        
-        DeduplicateAndSortDusts();
+        PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
         Success = true;
         return Success;
 
-        string[] GenerateElementDeltaCharts(string[] elementAttributes)
-        {
-            List<string> titles = [];
-            for (var x = 0; x < elementAttributes.Length; x++)
-            {
-                for (var y = 0; y < elementAttributes.Length; y++)
-                {
-                    if (x == y) continue;
-                    titles.Add($"{elementAttributes[y]} vs. {elementAttributes[x]}");
-
-                }
-            }
-
-            return titles.ToArray();
-        }
     }
 
-    protected void DeduplicateAndSortDusts()
-    {
-        //    _dust.Clear();
-        var productionDusts = Deduplication
-            .RemoveDuplicatesByGuid(_dust
-                .ToArray())
-            .OrderByDescending(d => d.Regression.PValue);
-
-        _dust.AddRange(productionDusts);
-    }
 
     public bool Success { get; internal set; }
     //* **************************************
@@ -110,84 +57,9 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
     };
 
-    //private static List<string> GenerateRatioPermutations(
-    //    string[] depVisitAtt, string[] depElementAtt,
-    //    string[] regVisitAttributes, string[] regElementAttributes)
-    //{
-    //    var regBothVisits = BothVisits(regVisitAttributes);
-    //    var allRegAttributes = regElementAttributes.Concat(regBothVisits).ToList();
 
-    //    var depBothVisits = BothVisits(depVisitAtt);
-    //    var depAllAttributes = depElementAtt.Concat(depBothVisits).ToArray();
 
-    //    List<string> chartMapA = [];
-    //    List<string> chartMapB = [];
-
-    //    foreach (var numerator in allRegAttributes)
-    //    {
-    //        foreach (var denominator in allRegAttributes)
-    //        {
-    //            if (numerator == denominator)
-    //                continue; // ToDo: Sanity filter method, skip, regressor of 1 is not very exciting :) 
-
-    //            foreach (var dependent in depAllAttributes)
-    //            {
-    //                if (DependentInRegressor(dependent, $"{numerator}/{denominator}")) // ToDo: Sanity method
-    //                    continue;
-
-    //                bool DependentInRegressor(string dep, string regressor)
-    //                {
-    //                    return
-    //                        regressor.ToLower()
-    //                            .Contains(dep.ToLower());
-    //                }
-
-    //                var chartA = $"{dependent} vs. {numerator}/{denominator}";
-    //                chartMapA.Add(chartA);
-
-    //                if (denominator.StartsWith("Ln") || numerator.StartsWith("Ln"))
-    //                    continue; // ToDo: Sanity Filter method, ln(LnVar/var) ?? reject  
-
-    //                // skip Ln / Ln, should use Ln(numerator/denominator) instead
-    //                var chartB = $"{dependent} vs. Ln({numerator}/{denominator})";
-
-    //                // todo: add Ln(depNum/depDen) vs Ln(num/den)
-    //                // todo: Ln(dep_num/dep_den) vs regressor
-    //                // todo: Ln(Sqrt(a*b)) vs regressor
-    //                chartMapB.Add(chartB);
-    //            }
-    //        }
-    //    }
-
-    //    List<string> result = [];
-    //    result.AddRange(chartMapB);
-    //    result.AddRange(chartMapA);
-    //    return result;
-
-    //    List<string> BothVisits(string[] visitAttributes)
-    //    {
-    //        var list = new List<string>();
-    //        foreach (var visit in visitAttributes)
-    //        {
-    //            list.Add($"{visit}0");
-    //            list.Add($"{visit}1");
-    //        }
-
-    //        return list;
-    //    }
-    //}
-
-    //public static List<string> GenerateRatioVsVisitElementPermutations()
-    //{
-
-    //    var permutations =
-    //        PermutationsA(VisitAttributes, ElementAttributes)
-    //        .Concat(PermutationsB(VisitAttributes, ElementAttributes));
-
-    //    return permutations.ToList();
-    //}
-
-    public static List<string> PermutationsA(string[] visitAttributes, string[] elementAttributes)
+    public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
 
@@ -265,10 +137,10 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     }
                 }
 
-        return permutations;
+        return permutations.ToArray();
     }
 
-    public static List<string> PermutationsB(string[] visitAttributes, string[] elementAttributes)
+    public static string[] PermutationsB(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
 
@@ -315,10 +187,10 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                         }
                 }
 
-        return permutations;
+        return permutations.ToArray();
     }
 
-    public static List<string> PermutationsCc(string[] visitAttributes, string[] elementAttributes)
+    public static string[] PermutationsCc(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
         // Visit attributes permutations
@@ -381,58 +253,43 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                                     }
                     }
 
-        return permutations;
+        return permutations.ToArray();
     }
 
-    public Dust[] RootComboRatio()
+    public string[] RootComboRatio()
     {
-        var names = MineRegressionsWithGold.
-            PermutationsCc(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
-
-
-        var dusts = names.Select(goldMiner.GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
+        return MineRegressionsWithGold.PermutationsCc(MineRegressionsWithGold.VisitAttributes,
+                MineRegressionsWithGold.ElementAttributes)
             .ToArray();
 
-        return dusts.Where(d => d.IsInteresting).ToArray();
     }
 
-    public Dust[] RootRatioMatrix()
+    public string[] RootRatioMatrix()
     {
         var names = MineRegressionsWithGold.
             PermutationsA(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
-        return names.Select(goldMiner.GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
+        return names.ToArray();
     }
 
     /// <summary>
     /// #1
     /// </summary>0
     /// <returns></returns>
-    public Dust[] V1vsV0matrix()
+    public string[] V1vsV0matrix()
     {
 
         var names = MineRegressionsWithGold.VisitAttributes
             .Select(visit => $"{visit}1 vs. {visit}0").ToList();
 
-        return names.Select(goldMiner.GoldDust)
-               .SelectMany(d => d)
-               .Where(d => d.IsInteresting)
-               .OrderByDescending(d => d.Regression.PValue)
-               .ToArray();
+        return names.ToArray();
     }
 
     /// <summary>
     /// #2 Ratio vs Delta
     /// </summary>
     /// <returns></returns>
-    public Dust[] RatioVsDelta()
+    public string[] RatioVsDelta()
     {
         var names = new List<string>();
         foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
@@ -444,15 +301,10 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                 names.Add($"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
             }
 
-
-        return names.Select(goldMiner.GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
+        return names.ToArray();
     }
 
-    public Dust[] CoolMatrix()
+    public string[] CoolMatrix()
     {
         string[] names =
         [
@@ -467,18 +319,12 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)",
 
         ];
-
-
-        return names.Select(goldMiner.GoldDust)
-            .SelectMany(d => d)
-            .Where(d => d.IsInteresting)
-            .OrderByDescending(d => d.Regression.PValue)
-            .ToArray();
+        return names.ToArray();
     }
 
 }
 
-public interface IMineRegressionsWithGold   
+public interface IMineRegressionsWithGold
 {
 }
 // end of class MineRegressionsWithGold
