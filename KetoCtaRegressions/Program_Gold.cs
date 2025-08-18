@@ -8,7 +8,7 @@ using static System.Text.RegularExpressions.Regex;
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
 var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
-var miner = new MineRegressionsWithGold();
+var miner = new MineRegressionsWithGold(goldMiner);
 
 #region Chart Specific Regression
 
@@ -219,8 +219,8 @@ while (true)
 
         var start = DateTime.Now;
 
-        miner.GenerateGoldRegressions(goldMiner, 1);
-
+        //miner.GenerateGoldRegressions(goldMiner, 1);
+        
         var end = DateTime.Now;
         var interval = end - start;
 
@@ -263,6 +263,7 @@ while (true)
         foreach (var filter in result.SearchTerms)
         {
             // get regression matrix list
+            // Push matrix into GoldMiner regressionNameQueue
             // turn matrix into AuDust
             // Create a histogram or regression list report
 
