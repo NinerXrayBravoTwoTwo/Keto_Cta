@@ -11,41 +11,9 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         Success = true;
         return Success;
-
     }
 
-
     public bool Success { get; internal set; }
-    //* **************************************
-
-    //public string[] RatioCharts()
-    //{
-    //    //string elementAttString = "DTps,DCac,DNcpv,DTcpv,DPav,DQangio";
-    //    //string elementLnString = "LnDTps,LnDCac,LnDNcpv,LnDTcpv,LnDPav,LnDQangio";
-
-    //    //string visitAtt = "Tps,Cac,Ncpv,Tcpv,Pav,Qangio";
-    //    //string visitLn = "LnTps,LnCac,LnNcpv,LnTcpv,LnPav,LnQangio";
-
-    //    //var independElementAtt = elementAttString.Split(',');
-    //    //var independElementLn = elementLnString.Split(',');
-
-    //    //var independVisitAtt = visitAtt.Split(',');
-    //    //var independVisitLn = visitLn.Split(',');
-
-    //    //var dependElemAtt = elementAttString.Split(',').Concat(elementLnString.Split(',')).ToArray();
-    //    //var dependVisitAtt = visitAtt.Split(',').Concat(visitLn.Split(',')).ToArray();
-
-    //    List<string> results = [];
-    //    results.AddRange(GenerateRatioVsVisitElementPermutations());
-
-    //    //results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitAtt,
-    //    //    independElementAtt));
-
-    //    //results.AddRange(GenerateRatioPermutations(dependVisitAtt, dependElemAtt, independVisitLn, independElementLn));
-
-    //    return results.OrderBy(n => n).ToArray();
-
-    //}
 
     public static string[] VisitAttributes =
     {
@@ -56,8 +24,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     {
         "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
     };
-
-
 
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {
@@ -106,7 +72,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     }
                 }
 
-
         foreach (var reg in elementAttributes) //regressor loop
             foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
@@ -137,6 +102,19 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     }
                 }
 
+        foreach (var reg in visitAttributes) //regressor loop z
+            foreach (var num in ElementAttributes.Where(a => !a.StartsWith("Ln"))) // y
+                foreach (var den in ElementAttributes.Where(a => !a.StartsWith("Ln"))) //x
+                {
+                    for (var x = 0; x < 2; x++)
+                        //for (var y = 0; y < 2; y++)
+                        //for (var z = 0; z < 2; z++)
+                        if (!$"{num}{x}".Equals($"{den}")) // skip if numerator and denominator are the same
+                        {
+                            permutations.Add($"{num}{x}/{den} vs. {reg}");
+                            permutations.Add($"Ln({num}{x}/{den}) vs. {reg}");
+                        }
+                }
         return permutations.ToArray();
     }
 
@@ -144,20 +122,37 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     {
         List<string> permutations = [];
 
+        // EVE
         foreach (var reg in elementAttributes) //regressor loop
             foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 {
 
-                    for (var x = 0; x < 2; x++)
-                        //for (var y = 0; y < 2; y++)
-                        for (var z = 0; z < 2; z++)
-                        {
-                            permutations.Add($"{num}{x}/{den} vs. {reg}{z}");
-                            permutations.Add($"Ln({num}{x}/{den} vs. {reg}{z}");
-                        }
-                }
+                    //for (var x = 0; x < 2; x++)
+                    for (var y = 0; y < 2; y++)
+                    //for (var z = 0; z < 2; z++)
 
+                    {
+                        permutations.Add($"{num}/{den}{y} vs. {reg}");
+                        permutations.Add($"Ln({num}/{den}{y} vs. {reg}");
+                    }
+                }
+        // VEE
+        foreach (var reg in ElementAttributes) //regressor loop
+            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                {
+
+                    for (var x = 0; x < 2; x++)
+                    //for (var y = 0; y < 2; y++)
+                    //for (var z = 0; z < 2; z++)
+
+                    {
+                        permutations.Add($"{num}{x}/{den} vs. {reg}");
+                        permutations.Add($"Ln({num}{x}/{den} vs. {reg}");
+                    }
+                }
+        // EEE
         foreach (var reg in elementAttributes) //regressor loop
             foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
@@ -166,25 +161,26 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     {
                         //for (var x = 0; x < 2; x++)
                         //for (var y = 0; y < 2; y++)
-                        for (var z = 0; z < 2; z++)
+                        //for (var z = 0; z < 2; z++)
                         {
-                            permutations.Add($"{num}/{den} vs. {reg}{z}");
-                            permutations.Add($"Ln({num}/{den} vs. {reg}{z}");
+                            permutations.Add($"{num}/{den} vs. {reg}");
+                            permutations.Add($"Ln({num}/{den} vs. {reg}");
                         }
                     }
                 }
-
-        foreach (var reg in elementAttributes) //regressor loop
-            foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
-                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
+        //VVV
+        foreach (var reg in VisitAttributes) //regressor loop
+            foreach (var num in VisitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var den in VisitAttributes.Where(a => !a.StartsWith("Ln")))
                 {
-                    //for (var x = 0; x < 2; x++)
-                    for (var y = 0; y < 2; y++)
-                        for (var z = 0; z < 2; z++)
-                        {
-                            permutations.Add($"{num}/{den}{y} vs. {reg}{z}");
-                            permutations.Add($"Ln({num}/{den}{y}) vs. {reg}{z}");
-                        }
+                    for (var x = 0; x < 2; x++)
+                        for (var y = 0; y < 2; y++)
+                            for (var z = 0; z < 2; z++)
+                                if (!$"{num}{x}".Equals("{den}{y}"))
+                                {
+                                    permutations.Add($"{num}{x}/{den}{y} vs. {reg}{z}");
+                                    permutations.Add($"Ln({num}{x}/{den}{y}) vs. {reg}{z}");
+                                }
                 }
 
         return permutations.ToArray();
@@ -192,8 +188,17 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
     public static string[] PermutationsCc(string[] visitAttributes, string[] elementAttributes)
     {
+        /*
+         * VVVV
+         * EEEE
+         * VEVE
+         * EVEV
+         * VVEE
+         * EEVV
+         */
         List<string> permutations = [];
-        // Visit attributes permutations
+
+        // Visit attributes permutations VVVV
         foreach (var depD in visitAttributes.Where(a => !a.StartsWith("Ln"))) //regressor loop
             foreach (var depN in visitAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var regN in visitAttributes.Where(a => !a.StartsWith("Ln")))
@@ -217,7 +222,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
                     }
 
-        // Element attributes permutations
+        // Element attributes permutations EEEE
         foreach (var depD in elementAttributes.Where(a => !a.StartsWith("Ln")))
             foreach (var depN in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var regN in elementAttributes.Where(a => !a.StartsWith("Ln")))
@@ -230,27 +235,92 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                         }
                     }
 
-        // Element and Visit attributes permutations
+        // Element and Visit attributes permutations VEVE
         foreach (var depD in visitAttributes.Where(a => !a.StartsWith("Ln")))
             foreach (var depN in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var regN in visitAttributes.Where(a => !a.StartsWith("Ln")))
                     foreach (var regD in elementAttributes.Where(a => !a.StartsWith("Ln")))
                     {
                         for (var x = 0; x < 2; x++)
-                            for (var y = 0; y < 2; y++)
-                                for (var z = 0; z < 2; z++)
-                                    for (var o = 0; o < 2; o++)
-                                    {
-                                        if (!$"{depD}{x}".Equals($"{depN}{y}") && !$"{regN}{z}".Equals($"{regD}{o}"))
-                                        {
-                                            var dependent = $"{depN}{y}/{depD}{x}";
-                                            var regressor = $"{regN}{z}/{regD}{o}";
-                                            if (dependent.Equals(regressor)) continue; // skip if regressor is the same as dependent
+                            //for (var y = 0; y < 2; y++)
+                            for (var z = 0; z < 2; z++)
+                            //  for (var o = 0; o < 2; o++)
+                            {
+                                if (!$"{depD}{x}".Equals($"{depN}") && !$"{regN}{z}".Equals($"{regD}"))
+                                {
+                                    var dependent = $"{depN}{x}/{depD}";
+                                    var regressor = $"{regN}{z}/{regD}";
+                                    if (dependent.Equals(regressor)) continue; // skip if regressor is the same as dependent
 
-                                            permutations.Add($"{depN}{y}/{depD}{x} vs. {regN}{z}/{regD}{o}");
-                                            permutations.Add($"Ln({depN}{y}/{depD}{x}) vs. Ln({regN}{z}/{regD}{o})");
-                                        }
-                                    }
+                                    permutations.Add($"{depN}{x}/{depD} vs. {regN}{z}/{regD}");
+                                    permutations.Add($"Ln({depN}{x}/{depD}) vs. Ln({regN}{z}/{regD})");
+                                }
+                            }
+                    }
+
+        // Visit attributes permutations EVEV
+        foreach (var depD in elementAttributes.Where(a => !a.StartsWith("Ln"))) //regressor loop
+            foreach (var depN in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var regN in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                    foreach (var regD in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                    {
+                        //for (var x = 0; x < 2; x++)
+                        for (var y = 0; y < 2; y++)
+                            //for (var z = 0; z < 2; z++)
+                            for (var o = 0; o < 2; o++)
+                            {
+                                if (!$"{depD}".Equals($"{depN}{y}") && !$"{regN}".Equals($"{regD}{o}"))
+                                {
+                                    var dependent = $"{depN}/{depD}{y}";
+                                    var regressor = $"{regN}/{regD}{o}";
+                                    if (dependent.Equals(regressor)) continue; // skip if regressor is the same as dependent
+
+                                    permutations.Add($"{depN}/{depD}{y} vs. {regN}/{regD}{o}");
+                                    permutations.Add($"Ln({depN}/{depD}{y}) vs. Ln({regN}/{regD}{o})");
+                                }
+                            }
+                    }
+
+
+        // Visit attributes permutations VVEE
+        foreach (var depD in visitAttributes.Where(a => !a.StartsWith("Ln"))) //regressor loop
+            foreach (var depN in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var regN in ElementAttributes.Where(a => !a.StartsWith("Ln")))
+                    foreach (var regD in ElementAttributes.Where(a => !a.StartsWith("Ln")))
+                    {
+                        for (var x = 0; x < 2; x++)
+                            for (var y = 0; y < 2; y++)
+                            //for (var z = 0; z < 2; z++)
+                            //for (var o = 0; o < 2; o++)
+                            {
+                                if (!$"{depD}{x}".Equals($"{depN}{y}") && !$"{regN}".Equals($"{regD}"))
+                                {
+                                    var dependent = $"{depN}{x}/{depD}{y}";
+                                    var regressor = $"{regN}/{regD}";
+                                    if (dependent.Equals(regressor)) continue; // skip if regressor is the same as dependent
+
+                                    permutations.Add($"{depN}{x}/{depD}{y} vs. {regN}/{regD}");
+                                    permutations.Add($"Ln({depN}{x}/{depD}{y}) vs. Ln({regN}/{regD})");
+                                }
+                            }
+
+                    }
+
+        // Visit attributes permutations EEVV
+        foreach (var depD in ElementAttributes.Where(a => !a.StartsWith("Ln"))) //regressor loop
+            foreach (var depN in elementAttributes.Where(a => !a.StartsWith("Ln")))
+                foreach (var regN in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                    foreach (var regD in visitAttributes.Where(a => !a.StartsWith("Ln")))
+                    {
+                        //for (var x = 0; x < 2; x++)
+                        //for (var y = 0; y < 2; y++)
+                        for (var z = 0; z < 2; z++)
+                            for (var o = 0; o < 2; o++)
+                            {
+                                permutations.Add($"{depN}/{depD} vs. {regN}{z}/{regD}{o}");
+                                permutations.Add($"Ln({depN}/{depD}) vs. Ln({regN}{z}/{regD}{o})");
+                            }
+
                     }
 
         return permutations.ToArray();
@@ -321,10 +391,5 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         ];
         return names.ToArray();
     }
-
-}
-
-public interface IMineRegressionsWithGold
-{
 }
 // end of class MineRegressionsWithGold

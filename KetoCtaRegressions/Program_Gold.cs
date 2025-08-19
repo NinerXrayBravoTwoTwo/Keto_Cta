@@ -108,7 +108,7 @@ while (true)
                 && FilterTokens(item.depToken, item.regToken, result.DependentToken, result.RegressionToken))
             {
                 var sb = new StringBuilder();
-                sb.Append($"{item.title}".PadRight(32));
+                sb.Append($"{item.title}".PadRight(40));
                 sb.Append($"{item.depToken} vs {item.regToken}".PadRight(24));
                 sb.Append($"{item.sumPvalue / item.n:F4}".PadRight(14));
                 sb.Append($"{item.minPvalue:F6}".PadRight(14));
@@ -121,24 +121,23 @@ while (true)
 
             bool PassesFilters(string thisTitle, string[]? findMe)
             {
-                var result = true;
+                var isPass = true;
 
-                foreach (var token in findMe)
-                    if (!thisTitle.Contains(token, StringComparison.OrdinalIgnoreCase))
-                        result = false;
+                if (findMe != null)
+                    foreach (var token in findMe)
+                        if (!thisTitle.Contains(token, StringComparison.OrdinalIgnoreCase))
+                            isPass = false;
 
-                return result;
+                return isPass;
             }
-
             bool FilterTokens(Token itemDepToken, Token itemRegToken, Token depToken, Token regToken)
             {
                 return (depToken == Token.None || itemDepToken == depToken)
                        && (regToken == Token.None || itemRegToken == regToken);
             }
-
         }
 
-        Console.WriteLine("regression".PadRight(32) +
+        Console.WriteLine("regression".PadRight(40) +
                           "token".PadRight(24) +
                           "avg p-value".PadRight(14) +
                           "min p-value".PadRight(14)
@@ -353,7 +352,6 @@ while (true)
             Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
         }
     }
-
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
         var report = MineReports.DustsPvalueHistogram.Build(goldMiner.DustDictionary.Values.ToArray());

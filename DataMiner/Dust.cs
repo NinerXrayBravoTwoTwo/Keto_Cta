@@ -22,8 +22,8 @@ public class Dust
             throw;
         }
 
-        var hashMe = $"{RegressionName}{SetName}{regression.RSquared:F5}".ToLower();
-        UniqueKey = GenerateGuidMd5(Regex.Replace(hashMe, @"\s*", string.Empty));
+        var hashMe = $"{RegressionName}{SetName}{regression.RSquared:F7}".ToLower(); // lowercase for uniqueness, R^2 less math overhead
+        UniqueKey = GenerateGuidMd5(Regex.Replace(hashMe, @"\s*", string.Empty)); // Remove whitespace
         DepToken = depToken;
         RegToken = regToken;
     }

@@ -12,7 +12,7 @@ public partial class GoldMiner
 public class RegressionNamesProcessor
 {
     private readonly ConcurrentQueue<string> _inputQueue; // Reference to GoldMiner.DustsQueue
-    private readonly List<ProcessedString> _results = new List<ProcessedString>();
+    private readonly List<ProcessedString> _results = [];
     private readonly CancellationTokenSource _cts = new CancellationTokenSource();
     private readonly object _lock = new object();
     private readonly GoldMiner _goldMiner;
