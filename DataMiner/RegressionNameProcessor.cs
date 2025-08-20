@@ -42,16 +42,22 @@ public class RegressionNamesProcessor
     {
         while (!cancellationToken.IsCancellationRequested)
         {
+            if (_goldMiner.DustQueue.Count > 20000)
+            {
+                // sleep for a couple of seconds if the queue is too large
+                await Task.Delay(2000, cancellationToken);
+            }
             try
             {
                 if (_inputQueue.TryDequeue(out string? input) && !string.IsNullOrEmpty(input))
                 {
+                    // Create dusts and queue them for storage
+                    
 
-                    foreach (var dust in _goldMiner.GoldDust(input))
-                    {
-                        // = _goldMiner.DustDictionary.TryAdd(dust.UniqueKey, dust);
-                        _goldMiner.DustQueue.Enqueue( dust );
-                    }
+                        foreach (var dust in _goldMiner.GoldDust(input))
+                        {
+                            _goldMiner.DustQueue.Enqueue(dust);
+                        }
 
                     // Create metadata using LINQ
                     var processed = new ProcessedString(input)

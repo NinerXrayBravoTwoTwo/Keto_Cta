@@ -279,9 +279,9 @@ public partial class GoldMiner
     public void Clear()
     {
         RegressionNameQueue.Clear();
-
+        DustQueue.Clear();
         DustDictionary.Clear();
-        _selectorCache.Clear();
 
+        _selectorCache.Clear();
     }
 }

@@ -1,10 +1,18 @@
-﻿namespace DataMiner;
+﻿using System.Data;
+
+namespace DataMiner;
 
 public class MineRegressionsWithGold(GoldMiner goldMiner)
 {
     // Load dust  Element Delta vs. Element Delta
+    private bool _doneMineOperation = false;
     public bool MineOperation()
     {
+        if (_doneMineOperation)
+            return false;
+        
+        _doneMineOperation = true;
+        
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
@@ -13,17 +21,22 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         return Success;
     }
 
+    public void Clear()
+    {
+        Success = _doneMineOperation = false;
+    }
+
     public bool Success { get; internal set; }
 
     public static string[] VisitAttributes =
-    {
+    [
         "Tps", "Cac", "Ncpv", "Tcpv", "Pav", "Qangio", "LnTps", "LnCac", "LnNcpv", "LnTcpv", "LnPav", "LnQangio"
-    };
+    ];
 
     public static string[] ElementAttributes =
-    {
+    [
         "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
-    };
+    ];
 
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {

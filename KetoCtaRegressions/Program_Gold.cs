@@ -219,6 +219,11 @@ while (true)
         }
         else
         {
+            if (miner.Success)
+                Console.WriteLine("Woooa!  Cool yer jets there Haus, these regressions already are running.\n"+
+                                  " If you want to start over type 'Clear' which will erase all computed data and clear the queues");
+
+
             miner.MineOperation();
             foreach (var line in DustRegressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
@@ -233,6 +238,7 @@ while (true)
     else if (IsMatch(command, @"^clear*", RegexOptions.IgnoreCase))
     {
         goldMiner.Clear();
+        miner.Clear();
     }
     else if (IsMatch(command, @"^gamma", RegexOptions.IgnoreCase))
     {
