@@ -10,9 +10,9 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     {
         if (_doneMineOperation)
             return false;
-        
+
         _doneMineOperation = true;
-        
+
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));

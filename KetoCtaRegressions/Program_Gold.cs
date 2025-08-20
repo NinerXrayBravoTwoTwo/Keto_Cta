@@ -220,7 +220,7 @@ while (true)
         else
         {
             if (miner.Success)
-                Console.WriteLine("Woooa!  Cool yer jets there Haus, these regressions already are running.\n"+
+                Console.WriteLine("Woooa!  Cool yer jets there Haus, these regressions already are running.\n" +
                                   " If you want to start over type 'Clear' which will erase all computed data and clear the queues");
 
 
@@ -304,8 +304,8 @@ while (true)
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("cool", StringComparison.OrdinalIgnoreCase));
                     break;
 
-                //case "mine":
-                //    break;
+                    //case "mine":
+                    //    break;
             }
         }
         if (goldMiner.DustDictionary.Count == 0)
@@ -400,7 +400,7 @@ while (true)
 
         //localDusts.AddRange(dusts);
         dusts.ToList().ForEach(item => goldMiner.DustQueue.Enqueue(item));
-        
+
         List<SetName> useSets = [];
 
         // User wants specific LMHR sub phenotype set

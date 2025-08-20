@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using Keto_Cta;
 
 namespace DataMiner;
 
@@ -17,9 +16,6 @@ public class GoldDustProcessor
     {
         public Dust Input { get; set; } = input;
         public DateTime Timestamp { get; set; }
-        public Guid UniqueKey { get; set; }
-        public SetName SetName { get; set; }
-        public double Samples{ get; set; }
         public bool Processed { get; set; }
     }
 
@@ -33,7 +29,7 @@ public class GoldDustProcessor
 
     public void AddString(Dust input)
     {
-        if (!input.Key.Equals( Guid.Empty))
+        if (!input.Key.Equals(Guid.Empty))
         {
             _inputQueue.Enqueue(input);
             Console.WriteLine($"Added regression name: {input}");
@@ -48,6 +44,9 @@ public class GoldDustProcessor
             {
                 if (_inputQueue.TryDequeue(out Dust? input) && !input.Key.Equals(Guid.Empty))
                 {
+                    if (!input.IsInteresting)
+                        continue;
+
                     _ = _goldMiner.DustDictionary.TryAdd(input.Key, input);
 
                     // Create metadata using LINQ
@@ -55,9 +54,6 @@ public class GoldDustProcessor
                     {
                         Input = input,
                         Timestamp = DateTime.UtcNow,
-                        SetName = input.SetName,
-                        UniqueKey = input.Key,
-                        Samples = input.Regression.N,
                         Processed = true
                     };
 
@@ -93,9 +89,9 @@ public class GoldDustProcessor
             lock (_lock)
             {
                 // Use LINQ to transform results into CSV format
-                var csvLines = new[] { "Input,Timestamp,UniqueKey,SetName,Samples,Processed" }
+                var csvLines = new[] { "Input,Timestamp,Processed" }
                     .Concat(_results.Select(r =>
-                        $"{r.Input},{r.Timestamp:O}{r.UniqueKey},{r.SetName},{r.Input.Regression.N},{r.Processed}"))
+                        $"{r.Input},{r.Timestamp:O},{r.Input.Regression.N},{r.Processed}"))
                     .ToList();
 
                 File.WriteAllLines("processed_dust.csv", csvLines);
@@ -132,7 +128,7 @@ public class GoldDustProcessor
             if (latest != null)
             {
                 Console.WriteLine($"Latest result: Input={latest.Input}, " +
-                    $"Timestamp={latest.Timestamp:O}, Key={latest.UniqueKey}");
+                    $"Timestamp={latest.Timestamp:O}, Key={latest.Input.Key}");
             }
         }
     }
