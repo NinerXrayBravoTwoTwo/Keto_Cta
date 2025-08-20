@@ -33,7 +33,7 @@ public class GoldDustProcessor
 
     public void AddString(Dust input)
     {
-        if (!input.UniqueKey.Equals( Guid.Empty))
+        if (!input.Key.Equals( Guid.Empty))
         {
             _inputQueue.Enqueue(input);
             Console.WriteLine($"Added regression name: {input}");
@@ -46,9 +46,9 @@ public class GoldDustProcessor
         {
             try
             {
-                if (_inputQueue.TryDequeue(out Dust? input) && !input.UniqueKey.Equals(Guid.Empty))
+                if (_inputQueue.TryDequeue(out Dust? input) && !input.Key.Equals(Guid.Empty))
                 {
-                    _ = _goldMiner.DustDictionary.TryAdd(input.UniqueKey, input);
+                    _ = _goldMiner.DustDictionary.TryAdd(input.Key, input);
 
                     // Create metadata using LINQ
                     var processed = new ProcessedDust(input)
@@ -56,7 +56,7 @@ public class GoldDustProcessor
                         Input = input,
                         Timestamp = DateTime.UtcNow,
                         SetName = input.SetName,
-                        UniqueKey = input.UniqueKey,
+                        UniqueKey = input.Key,
                         Samples = input.Regression.N,
                         Processed = true
                     };

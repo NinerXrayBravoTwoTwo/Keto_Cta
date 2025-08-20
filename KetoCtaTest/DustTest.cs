@@ -26,7 +26,7 @@ namespace KetoCtaTest
             Equal(SetName.Alpha, dust.SetName);
             Equal("Ncpv1 vs Ncpv0", dust.RegressionName);
             False(dust.IsInteresting);
-            NotEqual(Guid.Empty, dust.UniqueKey);
+            NotEqual(Guid.Empty, dust.Key);
         }
     }
 }

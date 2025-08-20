@@ -23,7 +23,7 @@ public class Dust
         }
 
         var hashMe = $"{RegressionName}{SetName}{regression.RSquared:F7}".ToLower(); // lowercase for uniqueness, R^2 less math overhead
-        UniqueKey = GenerateGuidMd5(Regex.Replace(hashMe, @"\s*", string.Empty)); // Remove whitespace
+        Key = GenerateGuidMd5(Regex.Replace(hashMe, @"\s*", string.Empty)); // Remove whitespace
         DepToken = depToken;
         RegToken = regToken;
     }
@@ -43,7 +43,7 @@ public class Dust
     public readonly string RegressionName;
     public RegressionPvalue Regression;
     public bool IsInteresting => Regression is { N: >= 2, PValue: > 0.0 and <= 0.601 };
-    public Guid UniqueKey = Guid.Empty;
+    public Guid Key = Guid.Empty;
 
     public static Guid GenerateGuidMd5(string hashMeHarder)
     {

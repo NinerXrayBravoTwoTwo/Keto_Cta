@@ -20,7 +20,7 @@ public static class Deduplication
 
         // Use List to store unique objects, preserving order
         var result = new List<Dust>(objects.Length);
-        result.AddRange(objects.Where(obj => seenGuids.Add(obj.UniqueKey)));
+        result.AddRange(objects.Where(obj => seenGuids.Add(obj.Key)));
 
         return result;
     }
