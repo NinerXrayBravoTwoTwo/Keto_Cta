@@ -1,7 +1,15 @@
 ﻿using Keto_Cta;
 using LinearRegression;
+using System.Collections.Concurrent;
 
 namespace DataMiner;
+// Assuming GoldMiner class with DustsQueue
+public partial class GoldMiner
+{
+    public readonly ConcurrentDictionary<Guid, Dust> DustDictionary = new();
+    public readonly ConcurrentQueue<string> RegressionNameQueue = new();
+    public readonly ConcurrentQueue<Dust> DustQueue = new();
+}
 
 public partial class GoldMiner
 {

@@ -10,7 +10,8 @@ var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
 var miner = new MineRegressionsWithGold(goldMiner);
 
-RegressionNamesProcessor thread = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
+RegressionNamesProcessor threadA = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
+GoldDustProcessor threadB = new GoldDustProcessor(goldMiner, goldMiner.DustQueue);
 
 #region Chart Specific Regression
 
@@ -226,7 +227,7 @@ while (true)
             {
                 Console.WriteLine(line);
             }
-            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
         }
     }
     else if (IsMatch(command, @"^clear*", RegexOptions.IgnoreCase))
@@ -299,9 +300,6 @@ while (true)
 
                 //case "mine":
                 //    break;
-                default:
-
-                    break;
             }
         }
         if (goldMiner.DustDictionary.Count == 0)
@@ -321,7 +319,7 @@ while (true)
             foreach (var row in report)
                 Console.WriteLine(row);
 
-            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
         }
     }
     else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
@@ -349,15 +347,18 @@ while (true)
             {
                 Console.WriteLine(line);
             }
-            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count}");
+            Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
         }
     }
     else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
     {
-        var report = MineReports.DustsPvalueHistogram.Build(goldMiner.DustDictionary.Values.ToArray());
+        var report = DustsPvalueHistogram.Build(goldMiner.DustDictionary.Values.ToArray());
 
         foreach (var line in report)
             Console.WriteLine(line);
+
+        Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
+
     }
     else if (IsMatch(command, @"help", RegexOptions.IgnoreCase))
     {
@@ -368,7 +369,7 @@ while (true)
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
     {
-        // Parse for subset name, if none default to Omega
+        // Parse for subset name, if none default to Queued Dusts: {goldMiner.DustQueue.Count}
         var tokens = Match(command, vsPattern, RegexOptions.IgnoreCase);
         string[] title = tokens.Groups[4].Success ? command.Split('-') : [command];
 
@@ -392,13 +393,14 @@ while (true)
         }
 
         //localDusts.AddRange(dusts);
-
+        dusts.ToList().ForEach(item => goldMiner.DustQueue.Enqueue(item));
+        
         List<SetName> useSets = [];
 
         // User wants specific LMHR sub phenotype set
 
-        var inst = tokens.Groups[4].Success ? title[1]?.ToLower() : string.Empty;
-        var isAllPhenotypes = inst != null && inst.Contains("all");
+        var inst = tokens.Groups[4].Success ? title[1].ToLower() : string.Empty;
+        var isAllPhenotypes = inst.Contains("all");
 
         // Scan decorations for set names
         foreach (var item in Enum.GetNames(typeof(SetName)))
@@ -414,7 +416,7 @@ while (true)
         if (dusts.Any())
         {
             foreach (var item in useSets)
-                DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic
+                DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic **
 
             foreach (var row in DustRegressionList.Build(dusts.ToArray()))
                 Console.WriteLine(row);
@@ -442,7 +444,5 @@ while (true)
             }
         }
     }
-
-    continue;
 }
 

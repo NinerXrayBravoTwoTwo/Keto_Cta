@@ -28,7 +28,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
-
+        // VVV 
         foreach (var reg in visitAttributes) //regressor loop z
             foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln"))) // y
                 foreach (var den in visitAttributes.Where(a => !a.StartsWith("Ln"))) //x
@@ -43,24 +43,23 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                                 }
                 }
 
-
+        //EVV
         foreach (var reg in elementAttributes) //regressor loop
             foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in visitAttributes.Where(a => !a.StartsWith("Ln")))
                 {
-                    for (var x = 0; x < 2; x++)
-                        for (var y = 0; y < 2; y++)
-                            //for (var z = 0; z < 2; z++)
-                            if (!$"{num}{x}".Equals($"{den}{y}"))
-                            {
-                                permutations.Add($"{num}{x}/{den}{y} vs. {reg}");
-                                permutations.Add($"Ln({num}{x}/{den}{y}) vs. {reg}");
-                            }
+                    //for (var x = 0; x < 2; x++)
+                    for (var y = 0; y < 2; y++)
+                        for (var z = 0; z < 2; z++)
+                        {
+                            permutations.Add($"{num}/{den}{y} vs. {reg}{z}");
+                            permutations.Add($"Ln({num}/{den}{y}) vs. {reg}{z}");
+                        }
                 }
 
-
-        foreach (var reg in elementAttributes) //regressor loop
-            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
+        //VEE
+        foreach (var reg in visitAttributes) //regressor loop
+            foreach (var num in ElementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 {
                     for (var x = 0; x < 2; x++)
@@ -71,7 +70,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                         permutations.Add($"Ln({num}{x}/{den} vs. {reg}");
                     }
                 }
-
+        // EEE
         foreach (var reg in elementAttributes) //regressor loop
             foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
@@ -81,6 +80,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                         //for (var x = 0; x < 2; x++)
                         //for (var y = 0; y < 2; y++)
                         //for (var z = 0; z < 2; z++)
+                        if (!num.Equals(den))
                         {
                             permutations.Add($"{num}/{den} vs. {reg}");
                             permutations.Add($"Ln({num}/{den} vs. {reg}");
@@ -88,8 +88,9 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     }
                 }
 
+        // EVE
         foreach (var reg in elementAttributes) //regressor loop
-            foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
+            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
                 foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
                 {
 
@@ -102,19 +103,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     }
                 }
 
-        foreach (var reg in visitAttributes) //regressor loop z
-            foreach (var num in ElementAttributes.Where(a => !a.StartsWith("Ln"))) // y
-                foreach (var den in ElementAttributes.Where(a => !a.StartsWith("Ln"))) //x
-                {
-                    for (var x = 0; x < 2; x++)
-                        //for (var y = 0; y < 2; y++)
-                        //for (var z = 0; z < 2; z++)
-                        if (!$"{num}{x}".Equals($"{den}")) // skip if numerator and denominator are the same
-                        {
-                            permutations.Add($"{num}{x}/{den} vs. {reg}");
-                            permutations.Add($"Ln({num}{x}/{den}) vs. {reg}");
-                        }
-                }
         return permutations.ToArray();
     }
 

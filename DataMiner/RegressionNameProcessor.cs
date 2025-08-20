@@ -2,12 +2,7 @@
 
 namespace DataMiner;
 
-// Assuming GoldMiner class with DustsQueue
-public partial class GoldMiner
-{
-    public readonly ConcurrentQueue<string> RegressionNameQueue = new();
-    public readonly ConcurrentDictionary<Guid, Dust> DustDictionary = new();
-}
+
 
 public class RegressionNamesProcessor
 {
@@ -17,9 +12,9 @@ public class RegressionNamesProcessor
     private readonly object _lock = new object();
     private readonly GoldMiner _goldMiner;
 
-    public class ProcessedString
+    public class ProcessedString(string input)
     {
-        public string Input { get; set; }
+        public string Input { get; set; } = input;
         public DateTime Timestamp { get; set; }
         public int Length { get; set; }
         public int CharCount { get; set; }
@@ -54,11 +49,12 @@ public class RegressionNamesProcessor
 
                     foreach (var dust in _goldMiner.GoldDust(input))
                     {
-                        _ = _goldMiner.DustDictionary.TryAdd(dust.UniqueKey, dust);
+                        // = _goldMiner.DustDictionary.TryAdd(dust.UniqueKey, dust);
+                        _goldMiner.DustQueue.Enqueue( dust );
                     }
 
                     // Create metadata using LINQ
-                    var processed = new ProcessedString
+                    var processed = new ProcessedString(input)
                     {
                         Input = input,
                         Timestamp = DateTime.UtcNow,
@@ -114,7 +110,7 @@ public class RegressionNamesProcessor
     }
 
     // Query results using LINQ
-    public IEnumerable<ProcessedString> GetProcessedStrings(Func<ProcessedString, bool> predicate = null)
+    public IEnumerable<ProcessedString> GetProcessedStrings(Func<ProcessedString, bool>? predicate = null)
     {
         lock (_lock)
         {
