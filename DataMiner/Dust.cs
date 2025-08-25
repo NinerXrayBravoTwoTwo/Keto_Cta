@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace DataMiner;
 
+[Serializable]
 public class Dust
 {
     public Dust(SetName set, string title, RegressionPvalue regression, Token depToken, Token regToken)
@@ -13,7 +14,7 @@ public class Dust
         SetName = set;
         RegressionName = title;
         try
-        {
+        {   
             Regression = regression ?? throw new ArgumentNullException(nameof(regression));
         }
         catch (Exception error)

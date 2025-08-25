@@ -42,10 +42,10 @@ public class RegressionNamesProcessor
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            if (_goldMiner.DustQueue.Count > 20000)
+            if (_goldMiner.DustQueue.Count > 40000)
             {
                 // sleep for a couple of seconds if the queue is too large
-                await Task.Delay(2000, cancellationToken);
+                await Task.Delay(20000, cancellationToken);
             }
             try
             {

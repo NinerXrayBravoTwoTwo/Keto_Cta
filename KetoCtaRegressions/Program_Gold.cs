@@ -227,7 +227,7 @@ while (true)
             miner.MineOperation();
             foreach (var line in DustRegressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
-                         result.DependentToken, result.RegressionToken,
+                         result.DependentToken, result.RegressionToken, result.SetNames,
                          result.Limit, true))
             {
                 Console.WriteLine(line);
@@ -254,7 +254,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' ...");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' 'cool' ...");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -316,7 +316,8 @@ while (true)
                 goldMiner.DustDictionary.Values,
                 newFilterTerms.ToArray(),
                 result.DependentToken,
-                result.RegressionToken,
+                result.RegressionToken, 
+                result.SetNames,
                 result.Limit);
 
             if (report.Length < 2)
@@ -348,7 +349,7 @@ while (true)
         {
             foreach (var line in DustRegressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
-                         result.DependentToken, result.RegressionToken,
+                         result.DependentToken, result.RegressionToken, result.SetNames,
                          result.Limit, true))
             {
                 Console.WriteLine(line);

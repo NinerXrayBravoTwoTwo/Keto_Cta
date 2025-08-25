@@ -80,7 +80,7 @@ namespace KetoCtaTest
         {
             // Arrange
             var cmdParser = new CommandParser("todo");
-            string cmdRequest = "todo 100 depVisit regLnRatio Omega Alpha";
+            string cmdRequest = "todo 100 depVisit regLnRatio Omega Alpha theta eta";
             // Act
             var result = cmdParser.Parse(cmdRequest);
             // Assert
@@ -89,7 +89,8 @@ namespace KetoCtaTest
             Assert.Empty(result.SearchTerms);
             Assert.Equal(Token.Visit, result.DependentToken);
             Assert.Equal(Token.LnRatio, result.RegressionToken);
-            Assert.Equal([SetName.Omega, SetName.Alpha], result.SetNames);
+            Assert.Equal([SetName.Omega, SetName.Alpha, SetName.Theta, SetName.Eta], result.SetNames);
+            testOutputHelper.WriteLine(result.ToString());
 
         }
 

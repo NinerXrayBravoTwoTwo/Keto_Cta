@@ -12,18 +12,24 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             return false;
 
         _doneMineOperation = true;
+        
+        RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        RootComboRatio().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        RootRatioMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        V1vsV0matrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        CoolMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-
+ 
         Success = true;
         return Success;
     }
 
     public void Clear()
     {
-        Success = _doneMineOperation = false;
+        Success = _doneMineOperation = _isRatioMatrix = _isRatioVsDelta = _isV1vsV0matrix = _isCool = false;
     }
 
     public bool Success { get; internal set; }
@@ -335,20 +341,27 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
     }
 
+    private bool _isRatioMatrix;
     public string[] RootRatioMatrix()
     {
+        if (_isRatioMatrix) return [];
+        _isRatioMatrix = true;
+
         var names = MineRegressionsWithGold.
             PermutationsA(MineRegressionsWithGold.VisitAttributes, MineRegressionsWithGold.ElementAttributes);
 
         return names.ToArray();
     }
 
+    private bool _isV1vsV0matrix;
     /// <summary>
     /// #1
     /// </summary>0
     /// <returns></returns>
     public string[] V1vsV0matrix()
     {
+        if (_isV1vsV0matrix) return [];
+        _isV1vsV0matrix = true;
 
         var names = MineRegressionsWithGold.VisitAttributes
             .Select(visit => $"{visit}1 vs. {visit}0").ToList();
@@ -356,12 +369,18 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         return names.ToArray();
     }
 
+    private bool _isRatioVsDelta;
+
     /// <summary>
     /// #2 Ratio vs Delta
     /// </summary>
     /// <returns></returns>
     public string[] RatioVsDelta()
     {
+        if (_isRatioVsDelta)
+            return [];
+        _isRatioVsDelta = true;
+
         var names = new List<string>();
         foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
                     .Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
@@ -375,8 +394,14 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         return names.ToArray();
     }
 
+    private bool _isCool;
     public string[] CoolMatrix()
     {
+        if (_isCool)
+            return [];
+
+        _isCool = true;
+
         string[] names =
         [
             "Cac1/Cac0 vs. Ncpv1/Ncpv0",

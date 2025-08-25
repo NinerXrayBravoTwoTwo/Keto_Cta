@@ -1,4 +1,5 @@
 ﻿using DataMiner;
+using Keto_Cta;
 
 // ReSharper disable FormatStringProblem
 
@@ -7,7 +8,7 @@ namespace MineReports;
 public static class DustRegressionList
 {
 
-    private const string HeaderFormat = "{0,-35}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
+    private const string HeaderFormat = "{0,-41}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
     private const string RowFormat = HeaderFormat;
 
     public static string[] Build(IEnumerable<Dust>? dusts, bool notNaN = false)
@@ -51,6 +52,7 @@ public static class DustRegressionList
         IEnumerable<Dust>? dusts,
         string[]? matchName,
         Token depToken, Token regToken,
+        SetName[] setNames,
         int limit = 500, bool notNaN = false)
     {
         if (dusts == null) return [];
@@ -61,13 +63,21 @@ public static class DustRegressionList
         {
             if (!double.IsNaN(dust.Regression.PValue)
                 && IsTokenMatch(dust.DepToken, dust.RegToken, depToken, regToken)
-                && IsFilterMatch(dust.RegressionName, matchName))
+                && matchName != null
+                && IsFilterMatch(dust.RegressionName, matchName)
+                && IsSetNameMatch(dust.SetName, setNames))
+                
                 dustBuffer.Add(dust);
         }
         return ReportBuffer(notNaN, dustBuffer
                              .OrderByDescending(d => d.Regression.PValue)
                              .TakeLast(limit))
                              .ToArray();
+    }
+
+    private static bool IsSetNameMatch(SetName dustSetName, SetName[] setNames1)
+    {
+        return setNames1.Length == 0 || setNames1.Contains(dustSetName);
     }
 
     private static bool IsFilterMatch(string thisTitle, string[] findMe)
@@ -123,7 +133,7 @@ public static class DustRegressionList
         string setName = dust.SetName.ToString();
 
         // Truncate strings to avoid overflow, compatible with older C#
-        regressionName = regressionName.Length > 35 ? regressionName.Substring(0, 35) : regressionName;
+        regressionName = regressionName.Length > 41 ? regressionName.Substring(0, 41) : regressionName;
         setName = setName.Length > 10 ? setName.Substring(0, 10) : setName;
 
         var moeX = dust.Regression.MarginOfError();
@@ -139,6 +149,31 @@ public static class DustRegressionList
             FormatNumber(dust.Regression.Slope, 4),
             FormatNumber(dust.Regression.StdDevX, 3),
             FormatNumber(dust.Regression.PValue, 8));
+    }
+
+    private static string FormatRowB(Dust dust)
+    {
+        string regressionName = dust.RegressionName;
+        string setName = dust.SetName.ToString();
+
+        // Truncate strings to avoid overflow, compatible with older C#
+        regressionName = regressionName.Length > 41 ? regressionName.Substring(0, 41) : regressionName;
+        setName = setName.Length > 10 ? setName.Substring(0, 10) : setName;
+
+        var moeX = dust.Regression.MarginOfError();
+        var moeY = dust.Regression.MarginOfError(true);
+        return string.Format(
+            RowFormat,
+            regressionName,
+            setName,
+            FormatNumber(moeX.Mean, 3),
+            FormatNumber(moeX.MarginOfError, 3),
+            FormatNumber(moeY.Mean, 3),
+            FormatNumber(moeY.MarginOfError, 3),
+            FormatNumber(dust.Regression.Slope, 4),
+            FormatNumber(dust.Regression.StdDevX, 3),
+            FormatNumber(dust.Regression.PValue, 8));
+           //var xxx =  dust.Regression.ConfidenceIntervalPlus();
     }
 
     private static string FormatNumber(double value, int precision)

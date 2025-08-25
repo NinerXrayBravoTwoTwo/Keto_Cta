@@ -1,4 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json;
 
 namespace DataMiner;
 
@@ -8,14 +11,15 @@ public class GoldDustProcessor
 {
     private readonly ConcurrentQueue<Dust> _inputQueue; // Reference to GoldMiner.DustsQueue
     private readonly List<ProcessedDust> _results = [];
-    private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+    private readonly CancellationTokenSource _cts = new();
     private readonly object _lock = new object();
     private readonly GoldMiner _goldMiner;
 
-    public class ProcessedDust(Dust input)
+    public class ProcessedDust(Dust input, string comment)
     {
         public Dust Input { get; set; } = input;
         public DateTime Timestamp { get; set; }
+        public string Comment { get; set; } = comment;
         public bool Processed { get; set; }
     }
 
@@ -47,27 +51,7 @@ public class GoldDustProcessor
                     if (!input.IsInteresting)
                         continue;
 
-                    _ = _goldMiner.DustDictionary.TryAdd(input.Key, input);
-
-                    // Create metadata using LINQ
-                    var processed = new ProcessedDust(input)
-                    {
-                        Input = input,
-                        Timestamp = DateTime.UtcNow,
-                        Processed = true
-                    };
-
-                    // Add to results
-                    lock (_lock)
-                    {
-                        _results.Add(processed);
-
-                        // Periodically save to CSV
-                        if (_results.Count % 10 == 0)
-                        {
-                            SaveToCsv();
-                        }
-                    }
+                    WriteToDustDictionary(input);
                 }
                 else
                 {
@@ -82,6 +66,35 @@ public class GoldDustProcessor
         }
     }
 
+    private void WriteToDustDictionary(Dust input)
+    {
+        string error = string.Empty;
+        if (!_goldMiner.DustDictionary.TryAdd(input.Key, input))
+        {
+            error = $"Key {input} already exists in DustDictionary";
+        }
+
+        var processed = new ProcessedDust(input, error)
+        {
+            Input = input,
+            Timestamp = DateTime.UtcNow,
+            Comment = error,
+            Processed = true
+        };
+
+        // Add to results
+        lock (_lock)
+        {
+            _results.Add(processed);
+
+            // Periodically save to CSV
+            if (_results.Count % 10 == 0)
+            {
+                SaveToCsv();
+            }
+        }
+    }
+
     private void SaveToCsv()
     {
         try
@@ -89,9 +102,9 @@ public class GoldDustProcessor
             lock (_lock)
             {
                 // Use LINQ to transform results into CSV format
-                var csvLines = new[] { "Input,Timestamp,Processed" }
+                var csvLines = new[] { "Input,Timestamp,Comment,Processed" }
                     .Concat(_results.Select(r =>
-                        $"{r.Input},{r.Timestamp:O},{r.Input.Regression.N},{r.Processed}"))
+                        $"{r.Input},{r.Timestamp:O},{r.Comment},{r.Processed}"))
                     .ToList();
 
                 File.WriteAllLines("processed_dust.csv", csvLines);

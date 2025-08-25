@@ -73,7 +73,7 @@ public class CommandParser(string cmdName)
                     Enum.TryParse(param.Substring("dep".Length), true, out depToken);
                     continue;
                 }
-                if (Enum.TryParse(param, out SetName setName))
+                if (Enum.TryParse(param,true, out SetName setName))
                 {
                     listSets.Add(setName);
                     continue;
