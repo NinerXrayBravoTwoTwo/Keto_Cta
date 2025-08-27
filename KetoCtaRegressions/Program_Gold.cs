@@ -3,6 +3,7 @@ using Keto_Cta;
 using MineReports;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -46,7 +47,7 @@ Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regre
 
 // Preload a small set
 //miner.AddRange(goldMiner.RootAllSetMatrix());
-var regressionList = new DustRegressionList(RegressionReport.ConfInterval);
+var regressionList = new DustRegressionList(RegressionReport.PValue);
 
 while (true)
 {
@@ -348,9 +349,18 @@ while (true)
     {
         var result = new CommandParser("dust").Parse(command);
 
+        foreach (var item in result.SearchTerms)
+        {
+            if (item.Contains("pvalue", StringComparison.InvariantCulture))
+                regressionList = new DustRegressionList(RegressionReport.PValue);
+            else if (item.Contains("conf", StringComparison.InvariantCulture))
+                regressionList = new DustRegressionList(RegressionReport.ConfInterval);
+        }
+
+
         if (!result.IsSuccess)
         {
-            Console.WriteLine("Command dust syntax error; Try 'dust' 50 or 'dust Cac 30'");
+            Console.WriteLine("Command dust syntax error; Dust Report options 'ConfInterval or pvalue' Try 'dust' 50 or 'dust Cac 30'");
         }
         else
         {

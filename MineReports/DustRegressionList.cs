@@ -8,7 +8,7 @@ namespace MineReports;
 
 public enum RegressionReport
 {
-    Basic = 1,
+    PValue = 1,
     ConfInterval = 2
 }
 
