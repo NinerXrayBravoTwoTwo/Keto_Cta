@@ -46,6 +46,7 @@ Console.WriteLine("\nPress Enter to exit or type a Chart Title to view its regre
 
 // Preload a small set
 //miner.AddRange(goldMiner.RootAllSetMatrix());
+var regressionList = new DustRegressionList(RegressionReport.ConfInterval);
 
 while (true)
 {
@@ -225,7 +226,7 @@ while (true)
 
 
             miner.MineOperation();
-            foreach (var line in DustRegressionList.Build(
+            foreach (var line in regressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
                          result.DependentToken, result.RegressionToken, result.SetNames,
                          result.Limit, true))
@@ -254,7 +255,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' 'cool' ...");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' 'cool' 'LnStudy'...");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -300,8 +301,14 @@ while (true)
                     miner.CoolMatrix()
                         .ToList()
                         .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("cool", StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "lnstudy":
+                    miner.LnStudy()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("lnstudy", StringComparison.OrdinalIgnoreCase));
                     break;
 
                     //case "mine":
@@ -312,11 +319,11 @@ while (true)
             Console.WriteLine("No dust to report.");
         else
         {
-            var report = DustRegressionList.Build(
+            var report = regressionList.Build(
                 goldMiner.DustDictionary.Values,
                 newFilterTerms.ToArray(),
                 result.DependentToken,
-                result.RegressionToken, 
+                result.RegressionToken,
                 result.SetNames,
                 result.Limit);
 
@@ -347,7 +354,7 @@ while (true)
         }
         else
         {
-            foreach (var line in DustRegressionList.Build(
+            foreach (var line in regressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
                          result.DependentToken, result.RegressionToken, result.SetNames,
                          result.Limit, true))
@@ -425,7 +432,7 @@ while (true)
             foreach (var item in useSets)
                 DustsToCvs(dusts.Where(d => d.SetName.Equals(item))); // ** Majic **
 
-            foreach (var row in DustRegressionList.Build(dusts.ToArray()))
+            foreach (var row in regressionList.Build(dusts.ToArray()))
                 Console.WriteLine(row);
 
             Console.WriteLine("Enter another Chart Title or 'exit' to quit:");
@@ -442,7 +449,7 @@ while (true)
                     continue;
                 }
 
-                foreach (var row in DustRegressionList.Build(dusts.ToArray()))
+                foreach (var row in regressionList.Build(dusts.ToArray()))
                     Console.WriteLine(row);
             }
             catch (KeyNotFoundException)

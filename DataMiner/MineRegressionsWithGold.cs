@@ -12,7 +12,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             return false;
 
         _doneMineOperation = true;
-        
+
         RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         RootComboRatio().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         RootRatioMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
@@ -22,7 +22,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
- 
+
         Success = true;
         return Success;
     }
@@ -414,6 +414,33 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Ln(Qangio1/Qangio0) vs. Ln(Ncpv1/Ncpv0)",
             "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)",
 
+        ];
+        return names.ToArray();
+    }
+
+    private bool _isLnStudy;
+    public string[] LnStudy()
+    {
+        if (_isLnStudy)
+            return [];
+
+        _isCool = true;
+
+        string[] names =
+        [
+            "Cac1 vs. Cac0",
+            "LnCac1 vs. LnCac0",
+            "Cac1/Cac0 vs DCac",
+            "Cac0/Cac1 vs DCac",
+            "Ln(Cac1/LnCac0) vs. LnDCac",
+            "Ln(Cac0/LnCac1) vs. LnDCac",
+
+            "Ncpv1 vs. Ncpv0",
+            "LnNcpv1 vs. LnNcpv0",
+            "Ncpv1/Ncpv0 vs DNcpv",
+            "Ncpv0/Ncpv1 vs DNcpv",
+            "Ln(Ncpv1/LnNcpv0) vs. LnDNcpv",
+            "Ln(Ncpv0/LnNcpv1) vs. LnDNcpv",
         ];
         return names.ToArray();
     }
