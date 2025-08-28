@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="DustRegressionList.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\DataMiner\DataMiner.csproj" />
 	</ItemGroup>
 	

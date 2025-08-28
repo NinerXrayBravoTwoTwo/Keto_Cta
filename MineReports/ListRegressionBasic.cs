@@ -12,7 +12,7 @@ namespace MineReports
         private const string HeaderFormat = "{0,-41}{1,-10}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
         private const string RowFormat = HeaderFormat;
 
-        public  List<string> ReportBuffer(bool notNaN, IEnumerable<Dust> orderedDusts)
+        public List<string> ReportBuffer(bool notNaN, IEnumerable<Dust> orderedDusts)
         {
             var reportBuffer = new List<string>
         {
@@ -28,14 +28,8 @@ namespace MineReports
                 "xSD",
                 "p-value")
         };
-
-            foreach (var dust in orderedDusts)
-            {
-                if (notNaN && double.IsNaN(dust.Regression.PValue))
-                    continue;
-
-                reportBuffer.Add(FormatRow(dust));
-            }
+            
+            reportBuffer.AddRange(from dust in orderedDusts where !notNaN || !double.IsNaN(dust.Regression.PValue) select FormatRow(dust));
 
             return reportBuffer;
         }
