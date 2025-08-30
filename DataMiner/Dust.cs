@@ -14,7 +14,7 @@ public class Dust
         SetName = set;
         RegressionName = title;
         try
-        {   
+        {
             Regression = regression ?? throw new ArgumentNullException(nameof(regression));
         }
         catch (Exception error)

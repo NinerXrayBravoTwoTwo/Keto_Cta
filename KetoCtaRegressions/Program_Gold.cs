@@ -3,7 +3,6 @@ using Keto_Cta;
 using MineReports;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -316,6 +315,7 @@ while (true)
                     //    break;
             }
         }
+
         if (goldMiner.DustDictionary.Count == 0)
             Console.WriteLine("No dust to report.");
         else
@@ -339,10 +339,27 @@ while (true)
     }
     else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
     {
-        var myData = goldMiner.PrintKetoCta();
-        foreach (var item in myData)
+        var result = new CommandParser("keto").Parse(command);
+
+        if (result.SearchTerms is { Length: 0 })
+            Console.WriteLine("Keto-CTA data report options: Extend, Original, Plaque Half Life Calc");
+
+        foreach (var filter in result.SearchTerms)
         {
-            Console.WriteLine(item);
+            string[] reportRows = [];
+            switch (filter)
+            {
+                case "extended":
+                    reportRows = goldMiner.PrintKetoCtaExtended();
+                    break;
+
+                case "halflife":
+                    reportRows = goldMiner.HalfLife(result.SetNames);
+                    break;
+            }
+
+            foreach (var row in reportRows)
+                Console.WriteLine(row);
         }
     }
     else if (IsMatch(command, @"^dust", RegexOptions.IgnoreCase))

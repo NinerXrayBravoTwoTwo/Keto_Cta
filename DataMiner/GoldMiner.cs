@@ -1,6 +1,7 @@
 ﻿using Keto_Cta;
 using LinearRegression;
 using System.Collections.Concurrent;
+using System.Data;
 
 namespace DataMiner;
 // Assuming GoldMiner class with DustsQueue
@@ -248,7 +249,37 @@ public partial class GoldMiner
         return myData.ToArray();
     }
 
-    public string[] PrintKetoCta(bool header = true)
+    public string[] HalfLife(SetName[] resultSetNames)
+    {
+        // convert SetName into LeafSetName
+        LeafSetName[] leafSetNames = resultSetNames.Select(setName => setName switch
+            {
+                SetName.Zeta => LeafSetName.Zeta,
+                SetName.Gamma => LeafSetName.Gamma,
+                SetName.Eta => LeafSetName.Eta,
+                SetName.Theta => LeafSetName.Theta,
+                _ => throw new ArgumentOutOfRangeException(nameof(resultSetNames), $"Unknown SetName: {setName}")
+            })
+            .ToArray();
+
+        List<string> myData =
+        [
+            "Id,subSet, Cac 0,Cac 1,Ncpv 0,Ncpv 1"
+        ];
+
+        myData.AddRange(from element in Elements
+                        where IsSetNameMatch(element.MemberSet, leafSetNames)
+                        select $"{element.Id},{element.MemberSet},{element.Visits[0].Cac},{element.Visits[1].Cac},{element.Visits[0].Ncpv},{element.Visits[1].Ncpv}");
+
+        return myData.ToArray();
+    }
+
+    private static bool IsSetNameMatch(LeafSetName dustSetName, LeafSetName[] setNames)
+    {
+        return setNames.Length == 0 || setNames.Contains(dustSetName);
+    }
+
+    public string[] PrintKetoCtaExtended(bool header = true)
     {
         if (!_setNameToData.TryGetValue(SetName.Omega, out var elements))
         {

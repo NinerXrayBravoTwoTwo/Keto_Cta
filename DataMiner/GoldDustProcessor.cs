@@ -1,7 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json;
 
 namespace DataMiner;
 
@@ -48,8 +45,8 @@ public class GoldDustProcessor
             {
                 if (_inputQueue.TryDequeue(out Dust? input) && !input.Key.Equals(Guid.Empty))
                 {
-                    if (!input.IsInteresting)
-                        continue;
+                    //if (!input.IsInteresting)
+                    //    continue;
 
                     WriteToDustDictionary(input);
                 }

@@ -28,7 +28,7 @@ namespace MineReports
                 "xSD",
                 "p-value")
         };
-            
+
             reportBuffer.AddRange(from dust in orderedDusts where !notNaN || !double.IsNaN(dust.Regression.PValue) select FormatRow(dust));
 
             return reportBuffer;
