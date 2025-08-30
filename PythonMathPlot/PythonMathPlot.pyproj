@@ -25,6 +25,7 @@
     <Compile Include="fly_through_nonstereo.py" />
     <Compile Include="DeltaVsDeltaRegression.py" />
     <Compile Include="CACvsNCPV3dPlot.py" />
+    <Compile Include="halflife-omega.py" />
     <Compile Include="halflife-zeta.py" />
     <Compile Include="halflife-gamma.py" />
     <Compile Include="QAngio3d_three.py" />
