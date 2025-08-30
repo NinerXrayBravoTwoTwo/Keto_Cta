@@ -271,7 +271,45 @@ public partial class GoldMiner
                         where IsSetNameMatch(element.MemberSet, leafSetNames)
                         select $"{element.Id},{element.MemberSet},{element.Visits[0].Cac},{element.Visits[1].Cac},{element.Visits[0].Ncpv},{element.Visits[1].Ncpv}");
 
+        ////return myData.ToArray();
+
+        var Id = (from element in Elements where IsSetNameMatch(element.MemberSet, leafSetNames) select element.Id)
+            .ToList();
+
+        var Cac0 = (from element in Elements
+                    where IsSetNameMatch(element.MemberSet, leafSetNames)
+                    select element.Visits[0].Cac).ToList();
+        var Cac1 = (from element in Elements
+                    where IsSetNameMatch(element.MemberSet, leafSetNames)
+                    select element.Visits[1].Cac).ToList();
+        var Ncpv0 = (from element in Elements
+                     where IsSetNameMatch(element.MemberSet, leafSetNames)
+                     select element.Visits[0].Ncpv).ToList();
+        var Ncpv1 = (from element in Elements
+                     where IsSetNameMatch(element.MemberSet, leafSetNames)
+                     select element.Visits[1].Ncpv).ToList();
+
+        myData.AddRange(
+        [
+            "\n\n# Input dataset\ndata = {",
+            "\t\"Id\": [" + string.Join(',', Id) + "],",
+            "\t\"Cac0\": [" + string.Join(',', Cac0) + "],",
+            "\t\"Cac1\": [" + string.Join(',', Cac1) + "],",
+            "\t\"Ncpv0\": [" + string.Join(',', Ncpv0) + "],",
+            "\t\"Ncpv1\": [" + string.Join(',', Ncpv1) + "]\n}"
+
+        ]);
+
         return myData.ToArray();
+        /*
+             * # Input dataset
+               data = {
+                   "Id": [62,76,78,79,80,82,83,84,85,86,88,90,93,96,98,99,100],
+                   "Cac0": [27,69,81,53,66,191,217,17,222,211,88,388,199,556,265,194,221],
+                   "Cac1": [41,105,97,103,97,218,245,35,253,254,100,400,230,768,322,272,256],
+                   "Ncpv0": [45.3,53.4,82.4,130.5,78,233.8,169,58.9,244.9,365.6,238.5,147.2,290.8,255.8,200.3,71.8,450.6],
+                   "Ncpv1": [51.6,112.2,168.4,179,89.6,345.8,182.2,76.4,357.9,428.5,307.3,194.8,378.9,389.6,275.1,103.6,606.5]
+             */
     }
 
     private static bool IsSetNameMatch(LeafSetName dustSetName, LeafSetName[] setNames)

@@ -25,9 +25,10 @@
     <Compile Include="fly_through_nonstereo.py" />
     <Compile Include="DeltaVsDeltaRegression.py" />
     <Compile Include="CACvsNCPV3dPlot.py" />
+    <Compile Include="halflife-zeta.py" />
+    <Compile Include="halflife-gamma.py" />
     <Compile Include="QAngio3d_three.py" />
     <Compile Include="NewAnaglyph.py" />
-    <Compile Include="Qangio graph.py" />
     <Compile Include="QAngio3d_two.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
