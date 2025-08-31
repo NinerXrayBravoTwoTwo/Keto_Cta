@@ -97,8 +97,7 @@ public class Element
     public double LnDTcpv => Visit.Ln(DTcpv);
     public double LnDPav => Visit.Ln(DPav);
     public double LnDQangio => Visit.Ln(DQangio);
-
-
+    
     /*
        if v2 > v1:  # growth
            return dt * math.log(2) / math.log(v2 / v1)

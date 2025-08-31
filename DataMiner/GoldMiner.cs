@@ -295,6 +295,7 @@ public partial class GoldMiner
 
         return reportBuffer.ToArray();
     }
+    
     private static string FormatNumber(double value, int precision)
     {
         if (double.IsNaN(value))
