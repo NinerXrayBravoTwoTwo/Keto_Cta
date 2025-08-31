@@ -249,6 +249,67 @@ public partial class GoldMiner
         return myData.ToArray();
     }
 
+    public string[] PrintKetoCtaGrowth(SetName[] setNames)
+    {
+        if (!setNames.Any() || !_setNameToData.TryGetValue(setNames[0], out var elements))
+        {
+            return [];
+        }
+        const string HeaderFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,10:F0}{5,14:F4}{6,10:F0}{7,10:F0}{8,10:F2}{9,14:F4}{10,16:F4}";
+        const string RowFormat = HeaderFormat;
+
+        var reportBuffer = new List<string>
+        {
+            string.Format(
+                HeaderFormat,
+                "Id",
+                "Set",
+                "Cac0",
+                "Cac1",
+                "DCac",
+                "Cac-dbl-yrs",
+                "Ncpv0",
+                "Ncpv1",
+                "DNcpv",
+                "Ncpv-dbl-yrs",
+                "QAngio-dbl-yrs")
+        };
+
+        foreach (var element in elements.OrderByDescending(e => e.GrowthNcpv))
+        {
+            reportBuffer.Add(string.Format(
+                RowFormat,
+                element.Id,
+                element.MemberSet,
+                FormatNumber(element.Visits[0].Cac, 0),
+                FormatNumber(element.Visits[1].Cac, 0),
+                FormatNumber(element.DCac, 0),
+                FormatNumber(element.GrowthCac, 5),
+                FormatNumber(element.Visits[0].Ncpv, 1),
+                FormatNumber(element.Visits[1].Ncpv, 1),
+                FormatNumber(element.DNcpv, 1),
+                FormatNumber(element.GrowthNcpv, 5),
+                FormatNumber(element.GrowthQangio, 5)
+            ));
+        }
+
+        return reportBuffer.ToArray();
+    }
+    private static string FormatNumber(double value, int precision)
+    {
+        if (double.IsNaN(value))
+        {
+            return "NaN".PadLeft(precision + 2); // +2 for decimal point and sign
+        }
+
+        if (double.IsInfinity(value))
+        {
+            return (value > 0 ? "Inf" : "-Inf").PadLeft(precision + 2);
+        }
+
+        return value.ToString($"F{precision}").PadLeft(precision + 2);
+    }
+
     public string[] HalfLife(SetName[] resultSetNames)
     {
         // convert SetName into LeafSetName

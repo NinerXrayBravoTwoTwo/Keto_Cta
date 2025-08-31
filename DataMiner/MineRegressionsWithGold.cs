@@ -41,7 +41,8 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
     public static string[] ElementAttributes =
     [
-        "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio"
+        "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio",
+        "GrowthCac", "GrowthNcpv", "GrowthQangio"
     ];
 
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
@@ -384,11 +385,14 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         var names = new List<string>();
         foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
                     .Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
+
             foreach (var eAttr in MineRegressionsWithGold.ElementAttributes
                          .Where(e => !e.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
             {
                 names.Add($"{vAttr}1/{vAttr}0 vs. {eAttr}");
-                names.Add($"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
+                names.Add(eAttr.Contains("growth", StringComparison.InvariantCultureIgnoreCase) // growth or half-life is already log transformed, compounded log transforms are futile, you will become noise.
+                    ? $"Ln({vAttr}1/{vAttr}0) vs. {eAttr}"
+                    : $"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
             }
 
         return names.ToArray();
@@ -430,15 +434,15 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         [
             "Cac1 vs. Cac0",
             "LnCac1 vs. LnCac0",
-            "Cac1/Cac0 vs DCac",
-            "Cac0/Cac1 vs DCac",
+            "Cac1/Cac0 vs. DCac",
+            "Cac0/Cac1 vs. DCac",
             "Ln(Cac1/LnCac0) vs. LnDCac",
             "Ln(Cac0/LnCac1) vs. LnDCac",
 
             "Ncpv1 vs. Ncpv0",
             "LnNcpv1 vs. LnNcpv0",
-            "Ncpv1/Ncpv0 vs DNcpv",
-            "Ncpv0/Ncpv1 vs DNcpv",
+            "Ncpv1/Ncpv0 vs. DNcpv",
+            "Ncpv0/Ncpv1 vs. DNcpv",
             "Ln(Ncpv1/LnNcpv0) vs. LnDNcpv",
             "Ln(Ncpv0/LnNcpv1) vs. LnDNcpv",
         ];

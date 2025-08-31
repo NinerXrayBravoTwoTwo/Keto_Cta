@@ -356,6 +356,10 @@ while (true)
                 case "halflife":
                     reportRows = goldMiner.HalfLife(result.SetNames);
                     break;
+
+                case "growth":
+                    reportRows = goldMiner.PrintKetoCtaGrowth(result.SetNames);
+                    break;
             }
 
             foreach (var row in reportRows)
