@@ -39,7 +39,7 @@ public class DustRegressionList(RegressionReport reportType)
         var orderedDusts = ApplySorting(
             dusts.Where(d => !double.IsNaN(d.Regression.PValue)));
 
-        return Report.ReportBuffer(notNaN, orderedDusts).ToArray();
+        return Report.ReportBuffer(orderedDusts).ToArray();
     }
 
     public string[] Build(IEnumerable<Dust>? dusts, int limit, bool notNaN = false)
@@ -50,7 +50,7 @@ public class DustRegressionList(RegressionReport reportType)
             dusts.Where(d => !double.IsNaN(d.Regression.PValue)))
             .TakeLast(limit);
 
-        return Report.ReportBuffer(notNaN, orderedDusts).ToArray();
+        return Report.ReportBuffer(orderedDusts).ToArray();
     }
 
     public string[] Build(IEnumerable<Dust>? dusts, Token depToken, Token regToken, int limit, bool notNaN = false)
@@ -63,7 +63,7 @@ public class DustRegressionList(RegressionReport reportType)
                 && IsTokenMatch(d.DepToken, d.RegToken, depToken, regToken)))
             .TakeLast(limit);
 
-        return Report.ReportBuffer(notNaN, orderedDusts).ToArray();
+        return Report.ReportBuffer(orderedDusts).ToArray();
     }
 
     public string[] Build(
@@ -77,14 +77,15 @@ public class DustRegressionList(RegressionReport reportType)
 
         var filteredDusts = dusts
             .Where(d =>
-                IsTokenMatch(d.DepToken, d.RegToken, depToken, regToken)
+                (!double.IsNaN(d.Regression.PValue) || !notNaN)
+                && IsTokenMatch(d.DepToken, d.RegToken, depToken, regToken)
                 && (matchName == null || IsFilterMatch(d.RegressionName, matchName))
                 && IsSetNameMatch(d.SetName, setNames));
 
         var orderedDusts = ApplySorting(filteredDusts)
             .TakeLast(limit);
 
-        return Report.ReportBuffer(notNaN, orderedDusts).ToArray();
+        return Report.ReportBuffer(orderedDusts).ToArray();
     }
 
     private static bool IsSetNameMatch(SetName dustSetName, SetName[] setNames)

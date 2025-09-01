@@ -4,7 +4,7 @@ namespace MineReports;
 
 public interface IRegressionReport
 {
-    public List<string> ReportBuffer(bool notNaN, IEnumerable<Dust> orderedDusts);
+    public List<string> ReportBuffer( IEnumerable<Dust> orderedDusts);
     public static abstract IRegressionReport CreateInstance();
 
 }

@@ -255,7 +255,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comratio', 'ratiovsdelta' 'cool' 'LnStudy'...");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comRatio', 'ratioVsDelta' 'cool' 'LnStudy'...");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -265,7 +265,7 @@ while (true)
             // turn matrix into AuDust
             // Create a histogram or regression list report
 
-            switch (filter)
+            switch (filter.ToLower())
             {
                 case "visit":
                     miner.V1vsV0matrix()
@@ -282,7 +282,7 @@ while (true)
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
                     break;
 
-                case "comratio":
+                case "comRatio":
                     miner.RootComboRatio()
                         .ToList()
                         .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
@@ -311,22 +311,23 @@ while (true)
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("lnstudy", StringComparison.OrdinalIgnoreCase));
                     break;
 
-                    //case "mine":
-                    //    break;
+                //case "mine":
+                //    break;
+                default:
+                    newFilterTerms = result.SearchTerms;
+                    break;
             }
         }
 
         if (goldMiner.DustDictionary.Count == 0)
+
             Console.WriteLine("No dust to report.");
         else
         {
             var report = regressionList.Build(
-                goldMiner.DustDictionary.Values,
-                newFilterTerms.ToArray(),
-                result.DependentToken,
-                result.RegressionToken,
-                result.SetNames,
-                result.Limit);
+                goldMiner.DustDictionary.Values, newFilterTerms.ToArray(),
+                result.DependentToken, result.RegressionToken,
+                result.SetNames, result.Limit, true);
 
             if (report.Length < 2)
                 Console.WriteLine(result);

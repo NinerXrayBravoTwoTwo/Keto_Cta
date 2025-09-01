@@ -7,7 +7,7 @@ namespace MineReports;
 
 public class CommandParseResult(
     int limit,
-    string[] searchTerms,
+    string[]? searchTerms,
     Token dependentToken,
     Token regressionToken,
     SetName[]? setNames,
