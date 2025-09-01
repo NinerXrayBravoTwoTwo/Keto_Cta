@@ -45,12 +45,12 @@ namespace DataMiner
         {
             get
             {
+                // ToDo: Add OrdAsc, OrdDesc support
+
                 return e =>
                 {
                     var (idx, x) = XSelector(e);
                     var (idy, y) = YSelector(e);
-
-                    //System.Diagnostics.Debug.WriteLine($"Element ID: {idx}, X: {x:F3}, Y: {y:F3}");
 
                     return (idx, x, y);
                 };
@@ -70,11 +70,6 @@ namespace DataMiner
                     var id = e.Id;
                     var valueN = (double)(GetNestedPropertyValue(e, numerator) ?? double.NaN);
                     var valueD = (double)(GetNestedPropertyValue(e, denominator) ?? double.NaN);
-
-
-                    //var valueN = Convert.ToDouble(GetNestedPropertyValue(e, numerator));
-                    //var valueD = Convert.ToDouble(GetNestedPropertyValue(e, denominator));
-
 
                     // Handle division by zero
                     if (valueN == 0)

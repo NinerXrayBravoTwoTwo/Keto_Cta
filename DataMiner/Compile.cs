@@ -17,6 +17,9 @@ public static class Compile
     {
 
         #region design
+        // 00- OrdDesc or OrdAsc 
+        // 
+
         //A- single attribute, Cac0, LnDCac1, DTps2, etc.
         //    o Group[4].success. Contents equal group[1].
         //    o num is in G4
@@ -58,6 +61,16 @@ public static class Compile
             System.Diagnostics.Debug.WriteLine(msg);
             throw new SyntaxErrorException(msg);
         }
+
+        #region OrdAsc or OrdDesc
+        {
+            // OrdAsc or OrdDesc
+            if (regDep.Equals("OrdAsc", StringComparison.OrdinalIgnoreCase))
+                return (Token.OrdAsc, string.Empty, string.Empty);
+            if (regDep.Equals("OrdDesc", StringComparison.OrdinalIgnoreCase))
+                return (Token.OrdDesc, string.Empty, string.Empty);
+        }
+        #endregion
 
         #region ln(var3) -> lnvar3 transfom
         { // ln(Var) -> LnVar ...
