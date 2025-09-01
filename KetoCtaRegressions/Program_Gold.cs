@@ -389,7 +389,7 @@ while (true)
             foreach (var line in regressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
                          result.DependentToken, result.RegressionToken, result.SetNames,
-                         result.Limit, false))
+                         result.Limit, true))
             {
                 Console.WriteLine(line);
             }
