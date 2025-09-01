@@ -97,8 +97,7 @@ namespace KetoCtaTest
             const string title = "DCac vs. OrdAsc";
             var selector = new CreateSelector(title);
             var selResult = goldMiner.Zeta.Select(selector.Selector);
-
-
+            
             // Act 1
             Assert.Equal(Token.OrdAsc, selector.RegressorCompile.token);
             Assert.NotEqual(Token.OrdAsc, selector.DependentCompile.token);
@@ -142,6 +141,61 @@ namespace KetoCtaTest
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
+        [Fact]
+        public void SimpleDataSetRegOrdDescLookup()
+        {
+            // Arrange
+            const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
+            var goldMiner = new GoldMiner(path);
+
+            const string title = "DNcpv vs. OrdAsc";
+            var selector = new CreateSelector(title);
+            var selResult = goldMiner.Eta.Select(selector.Selector);
+
+            // Act 1
+            Assert.Equal(Token.OrdAsc, selector.RegressorCompile.token);
+            Assert.NotEqual(Token.OrdDesc, selector.DependentCompile.token);
+            Assert.NotEqual(Token.OrdAsc, selector.DependentCompile.token);
+            Assert.Equal(Token.Element, selector.DependentCompile.token);
+
+            var enumerable = selResult as (string id, double x, double y)[] ?? selResult.ToArray();
+            var valueTuples = selResult as (string id, double x, double y)[] ?? enumerable.ToArray();
+
+            Assert.NotEqual(0, valueTuples[0].y);
+
+            var newTuples = valueTuples.OrderByDescending(t => t.y)
+                .Select((t, index) => (t.id, x: (double)(index + 1), t.y))
+                .ToArray();
+            
+            foreach (var (id, x, y) in valueTuples)
+            {
+                testOutputHelper.WriteLine($"sel- Element ID: {id}, X: {x}, Y: {y}");
+            }
+
+            testOutputHelper.WriteLine("");
+            foreach (var (id, x, y) in newTuples)
+            {
+                testOutputHelper.WriteLine($"new- Element ID: {id}, X: {x}, Y: {y}");
+            }
+
+            Assert.NotEqual(0, newTuples[^1].y);
+            Assert.Equal(6.3, newTuples[^1].y, 0.300);
+
+            for (var x = 0; x < newTuples.Length - 1; x++) Assert.Equal(x + 1, newTuples[x].x);
+
+            var xyList = newTuples.Select(tuple => (tuple.x, tuple.y)).ToList();
+
+            // Assert
+            var regression = new RegressionPvalue(xyList);
+
+            // Act 2
+            Assert.NotNull(selResult);
+            Assert.NotEmpty(xyList);
+            Assert.NotNull(regression);
+            Assert.Equal(0.3, regression.PValue, 0.32);
+            testOutputHelper.WriteLine($"Regression: {regression}");
+        }
+        
         [Fact]
         public void RatioRegressor()
         {
