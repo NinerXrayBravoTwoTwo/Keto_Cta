@@ -9,6 +9,8 @@ public enum Token
     Ratio = 3,
     LnRatio = 4,
     GeoMean = 5,
+    OrdAsc = 6,
+    OrdDesc = 7
 }
 
 namespace DataMiner
@@ -26,14 +28,12 @@ namespace DataMiner
             if (!match.Success)
                 throw new ArgumentException($"Invalid regression string format: {regressionString}");
 
-            // group 2 is dependent, group 4 is regressor
-
             var dependent = match.Groups[1].Value;
             var regressor = match.Groups[5].Value;
             Title = $"{dependent} vs {regressor}";
 
-            DependentCompile = DataMiner.Compile.Build(dependent);
-            RegressorCompile = DataMiner.Compile.Build(regressor);
+            DependentCompile = Compile.Build(dependent);
+            RegressorCompile = Compile.Build(regressor);
             System.Diagnostics.Debug.WriteLine($"After Compile: {dependentVsRegressor} Mapped: {DependentCompile.numerator}/{DependentCompile.denominator} vs {RegressorCompile.numerator}/{RegressorCompile.denominator}");
 
             YSelector = InternalCreateSelector(DependentCompile.numerator, DependentCompile.denominator, DependentCompile.token);

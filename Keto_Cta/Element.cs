@@ -89,7 +89,11 @@ public class Element
     public double DNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
     public double DTcpv => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
-    public double DQangio => Visits[1].Qangio - Visits[0].Qangio;
+    public double DQangio => Visits[1].Qangio - Visits[0].Qangio;  
+    
+    public double GeoMeanCac => Math.Sqrt(Visits[0].Cac * Visits[1].Cac);
+    public double GeoMeanNcpv => Math.Sqrt(Visits[0].Ncpv * Visits[1].Ncpv);
+    public double GeoMeanQangio => Math.Sqrt(Visits[0].Qangio * Visits[1].Qangio);
 
     public double LnDTps => Visit.Ln(DTps);
     public double LnDCac => Visit.Ln(DCac);
@@ -97,7 +101,11 @@ public class Element
     public double LnDTcpv => Visit.Ln(DTcpv);
     public double LnDPav => Visit.Ln(DPav);
     public double LnDQangio => Visit.Ln(DQangio);
-    
+
+    public double LnGeoMeanCac => Visit.Ln(Math.Sqrt(Visits[0].Cac * Visits[1].Cac));
+    public double LnGeoMeanNcpv => Visit.Ln(Math.Sqrt(Visits[0].Ncpv * Visits[1].Ncpv));
+    public double LnGeoMeanQangio => Visit.Ln(Math.Sqrt(Visits[0].Qangio * Visits[1].Qangio));
+
     /*
        if v2 > v1:  # growth
            return dt * math.log(2) / math.log(v2 / v1)
