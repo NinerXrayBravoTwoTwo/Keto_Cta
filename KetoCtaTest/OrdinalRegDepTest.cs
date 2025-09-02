@@ -15,7 +15,7 @@ namespace KetoCtaTest
 
             const string title = "DNcpv vs. OrdDesc";
             var selector = new CreateSelector(title);
-            var cor = new ConvertOrdinal(selector, goldMiner.Eta);
+            var cor = new MonoVarient(selector, goldMiner.Eta);
 
             // Act 1
             Assert.True(cor.IsRegOrd);
@@ -58,7 +58,7 @@ namespace KetoCtaTest
 
             const string title = "OrdDesc vs. DNcpv";
             var selector = new CreateSelector(title);
-            var cor = new ConvertOrdinal(selector, goldMiner.Eta);
+            var cor = new MonoVarient(selector, goldMiner.Eta);
 
             // Act 1
             Assert.True(cor.IsDepOrd);

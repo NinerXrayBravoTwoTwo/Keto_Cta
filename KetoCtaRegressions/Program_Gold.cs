@@ -311,8 +311,13 @@ while (true)
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("lnstudy", StringComparison.OrdinalIgnoreCase));
                     break;
 
-                //case "mine":
-                //    break;
+                case "mono":
+                    miner.ElemMono()
+                        .ToList()
+                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("mono", StringComparison.OrdinalIgnoreCase));
+                    break;
+
                 default:
                     newFilterTerms = result.SearchTerms;
                     break;

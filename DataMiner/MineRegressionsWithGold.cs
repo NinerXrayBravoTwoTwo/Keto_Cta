@@ -398,6 +398,25 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         return names.ToArray();
     }
 
+    /// <summary>
+    /// MonoVarient mine
+    /// </summary>
+    private bool _isOrdinal1;
+    public string[] ElemMono()
+    {
+        if (_isOrdinal1)
+            return [];
+        
+        _isOrdinal1 = true;
+        
+        var names = ElementAttributes
+            .Select(e => $"{e} vs. OrdAsc").ToList();
+
+        return names.ToArray();
+
+    }
+    
+    
     private bool _isCool;
     public string[] CoolMatrix()
     {

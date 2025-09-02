@@ -110,5 +110,10 @@ namespace DataMiner
 
         public (Token token, string numerator, string denominator) RegressorCompile { get; }
 
+        public bool IsMonoVar => DependentCompile.token == Token.OrdAsc
+                                 || DependentCompile.token == Token.OrdDesc
+                                 || RegressorCompile.token == Token.OrdAsc
+                                 || RegressorCompile.token == Token.OrdDesc
+                                 ;
     }
 }

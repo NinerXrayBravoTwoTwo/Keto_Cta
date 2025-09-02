@@ -3,9 +3,9 @@
 namespace DataMiner;
 
 
-public class ConvertOrdinal()
+public class MonoVarient()
 {
-    public ConvertOrdinal(CreateSelector selector, Element[] elements) : this()
+    public MonoVarient(CreateSelector selector, Element[] elements) : this()
     {
         Selector = selector;
         Elements = elements;
@@ -50,6 +50,8 @@ public class ConvertOrdinal()
     public bool IsDepOrd { get; set; }
 
     public bool IsRegOrd { get; set; }
+    
+    public bool IsOrdinal => IsRegOrd || IsDepOrd;
 
     public CreateSelector Selector { get; set; }
 

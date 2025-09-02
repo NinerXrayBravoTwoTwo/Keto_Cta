@@ -191,12 +191,16 @@ public partial class GoldMiner
             return null;
         }
 
+        MonoVarient? mv = null;
+
         if (!_selectorCache.TryGetValue(chartTitle.ToLower(), out var selector))
         {
             try
             {
                 selector = new CreateSelector(chartTitle);
-                _selectorCache.Add(chartTitle.ToLower(), selector);
+
+                if (!selector.IsMonoVar)
+                    _selectorCache.Add(chartTitle.ToLower(), selector);
             }
             catch (ArgumentException ex)
             {
@@ -207,7 +211,18 @@ public partial class GoldMiner
             }
         }
 
-        var selectedData = data.Select(selector.Selector);
+
+        IEnumerable<(string id, double x, double y)> selectedData;
+
+        if (selector.IsMonoVar)
+        {
+            mv = new MonoVarient(selector, data);
+            selectedData = mv.DataPoints.Select(t => (t.id, t.x, t.y));
+        }
+        else
+        {
+            selectedData = data.Select(selector.Selector);
+        }
 
         var regression = new RegressionPvalue(selectedData.ToList());
 
