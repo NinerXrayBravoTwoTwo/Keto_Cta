@@ -18,8 +18,8 @@ namespace KetoCtaTest
             var cor = new MonoVarient(selector, goldMiner.Eta);
 
             // Act 1
-            Assert.True(cor.IsRegOrd);
-            Assert.False(cor.IsDepOrd);
+            Assert.True(cor.IsRegRank);
+            Assert.False(cor.IsDepRank);
             Assert.False(cor.IsAsc);
 
 
@@ -61,8 +61,8 @@ namespace KetoCtaTest
             var cor = new MonoVarient(selector, goldMiner.Eta);
 
             // Act 1
-            Assert.True(cor.IsDepOrd);
-            Assert.False(cor.IsRegOrd);
+            Assert.True(cor.IsDepRank);
+            Assert.False(cor.IsRegRank);
             Assert.False(cor.IsAsc);
 
 
@@ -104,9 +104,9 @@ namespace KetoCtaTest
             var selResult = goldMiner.Zeta.Select(selector.Selector);
 
             // Act 1
-            Assert.Equal(Token.OrdAsc, selector.RegressorCompile.token);
-            Assert.NotEqual(Token.OrdAsc, selector.DependentCompile.token);
-            Assert.NotEqual(Token.OrdDesc, selector.DependentCompile.token);
+            Assert.Equal(Token.RankA, selector.RegressorCompile.token);
+            Assert.NotEqual(Token.RankA, selector.DependentCompile.token);
+            Assert.NotEqual(Token.RankD, selector.DependentCompile.token);
             Assert.Equal(Token.Element, selector.DependentCompile.token);
 
             var enumerable = selResult as (string id, double x, double y)[] ?? selResult.ToArray();
@@ -160,9 +160,9 @@ namespace KetoCtaTest
             var selResult = goldMiner.Eta.Select(selector.Selector);
 
             // Act 1
-            Assert.Equal(Token.OrdDesc, selector.RegressorCompile.token);
-            Assert.NotEqual(Token.OrdDesc, selector.DependentCompile.token);
-            Assert.NotEqual(Token.OrdAsc, selector.DependentCompile.token);
+            Assert.Equal(Token.RankD, selector.RegressorCompile.token);
+            Assert.NotEqual(Token.RankD, selector.DependentCompile.token);
+            Assert.NotEqual(Token.RankA, selector.DependentCompile.token);
             Assert.Equal(Token.Element, selector.DependentCompile.token);
 
             var enumerable = selResult as (string id, double x, double y)[] ?? selResult.ToArray();

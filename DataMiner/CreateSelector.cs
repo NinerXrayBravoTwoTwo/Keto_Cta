@@ -10,8 +10,8 @@ public enum Token
     Ratio = 3,
     LnRatio = 4,
     GeoMean = 5,
-    OrdAsc = 6,
-    OrdDesc = 7
+    RankA = 6,
+    RankD = 7
 }
 
 namespace DataMiner
@@ -110,10 +110,10 @@ namespace DataMiner
 
         public (Token token, string numerator, string denominator) RegressorCompile { get; }
 
-        public bool IsMonoVar => DependentCompile.token == Token.OrdAsc
-                                 || DependentCompile.token == Token.OrdDesc
-                                 || RegressorCompile.token == Token.OrdAsc
-                                 || RegressorCompile.token == Token.OrdDesc
+        public bool IsMonoVar => DependentCompile.token == Token.RankA
+                                 || DependentCompile.token == Token.RankD
+                                 || RegressorCompile.token == Token.RankA
+                                 || RegressorCompile.token == Token.RankD
                                  ;
     }
 }

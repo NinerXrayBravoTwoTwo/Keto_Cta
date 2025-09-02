@@ -66,9 +66,9 @@ public static class Compile
         {
             // OrdAsc or OrdDesc
             if (regDep.Equals("OrdAsc", StringComparison.OrdinalIgnoreCase))
-                return (Token.OrdAsc, string.Empty, string.Empty);
+                return (Token.RankA, string.Empty, string.Empty);
             if (regDep.Equals("OrdDesc", StringComparison.OrdinalIgnoreCase))
-                return (Token.OrdDesc, string.Empty, string.Empty);
+                return (Token.RankD, string.Empty, string.Empty);
         }
         #endregion
 

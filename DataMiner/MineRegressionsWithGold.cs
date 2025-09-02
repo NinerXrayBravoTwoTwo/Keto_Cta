@@ -401,18 +401,24 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     /// <summary>
     /// MonoVarient mine
     /// </summary>
-    private bool _isOrdinal1;
+    private bool _isRank;
     public string[] ElemMono()
     {
-        if (_isOrdinal1)
+        if (_isRank)
             return [];
         
-        _isOrdinal1 = true;
+        _isRank = true;
         
         var names = ElementAttributes
             .Select(e => $"{e} vs. OrdAsc").ToList();
 
-        return names.ToArray();
+         names.AddRange( VisitAttributes
+            .Select(v => $"{v}1/{v}0 vs. OrdAsc"));
+
+         names.AddRange(VisitAttributes
+             .Select(v => $"Ln({v}1/{v}0) vs. OrdAsc"));
+
+         return names.ToArray();
 
     }
     
