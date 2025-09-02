@@ -1,5 +1,6 @@
 ﻿using Keto_Cta;
 using System.Text.RegularExpressions;
+using static DataMiner.MazeTwistyPassages;
 
 public enum Token
 {
@@ -15,7 +16,7 @@ public enum Token
 
 namespace DataMiner
 {
-    public partial class CreateSelector
+    public class CreateSelector
     {
         public CreateSelector(string dependentVsRegressor)
         {

@@ -89,8 +89,8 @@ public class Element
     public double DNcpv => Visits[1].Ncpv - Visits[0].Ncpv;
     public double DTcpv => Visits[1].Tcpv - Visits[0].Tcpv;
     public double DPav => Visits[1].Pav - Visits[0].Pav;
-    public double DQangio => Visits[1].Qangio - Visits[0].Qangio;  
-    
+    public double DQangio => Visits[1].Qangio - Visits[0].Qangio;
+
     public double GeoMeanCac => Math.Sqrt(Visits[0].Cac * Visits[1].Cac);
     public double GeoMeanNcpv => Math.Sqrt(Visits[0].Ncpv * Visits[1].Ncpv);
     public double GeoMeanQangio => Math.Sqrt(Visits[0].Qangio * Visits[1].Qangio);

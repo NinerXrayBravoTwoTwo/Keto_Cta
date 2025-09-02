@@ -1,7 +1,6 @@
 ﻿using Keto_Cta;
 using LinearRegression;
 using System.Collections.Concurrent;
-using System.Data;
 
 namespace DataMiner;
 // Assuming GoldMiner class with DustsQueue
@@ -255,13 +254,13 @@ public partial class GoldMiner
         {
             return [];
         }
-        const string HeaderFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,10:F0}{5,14:F4}{6,10:F0}{7,10:F0}{8,10:F2}{9,14:F4}{10,16:F4}";
-        const string RowFormat = HeaderFormat;
+        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,10:F0}{5,14:F4}{6,10:F0}{7,10:F0}{8,10:F2}{9,14:F4}{10,16:F4}";
+        const string rowFormat = headerFormat;
 
         var reportBuffer = new List<string>
         {
             string.Format(
-                HeaderFormat,
+                headerFormat,
                 "Id",
                 "Set",
                 "Cac0",
@@ -278,7 +277,7 @@ public partial class GoldMiner
         foreach (var element in elements.OrderByDescending(e => e.GrowthNcpv))
         {
             reportBuffer.Add(string.Format(
-                RowFormat,
+                rowFormat,
                 element.Id,
                 element.MemberSet,
                 FormatNumber(element.Visits[0].Cac, 0),
@@ -295,7 +294,7 @@ public partial class GoldMiner
 
         return reportBuffer.ToArray();
     }
-    
+
     private static string FormatNumber(double value, int precision)
     {
         if (double.IsNaN(value))

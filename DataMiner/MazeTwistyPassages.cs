@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace DataMiner;
 
-public partial class CreateSelector
+public class MazeTwistyPassages
 {
     #region Reflection and Nested Property Retrieval
 
