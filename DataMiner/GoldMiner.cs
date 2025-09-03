@@ -191,7 +191,7 @@ public partial class GoldMiner
             return null;
         }
 
-        MonoVarient? mv = null;
+        RankSelector ? mv = null;
 
         if (!_selectorCache.TryGetValue(chartTitle.ToLower(), out var selector))
         {
@@ -199,7 +199,7 @@ public partial class GoldMiner
             {
                 selector = new CreateSelector(chartTitle);
 
-                if (!selector.IsMonoVar)
+                if (!selector.IsRankReg)
                     _selectorCache.Add(chartTitle.ToLower(), selector);
             }
             catch (ArgumentException ex)
@@ -214,9 +214,9 @@ public partial class GoldMiner
 
         IEnumerable<(string id, double x, double y)> selectedData;
 
-        if (selector.IsMonoVar)
+        if (selector.IsRankReg)
         {
-            mv = new MonoVarient(selector, data);
+            mv = new RankSelector(selector, data);
             selectedData = mv.DataPoints.Select(t => (t.id, t.x, t.y));
         }
         else
