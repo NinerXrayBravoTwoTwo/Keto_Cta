@@ -115,19 +115,31 @@ public class Element
            return None  # no change 
      */
     //LnTdCac is not valid since Td vars are already Ln transformed
-    
+
+    public double TdTps => DTps == 0 ? 0 : (DTps > 0
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Tps / Visits[0].Tps))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Tps / Visits[1].Tps)));
+
     public double TdCac => DCac == 0 ? 0 : (DCac > 0
-            ? (1 * Math.Log(2) / Math.Log(Visits[1].Cac / Visits[0].Cac))
-            : -(1 * Math.Log(2) / Math.Log(Visits[0].Cac / Visits[1].Cac)));
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Cac / Visits[0].Cac))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Cac / Visits[1].Cac)));
 
     public double TdNcpv => DNcpv == 0 ? 0 : (DNcpv > 0
-            ? (1 * Math.Log(2) / Math.Log(Visits[1].Ncpv / Visits[0].Ncpv))
-            : -(1 * Math.Log(2) / Math.Log(Visits[0].Ncpv / Visits[1].Ncpv)));
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Ncpv / Visits[0].Ncpv))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Ncpv / Visits[1].Ncpv)));
 
+    public double TdTcpv => DTcpv == 0 ? 0 : (DTcpv > 0
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Tcpv / Visits[0].Tcpv))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Tcpv / Visits[1].Tcpv)));
+
+    public double TdPav => DPav == 0 ? 0 : (DPav > 0
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Pav / Visits[0].Pav))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Pav / Visits[1].Pav)));
+    
     public double TdQangio => DQangio == 0 ? 0 : (DQangio > 0
-            ? (1 * Math.Log(2) / Math.Log(Visits[1].Qangio / Visits[0].Qangio))
-            : -(1 * Math.Log(2) / Math.Log(Visits[0].Qangio / Visits[1].Qangio)));
-
+        ? (1 * Math.Log(2) / Math.Log(Visits[1].Qangio / Visits[0].Qangio))
+        : -(1 * Math.Log(2) / Math.Log(Visits[0].Qangio / Visits[1].Qangio)));
+    
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
     public bool IsAlpha => MemberSet != LeafSetName.Zeta; // Not a Unicorn
 

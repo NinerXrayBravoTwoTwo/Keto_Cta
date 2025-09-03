@@ -4,16 +4,16 @@ using Xunit.Abstractions;
 
 namespace KetoCtaTest
 {
-    public class OrdinalRegDepTest(ITestOutputHelper testOutputHelper)
+    public class RankRegDepTest(ITestOutputHelper testOutputHelper)
     {
         [Fact]
-        public void ConvertOrdinalTest()
+        public void ConvertRankTest()
         {
             // Arrange
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "DNcpv vs. OrdDesc";
+            const string title = "DNcpv vs. RankD";
             var selector = new CreateSelector(title);
             var cor = new MonoVarient(selector, goldMiner.Eta);
 
@@ -50,13 +50,13 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void ConvertOrdinalDepTest()
+        public void ConvertRankDepTest()
         {
             // Arrange
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "OrdDesc vs. DNcpv";
+            const string title = "RankD vs. DNcpv";
             var selector = new CreateSelector(title);
             var cor = new MonoVarient(selector, goldMiner.Eta);
 
@@ -93,13 +93,13 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void SimpleDataSetRegOrdAscLookup()
+        public void SimpleDataSetRegRankALookup()
         {
             // Arrange
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "DCac vs. OrdAsc";
+            const string title = "DCac vs. RankA";
             var selector = new CreateSelector(title);
             var selResult = goldMiner.Zeta.Select(selector.Selector);
 
@@ -138,6 +138,7 @@ namespace KetoCtaTest
                 .ToList();
 
             // Assert
+            // Assert
             var regression = new RegressionPvalue(xyList);
 
             // Act 2
@@ -149,13 +150,13 @@ namespace KetoCtaTest
         }
 
         [Fact]
-        public void SimpleDataSetRegOrdDescLookup()
+        public void SimpleDataSetRegRandDLookup()
         {
             // Arrange
             const string path = "TestData/keto-cta-quant-and-semi-quant.csv";
             var goldMiner = new GoldMiner(path);
 
-            const string title = "DNcpv vs. OrdDesc";
+            const string title = "DNcpv vs. RankD";
             var selector = new CreateSelector(title);
             var selResult = goldMiner.Eta.Select(selector.Selector);
 

@@ -53,7 +53,7 @@ public class GoldDustProcessor
                 else
                 {
                     // No items in queue, wait briefly
-                    await Task.Delay(100, cancellationToken);
+                    await Task.Delay(1000, cancellationToken);
                 }
             }
             catch (Exception ex)
