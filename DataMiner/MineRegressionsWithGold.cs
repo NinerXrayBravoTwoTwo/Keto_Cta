@@ -406,23 +406,16 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     {
         if (_isRank)
             return [];
-        
+
         _isRank = true;
-        
-        var names = ElementAttributes
-            .Select(e => $"{e} vs. OrdAsc").ToList();
 
-         names.AddRange( VisitAttributes
-            .Select(v => $"{v}1/{v}0 vs. OrdAsc"));
+        var names = ElementAttributes.Select(e => $"{e} vs. RankA").ToList();
+        names.AddRange(VisitAttributes.Select(v => $"{v}1/{v}0 vs. RankA"));
+        names.AddRange(VisitAttributes.Select(v => $"Ln({v}1/{v}0) vs. RankA"));
 
-         names.AddRange(VisitAttributes
-             .Select(v => $"Ln({v}1/{v}0) vs. OrdAsc"));
-
-         return names.ToArray();
-
+        return names.ToArray();
     }
-    
-    
+
     private bool _isCool;
     public string[] CoolMatrix()
     {

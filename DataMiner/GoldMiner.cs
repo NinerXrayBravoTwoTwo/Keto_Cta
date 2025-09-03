@@ -265,10 +265,11 @@ public partial class GoldMiner
 
     public string[] PrintKetoCtaGrowth(SetName[] setNames)
     {
-        if (!setNames.Any() || !_setNameToData.TryGetValue(setNames[0], out var elements))
-        {
-            return [];
-        }
+        var elements = 
+            setNames.Length == 0
+           ? _setNameToData[SetName.Omega]
+           : _setNameToData[setNames[0]];
+
         const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,10:F0}{5,14:F4}{6,10:F0}{7,10:F0}{8,10:F2}{9,14:F4}{10,16:F4}";
         const string rowFormat = headerFormat;
 

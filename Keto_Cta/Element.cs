@@ -114,6 +114,7 @@ public class Element
        else:
            return None  # no change
      */
+    
     public double GrowthCac => DCac == 0 ? 0 : (DCac > 0
             ? (1 * Math.Log(2) / Math.Log(Visits[1].Cac / Visits[0].Cac))
             : -(1 * Math.Log(2) / Math.Log(Visits[0].Cac / Visits[1].Cac)));
@@ -136,7 +137,6 @@ public class Element
 
     private static LeafSetName ComputeSetState(Visit v1, Visit v2)
     {
-
         if (
              v2.Tps < v1.Tps
             || v2.Cac < v1.Cac

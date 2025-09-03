@@ -255,7 +255,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comRatio', 'ratioVsDelta' 'cool' 'LnStudy'...");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comRatio', 'ratioVsDelta' 'cool' 'LnStudy' 'mono'");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -348,12 +348,12 @@ while (true)
         var result = new CommandParser("keto").Parse(command);
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine("Keto-CTA data report options: Extend, Original, Plaque Half Life Calc");
+            Console.WriteLine("Keto-CTA data report options: Extend, growth, HalfLife ");
 
         foreach (var filter in result.SearchTerms)
         {
             string[] reportRows = [];
-            switch (filter)
+            switch (filter.ToLower())
             {
                 case "extended":
                     reportRows = goldMiner.PrintKetoCtaExtended();
@@ -496,4 +496,3 @@ while (true)
         }
     }
 }
-
