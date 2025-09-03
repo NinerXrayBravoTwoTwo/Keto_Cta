@@ -87,7 +87,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                     //for (var z = 0; z < 2; z++)
                     {
                         permutations.Add($"{num}{x}/{den} vs. {reg}");
-                        permutations.Add($"Ln({num}{x}/{den} vs. {reg}");
+                        permutations.Add($"Ln({num}{x}/{den}) vs. {reg}");
                     }
                 }
         // EEE
@@ -103,7 +103,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                         if (!num.Equals(den))
                         {
                             permutations.Add($"{num}/{den} vs. {reg}");
-                            permutations.Add($"Ln({num}/{den} vs. {reg}");
+                            permutations.Add($"Ln({num}/{den}) vs. {reg}");
                         }
                     }
                 }
@@ -142,7 +142,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
                     {
                         permutations.Add($"{num}/{den}{y} vs. {reg}");
-                        permutations.Add($"Ln({num}/{den}{y} vs. {reg}");
+                        permutations.Add($"Ln({num}/{den}{y}) vs. {reg}");
                     }
                 }
         // VEE
@@ -157,7 +157,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
                     {
                         permutations.Add($"{num}{x}/{den} vs. {reg}");
-                        permutations.Add($"Ln({num}{x}/{den} vs. {reg}");
+                        permutations.Add($"Ln({num}{x}/{den}) vs. {reg}");
                     }
                 }
         // EEE

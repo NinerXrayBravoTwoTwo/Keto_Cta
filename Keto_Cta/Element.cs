@@ -112,8 +112,9 @@ public class Element
        elif v2 < v1:  # regression
            return -(dt * math.log(2) / math.log(v2 / v1))  # negative = half-life
        else:
-           return None  # no change
+           return None  # no change 
      */
+    //LnTdCac is not valid since Td vars are already Ln transformed
     
     public double TdCac => DCac == 0 ? 0 : (DCac > 0
             ? (1 * Math.Log(2) / Math.Log(Visits[1].Cac / Visits[0].Cac))
