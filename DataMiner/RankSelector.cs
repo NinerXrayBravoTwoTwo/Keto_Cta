@@ -3,9 +3,9 @@
 namespace DataMiner;
 
 
-public class MonoVarient()
+public class RankSelector()
 {
-    public MonoVarient(CreateSelector selector, Element[] elements) : this()
+    public RankSelector(CreateSelector selector, Element[] elements) : this()
     {
         Selector = selector;
         Elements = elements;

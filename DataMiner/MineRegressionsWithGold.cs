@@ -364,7 +364,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         if (_isV1vsV0matrix) return [];
         _isV1vsV0matrix = true;
 
-        var names = MineRegressionsWithGold.VisitAttributes
+        var names = VisitAttributes
             .Select(visit => $"{visit}1 vs. {visit}0").ToList();
 
         return names.ToArray();
@@ -383,14 +383,11 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         _isRatioVsDelta = true;
 
         var names = new List<string>();
-        foreach (var vAttr in MineRegressionsWithGold.VisitAttributes
-                    .Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
-
-            foreach (var eAttr in MineRegressionsWithGold.ElementAttributes
-                         .Where(e => !e.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
+        foreach (var vAttr in VisitAttributes.Where(v => !v.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
+            foreach (var eAttr in ElementAttributes.Where(e => !e.StartsWith("Ln", StringComparison.OrdinalIgnoreCase)))
             {
                 names.Add($"{vAttr}1/{vAttr}0 vs. {eAttr}");
-                names.Add(eAttr.Contains("growth", StringComparison.InvariantCultureIgnoreCase) // growth or half-life is already log transformed, compounded log transforms are futile, you will become noise.
+                names.Add(eAttr.Contains("Td", StringComparison.InvariantCultureIgnoreCase) // growth or half-life is already log transformed, compounded log transforms are futile, you will become noise.
                     ? $"Ln({vAttr}1/{vAttr}0) vs. {eAttr}"
                     : $"Ln({vAttr}1/{vAttr}0) vs. Ln{eAttr}");
             }
