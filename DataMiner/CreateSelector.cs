@@ -110,7 +110,7 @@ namespace DataMiner
 
         public (Token token, string numerator, string denominator) RegressorCompile { get; }
 
-        public bool IsRankReg
+        public bool IsDepRegByRank
             => DependentCompile.token == Token.RankA
                                  || DependentCompile.token == Token.RankD
                                  || RegressorCompile.token == Token.RankA

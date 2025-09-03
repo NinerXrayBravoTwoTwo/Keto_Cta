@@ -15,7 +15,7 @@ namespace KetoCtaTest
 
             const string title = "DNcpv vs. RankD";
             var selector = new CreateSelector(title);
-            var cor = new MonoVarient(selector, goldMiner.Eta);
+            var cor = new RankSelector(selector, goldMiner.Eta);
 
             // Act 1
             Assert.True(cor.IsRegRank);
@@ -58,7 +58,7 @@ namespace KetoCtaTest
 
             const string title = "RankD vs. DNcpv";
             var selector = new CreateSelector(title);
-            var cor = new MonoVarient(selector, goldMiner.Eta);
+            var cor = new RankSelector(selector, goldMiner.Eta);
 
             // Act 1
             Assert.True(cor.IsDepRank);

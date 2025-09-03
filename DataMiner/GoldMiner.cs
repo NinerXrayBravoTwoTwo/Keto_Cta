@@ -199,7 +199,7 @@ public partial class GoldMiner
             {
                 selector = new CreateSelector(chartTitle);
 
-                if (!selector.IsRankReg)
+                if (!selector.IsDepRegByRank)
                     _selectorCache.Add(chartTitle.ToLower(), selector);
             }
             catch (ArgumentException ex)
@@ -214,7 +214,7 @@ public partial class GoldMiner
 
         IEnumerable<(string id, double x, double y)> selectedData;
 
-        if (selector.IsRankReg)
+        if (selector.IsDepRegByRank)
         {
             mv = new RankSelector(selector, data);
             selectedData = mv.DataPoints.Select(t => (t.id, t.x, t.y));
