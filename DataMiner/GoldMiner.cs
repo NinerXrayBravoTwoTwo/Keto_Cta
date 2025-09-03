@@ -263,7 +263,7 @@ public partial class GoldMiner
         return myData.ToArray();
     }
 
-    public string[] PrintKetoCtaGrowth(SetName[] setNames)
+    public string[] PrintKetoCtaTd(SetName[] setNames)
     {
         var elements = 
             setNames.Length == 0
@@ -290,7 +290,7 @@ public partial class GoldMiner
                 "QAngio-dbl-yrs")
         };
 
-        foreach (var element in elements.OrderByDescending(e => e.GrowthNcpv))
+        foreach (var element in elements.OrderByDescending(e => e.TdNcpv))
         {
             reportBuffer.Add(string.Format(
                 rowFormat,
@@ -299,12 +299,12 @@ public partial class GoldMiner
                 FormatNumber(element.Visits[0].Cac, 0),
                 FormatNumber(element.Visits[1].Cac, 0),
                 FormatNumber(element.DCac, 0),
-                FormatNumber(element.GrowthCac, 5),
+                FormatNumber(element.TdCac, 5),
                 FormatNumber(element.Visits[0].Ncpv, 1),
                 FormatNumber(element.Visits[1].Ncpv, 1),
                 FormatNumber(element.DNcpv, 1),
-                FormatNumber(element.GrowthNcpv, 5),
-                FormatNumber(element.GrowthQangio, 5)
+                FormatNumber(element.TdNcpv, 5),
+                FormatNumber(element.TdQangio, 5)
             ));
         }
 

@@ -364,7 +364,7 @@ while (true)
                     break;
 
                 case "growth":
-                    reportRows = goldMiner.PrintKetoCtaGrowth(result.SetNames);
+                    reportRows = goldMiner.PrintKetoCtaTd(result.SetNames);
                     break;
             }
 

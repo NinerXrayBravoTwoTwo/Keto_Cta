@@ -42,7 +42,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     public static string[] ElementAttributes =
     [
         "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio",
-        "GrowthCac", "GrowthNcpv", "GrowthQangio", "GeoMeanCac", "GeoMeanNcpv", "LnGeoMeanCac", "LnGeoMeanNcpv"
+        "TdCac", "TdNcpv", "TdQangio", "GeoMeanCac", "GeoMeanNcpv", "LnGeoMeanCac", "LnGeoMeanNcpv"
     ];
 
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)

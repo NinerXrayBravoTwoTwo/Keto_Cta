@@ -115,15 +115,15 @@ public class Element
            return None  # no change
      */
     
-    public double GrowthCac => DCac == 0 ? 0 : (DCac > 0
+    public double TdCac => DCac == 0 ? 0 : (DCac > 0
             ? (1 * Math.Log(2) / Math.Log(Visits[1].Cac / Visits[0].Cac))
             : -(1 * Math.Log(2) / Math.Log(Visits[0].Cac / Visits[1].Cac)));
 
-    public double GrowthNcpv => DNcpv == 0 ? 0 : (DNcpv > 0
+    public double TdNcpv => DNcpv == 0 ? 0 : (DNcpv > 0
             ? (1 * Math.Log(2) / Math.Log(Visits[1].Ncpv / Visits[0].Ncpv))
             : -(1 * Math.Log(2) / Math.Log(Visits[0].Ncpv / Visits[1].Ncpv)));
 
-    public double GrowthQangio => DQangio == 0 ? 0 : (DQangio > 0
+    public double TdQangio => DQangio == 0 ? 0 : (DQangio > 0
             ? (1 * Math.Log(2) / Math.Log(Visits[1].Qangio / Visits[0].Qangio))
             : -(1 * Math.Log(2) / Math.Log(Visits[0].Qangio / Visits[1].Qangio)));
 
