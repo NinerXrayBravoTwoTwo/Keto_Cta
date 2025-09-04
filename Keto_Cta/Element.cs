@@ -97,8 +97,11 @@ public class Element
         LnDPav = MathUtils.Ln(DPav);
         LnDQangio = MathUtils.Ln(DQangio);
 
+        LnGeoMeanTps = MathUtils.Ln(GeoMeanTps);
         LnGeoMeanCac = MathUtils.Ln(GeoMeanCac);
         LnGeoMeanNcpv = MathUtils.Ln(GeoMeanNcpv);
+        LnGeoMeanTcpv = MathUtils.Ln(GeoMeanTcpv);
+        LnGeoMeanPav = MathUtils.Ln(GeoMeanPav);
         LnGeoMeanQangio = MathUtils.Ln(GeoMeanQangio);
 
         TdTps = MathUtils.Td(Visits[0].Tps, Visits[1].Tps);
@@ -109,27 +112,32 @@ public class Element
         TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
     }
 
-    public double GeoMeanTcpv { get; set; }
+    public double GeoMeanTps { get; init; }
+    public double GeoMeanCac { get; init; }
+    public double GeoMeanNcpv { get; init; }
+    public double GeoMeanTcpv { get; init; }
+    public double GeoMeanPav { get; init; }
+    public double GeoMeanQangio { get; init; }
+    
+    public double LnDTps { get; init; }
+    public double LnDCac { get; init; }
+    public double LnDNcpv { get; init; }
+    public double LnDTcpv { get; init; }
+    public double LnDPav { get; init; }
+    public double LnDQangio { get; init; }
 
-    public double GeoMeanPav { get; set; }
+    public double LnGeoMeanTps { get; init; }
+    public double LnGeoMeanCac { get; init; }
+    public double LnGeoMeanNcpv { get; init; }
+    public double LnGeoMeanTcpv { get; init; }
+    public double LnGeoMeanPav { get; init; }
+    public double LnGeoMeanQangio { get; init; }
 
-    public double GeoMeanCac { get; set; }
-    public double GeoMeanNcpv { get; set; }
-    public double GeoMeanQangio { get; set; }
-    public double LnDTps { get; set; }
-    public double LnDCac { get; set; }
-    public double LnDNcpv { get; set; }
-    public double LnDTcpv { get; set; }
-    public double LnDPav { get; set; }
-    public double LnDQangio { get; set; }
-    public double LnGeoMeanCac { get; set; }
-    public double LnGeoMeanNcpv { get; set; }
-    public double LnGeoMeanQangio { get; set; }
-
+    
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
-    public List<Visit> Visits { get; set; }
+    public List<Visit> Visits { get; init; }
 
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
     // ... (constructor remains similar)
