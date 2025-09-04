@@ -73,7 +73,7 @@ public static class Compile
         #endregion
 
         #region ln(var3) -> lnvar3 transfom
-        { 
+        {
             // ln(Var) -> LnVar ...
             // A problem with the inverse sqr double time - half life attribute; this is already log transformed by definition.Ln(DtVar) is an error
             if (tokens.Groups[2].Success && !tokens.Groups[3].Success)

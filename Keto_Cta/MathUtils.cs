@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Keto_Cta;
+﻿namespace Keto_Cta;
 
 public static class MathUtils
 {
@@ -48,7 +42,6 @@ public static class MathUtils
             return -(dt * Math.Log(2) / Math.Log(1 / ratio)); // Equivalent to log(v1/v2)
     }
 
-    // Additional functions per your TODO
     public static double Min(double v1, double v2) => Math.Min(v1, v2);
     public static double Max(double v1, double v2) => Math.Max(v1, v2);
     public static double Sum(double v1, double v2) => v1 + v2;
@@ -60,6 +53,7 @@ public static class MathUtils
     public static double Max(params double[] values) => values.Max();
     public static double Sum(params double[] values) => values.Sum();
     public static double Avg(params double[] values) => values.Average();
+
     public static double GeoMean(params double[] values)
     {
         if (values.Any(v => v < 0)) return double.NaN;

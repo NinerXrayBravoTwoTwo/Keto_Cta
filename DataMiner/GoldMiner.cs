@@ -191,8 +191,6 @@ public partial class GoldMiner
             return null;
         }
 
-        RankSelector ? mv = null;
-
         if (!_selectorCache.TryGetValue(chartTitle.ToLower(), out var selector))
         {
             try
@@ -216,7 +214,7 @@ public partial class GoldMiner
 
         if (selector.IsDepRegByRank)
         {
-            mv = new RankSelector(selector, data);
+            var mv = new RankSelector(selector, data);
             selectedData = mv.DataPoints.Select(t => (t.id, t.x, t.y));
         }
         else
@@ -224,7 +222,7 @@ public partial class GoldMiner
             selectedData = data.Select(selector.Selector);
         }
 
-        var regression = new RegressionPvalue(selectedData.ToList());
+        var regression = new RegressionPvalue(selectedData.Where(t => !double.IsNaN(t.x) && !double.IsNaN(t.y)).ToList());
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression, selector.DependentCompile.token, selector.RegressorCompile.token);
     }
@@ -265,7 +263,7 @@ public partial class GoldMiner
 
     public string[] PrintKetoCtaTd(SetName[] setNames)
     {
-        var elements = 
+        var elements =
             setNames.Length == 0
            ? _setNameToData[SetName.Omega]
            : _setNameToData[setNames[0]];

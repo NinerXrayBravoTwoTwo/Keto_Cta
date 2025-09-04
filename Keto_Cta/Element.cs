@@ -84,11 +84,12 @@ public class Element
         DPav = MathUtils.Diff(Visits[0].Pav, Visits[1].Pav);
         DQangio = MathUtils.Diff(Visits[0].Qangio, Visits[1].Qangio); // Handle NaN if needed
 
-        GeoMeanCac = MathUtils.GeoMean(Visits[0].Cac, Visits[1].Cac);
-        GeoMeanNcpv = MathUtils.GeoMean(Visits[0].Ncpv, Visits[1].Ncpv);
-        GeoMeanQangio = MathUtils.GeoMean(Visits[0].Qangio, Visits[1].Qangio);
-        GeoMeanTcpv = MathUtils.GeoMean(Visits[0].Tcpv, Visits[1].Tcpv);
-        GeoMeanPav = MathUtils.GeoMean(Visits[0].Pav, Visits[1].Pav);
+        GeoMeanTps = MathUtils.GeoMean(Visits.Select(v => v.Tps).ToArray());
+        GeoMeanCac = MathUtils.GeoMean(Visits.Select(v => v.Cac).ToArray());
+        GeoMeanNcpv = MathUtils.GeoMean(Visits.Select(v => v.Ncpv).ToArray());
+        GeoMeanTcpv = MathUtils.GeoMean(Visits.Select(v => v.Tcpv).ToArray());
+        GeoMeanPav = MathUtils.GeoMean(Visits.Select(v => v.Pav).ToArray());
+        GeoMeanQangio = MathUtils.GeoMean(Visits.Select(v => v.Qangio).ToArray());
 
         LnDTps = MathUtils.Ln(DTps);
         LnDCac = MathUtils.Ln(DCac);
@@ -110,6 +111,8 @@ public class Element
         TdTcpv = MathUtils.Td(Visits[0].Tcpv, Visits[1].Tcpv);
         TdPav = MathUtils.Td(Visits[0].Pav, Visits[1].Pav);
         TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
+
+        var xxx = MathUtils.GeoMean(Visits.Select(v => v.Cac).ToArray());
     }
 
     public double GeoMeanTps { get; init; }
@@ -118,7 +121,7 @@ public class Element
     public double GeoMeanTcpv { get; init; }
     public double GeoMeanPav { get; init; }
     public double GeoMeanQangio { get; init; }
-    
+
     public double LnDTps { get; init; }
     public double LnDCac { get; init; }
     public double LnDNcpv { get; init; }
@@ -133,7 +136,7 @@ public class Element
     public double LnGeoMeanPav { get; init; }
     public double LnGeoMeanQangio { get; init; }
 
-    
+
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }

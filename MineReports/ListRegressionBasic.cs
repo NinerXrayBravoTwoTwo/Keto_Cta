@@ -48,7 +48,7 @@ namespace MineReports
             return string.Format(
                 RowFormat,
                 regressionName,
-                setName,
+                setName + "-" + dust.Regression.N,
                 FormatNumber(moeX.Mean, 3),
                 FormatNumber(moeX.MarginOfError, 3),
                 FormatNumber(moeY.Mean, 3),

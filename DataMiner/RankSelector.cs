@@ -22,7 +22,7 @@ public class RankSelector()
         IsAsc = IsRegRank && selector.RegressorCompile.token is Token.RankA
                     || IsDepRank && selector.DependentCompile.token is Token.RankA;
 
-         RawDataPoints = elements.Select(selector.Selector).ToArray();
+        RawDataPoints = elements.Select(selector.Selector).ToArray();
 
         if (IsRegRank)
             DataPoints = IsAsc
@@ -50,7 +50,7 @@ public class RankSelector()
     public bool IsDepRank { get; set; }
 
     public bool IsRegRank { get; set; }
-    
+
     public bool IsRank => IsRegRank || IsDepRank;
 
     public CreateSelector Selector { get; set; }
