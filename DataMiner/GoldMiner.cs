@@ -30,8 +30,7 @@ public partial class GoldMiner
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
         BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta)
             .ToArray();
-        Qangio = elements.Where(e => !double.IsNaN(e.DQangio)).ToArray();
-
+        
         _setNameToData = new Dictionary<SetName, Element[]>
         {
             { SetName.Omega, Omega },
@@ -42,7 +41,6 @@ public partial class GoldMiner
             { SetName.Eta, Eta },
             { SetName.Theta, Theta },
             { SetName.BetaUZeta, BetaUZeta },
-            { SetName.Qangio, Qangio }
         };
     }
 
@@ -54,7 +52,6 @@ public partial class GoldMiner
     public Element[] Theta;
     public Element[] Eta;
     public Element[] BetaUZeta;
-    public Element[] Qangio;
 
     private readonly Dictionary<SetName, Element[]> _setNameToData;
     private readonly Dictionary<string, CreateSelector> _selectorCache = new();
@@ -173,7 +170,6 @@ public partial class GoldMiner
             AuDust(SetName.Theta, chartTitle),
             AuDust(SetName.Eta, chartTitle),
             AuDust(SetName.BetaUZeta, chartTitle),
-            AuDust(SetName.Qangio, chartTitle),
         }.Where(d => d != null).Cast<Dust>().ToArray();
     }
 

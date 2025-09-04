@@ -44,7 +44,6 @@ public enum SetName
     Theta = 3, // Smaller CAC increase in Beta
     Eta = 4, // Larger CAC increase in Beta
     BetaUZeta = 7,  // Beta union Zeta Eta and Theta are closely related to the Zeta set in terms of CAC
-    Qangio = 8,  // Where element.DQangio not double.NaN
 }
 
 // <summary>

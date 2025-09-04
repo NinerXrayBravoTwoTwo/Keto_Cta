@@ -175,20 +175,14 @@ namespace DataMiner
             //Tps0 vs. Ln(Cac1 / DQangio)-- Qangio
             //Slope: 2.8462 N = 10 R ^ 2: 0.9264 p - value: 0.013141 y - int 0.1162
 
-
-
-            if (!_setNameToData.TryGetValue(SetName.Qangio, out var elements))
-            {
-                return [];
-            }
-
+            
             List<string> myData =
             [
                 "index,Tps0,Ln(Cac0/DQangio),Ln(Cac1/DQangio),Set"
             ];
 
 
-            myData.AddRange(elements.Select(elem =>
+            myData.AddRange(Omega.Select(elem =>
                 $"{elem.Id},{elem.Visits[0].Tps},{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)},{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}," +
                 $"{elem.MemberSet}"));
 
@@ -222,7 +216,7 @@ namespace DataMiner
             var y_zeta = new List<string>();
             var z_zeta = new List<string>();
 
-            foreach (var elem in elements)
+            foreach (var elem in Elements)
             {
                 if (elem.IsGamma)
                 {

@@ -19,8 +19,8 @@ public class DustsPvalueHistogram
             { SetName.Theta, new int[6] },
             { SetName.Eta, new int[6] },
             { SetName.BetaUZeta, new int[6] },
-            { SetName.Qangio, new int[6] }
         };
+        
         var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
         {
             { SetName.Omega, [] },
@@ -31,7 +31,6 @@ public class DustsPvalueHistogram
             { SetName.Theta, [] },
             { SetName.Eta, [] },
             { SetName.BetaUZeta, [] },
-            { SetName.Qangio ,[] }
         };
 
         foreach (var dust in dusts)
