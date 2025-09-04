@@ -171,8 +171,11 @@ public class Element
 
     public override string ToString()
     {
+        // T_d values are -infinity  half life and +infinity for +0 T_d
+        
         var repVisits = $"{Visits[0]}\n{Visits[1]}";
         return $"Id: {Id} {MemberSet}:,, DTps {DTps:F3}, DCac {DCac:F3}, DNcpv {DNcpv:F3}, DTcpv {DTcpv:F3}, DPav {DPav:F3}, DQAng {DQangio:F3}"
+               +$"\nhalf-life: ,, TdCac {TdCac:F4}, TdNcpv {TdNcpv:F4}, TdTps {TdTps:f4}, TdQangio {TdQangio:F4}"
                + $"\n{repVisits}";
     }
 }
