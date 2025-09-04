@@ -189,7 +189,7 @@ namespace DataMiner
 
 
             myData.AddRange(elements.Select(elem =>
-                $"{elem.Id},{elem.Visits[0].Tps},{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)},{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}," +
+                $"{elem.Id},{elem.Visits[0].Tps},{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)},{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}," +
                 $"{elem.MemberSet}"));
 
             // ********
@@ -226,11 +226,11 @@ namespace DataMiner
             {
                 if (elem.IsGamma)
                 {
-                    ratio0_gamma.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    ratio1_gamma.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    ratio0_gamma.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    ratio1_gamma.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     tps0_gamma.Add($"{elem.Visits[0].Tps}");
-                    x_gamma.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    y_gamma.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    x_gamma.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    y_gamma.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     z_gamma.Add($"{elem.Visits[1].Tps}");
 
                     continue;
@@ -238,11 +238,11 @@ namespace DataMiner
 
                 if (elem.IsTheta)
                 {
-                    ratio0_theta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    ratio1_theta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    ratio0_theta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    ratio1_theta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     tps0_theta.Add($"{elem.Visits[0].Tps}");
-                    x_theta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    y_theta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    x_theta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    y_theta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     z_theta.Add($"{elem.Visits[1].Tps}");
 
                     continue;
@@ -250,22 +250,22 @@ namespace DataMiner
 
                 if (elem.IsEta)
                 {
-                    ratio0_eta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    ratio1_eta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    ratio0_eta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    ratio1_eta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     tps0_eta.Add($"{elem.Visits[0].Tps}");
-                    x_eta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    y_eta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    x_eta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    y_eta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     z_eta.Add($"{elem.Visits[1].Tps}");
                     continue;
                 }
 
                 if (elem.IsZeta)
                 {
-                    ratio0_zeta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    ratio1_zeta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    ratio0_zeta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    ratio1_zeta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     tps0_zeta.Add($"{elem.Visits[0].Tps}");
-                    x_zeta.Add($"{Visit.Ln(elem.Visits[0].Cac / elem.DQangio)}");
-                    y_zeta.Add($"{Visit.Ln(elem.Visits[1].Cac / elem.DQangio)}");
+                    x_zeta.Add($"{MathUtils.Ln(elem.Visits[0].Cac / elem.DQangio)}");
+                    y_zeta.Add($"{MathUtils.Ln(elem.Visits[1].Cac / elem.DQangio)}");
                     z_zeta.Add($"{elem.Visits[1].Tps}");
                     continue;
                 }

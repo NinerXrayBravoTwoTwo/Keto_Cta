@@ -82,11 +82,11 @@ namespace DataMiner
                     //    : valueN / valueD;
 
                     //return token == Token.LnRatio
-                    //    ? (id, Visit.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
+                    //    ? (id, MathUtils.Ln(ratio)) // Use the stat version of Ln(abs(x) + 1) declared static in Visit class
                     //    : (id, ratio);
 
                     return token == Token.LnRatio
-                        ? (id, Visit.Ln(valueD == 0 ? 0 : valueN / valueD))
+                        ? (id, MathUtils.Ln(valueD == 0 ? 0 : valueN / valueD))
                         : (id, valueD == 0 ? 0 : valueN / valueD);
 
                 };

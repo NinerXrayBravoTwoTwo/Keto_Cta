@@ -28,22 +28,12 @@ public record Visit
         Pav = pav;
         Qangio = qangio;
 
-        LnTps = Ln(tps);
-        LnCac = Ln(cac);
-        LnNcpv = Ln(ncpv);
-        LnTcpv = Ln(tcpv);
-        LnPav = Ln(pav);
-        LnQangio = Ln(Qangio);
-    }
-
-    public static double Ln(double value)
-    {
-        // Common logarithm function, so if you want to use base 10 instead of e, use Math.Log10
-        // if you want to use a different add constant change the + 1 to something else i.e 0.5 or 1.5 be creative
-        // The AI will have an opinion on a constant, but will never have the joy of comparing 30k regression p-values at a +1
-        // with 30k regression p-values at a +0.5 or +1.5 and saying "Hmm interesting ..." with one eyebrow raised 
-
-        return Math.Log(Math.Abs(value) + 1, double.E);
+        LnTps = MathUtils.Ln(tps);
+        LnCac = MathUtils.Ln(cac);
+        LnNcpv = MathUtils.Ln(ncpv);
+        LnTcpv = MathUtils.Ln(tcpv);
+        LnPav = MathUtils.Ln(pav);
+        LnQangio = MathUtils.Ln(Qangio);
     }
 
     public string Id { get; init; }

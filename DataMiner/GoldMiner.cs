@@ -248,8 +248,8 @@ public partial class GoldMiner
 
         foreach (var element in elements)
         {
-            var ratio0 = element.Visits[0].Ncpv == 0.0 ? 0 : Visit.Ln(element.Visits[0].Cac / element.Visits[0].Ncpv);
-            var ratio1 = element.Visits[1].Ncpv == 0.0 ? 0 : Visit.Ln(element.Visits[0].Cac / element.Visits[1].Ncpv);
+            var ratio0 = element.Visits[0].Ncpv == 0.0 ? 0 : MathUtils.Ln(element.Visits[0].Cac / element.Visits[0].Ncpv);
+            var ratio1 = element.Visits[1].Ncpv == 0.0 ? 0 : MathUtils.Ln(element.Visits[0].Cac / element.Visits[1].Ncpv);
 
             myData.Add(
                 $"{element.Id},{element.MemberSet},{element.DCac},{element.DNcpv},{element.LnDCac},{element.LnDNcpv},"
