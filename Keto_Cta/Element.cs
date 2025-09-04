@@ -76,7 +76,55 @@ public class Element
 
         Visits = visits;
         MemberSet = ComputeSetState(visits[0], visits[1]);
+
+        DTps = MathUtils.Diff(Visits[0].Tps, Visits[1].Tps);
+        DCac = MathUtils.Diff(Visits[0].Cac, Visits[1].Cac);
+        DNcpv = MathUtils.Diff(Visits[0].Ncpv, Visits[1].Ncpv);
+        DTcpv = MathUtils.Diff(Visits[0].Tcpv, Visits[1].Tcpv);
+        DPav = MathUtils.Diff(Visits[0].Pav, Visits[1].Pav);
+        DQangio = MathUtils.Diff(Visits[0].Qangio, Visits[1].Qangio); // Handle NaN if needed
+
+        GeoMeanCac = MathUtils.GeoMean(Visits[0].Cac, Visits[1].Cac);
+        GeoMeanNcpv = MathUtils.GeoMean(Visits[0].Ncpv, Visits[1].Ncpv);
+        GeoMeanQangio = MathUtils.GeoMean(Visits[0].Qangio, Visits[1].Qangio);
+        GeoMeanTcpv = MathUtils.GeoMean(Visits[0].Tcpv, Visits[1].Tcpv);
+        GeoMeanPav = MathUtils.GeoMean(Visits[0].Pav, Visits[1].Pav);
+
+        LnDTps = MathUtils.Ln(DTps);
+        LnDCac = MathUtils.Ln(DCac);
+        LnDNcpv = MathUtils.Ln(DNcpv);
+        LnDTcpv = MathUtils.Ln(DTcpv);
+        LnDPav = MathUtils.Ln(DPav);
+        LnDQangio = MathUtils.Ln(DQangio);
+
+        LnGeoMeanCac = MathUtils.Ln(GeoMeanCac);
+        LnGeoMeanNcpv = MathUtils.Ln(GeoMeanNcpv);
+        LnGeoMeanQangio = MathUtils.Ln(GeoMeanQangio);
+
+        TdTps = MathUtils.Td(Visits[0].Tps, Visits[1].Tps);
+        TdCac = MathUtils.Td(Visits[0].Cac, Visits[1].Cac);
+        TdNcpv = MathUtils.Td(Visits[0].Ncpv, Visits[1].Ncpv);
+        TdTcpv = MathUtils.Td(Visits[0].Tcpv, Visits[1].Tcpv);
+        TdPav = MathUtils.Td(Visits[0].Pav, Visits[1].Pav);
+        TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
     }
+
+    public double GeoMeanTcpv { get; set; }
+
+    public double GeoMeanPav { get; set; }
+
+    public double GeoMeanCac { get; set; }
+    public double GeoMeanNcpv { get; set; }
+    public double GeoMeanQangio { get; set; }
+    public double LnDTps { get; set; }
+    public double LnDCac { get; set; }
+    public double LnDNcpv { get; set; }
+    public double LnDTcpv { get; set; }
+    public double LnDPav { get; set; }
+    public double LnDQangio { get; set; }
+    public double LnGeoMeanCac { get; set; }
+    public double LnGeoMeanNcpv { get; set; }
+    public double LnGeoMeanQangio { get; set; }
 
     public LeafSetName MemberSet { get; init; }
 
@@ -86,45 +134,20 @@ public class Element
     // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
     // ... (constructor remains similar)
 
-    public double DTps => MathUtils.Diff(Visits[0].Tps, Visits[1].Tps);
-    public double DCac => MathUtils.Diff(Visits[0].Cac, Visits[1].Cac);
-    public double DNcpv => MathUtils.Diff(Visits[0].Ncpv, Visits[1].Ncpv);
-    public double DTcpv => MathUtils.Diff(Visits[0].Tcpv, Visits[1].Tcpv);
-    public double DPav => MathUtils.Diff(Visits[0].Pav, Visits[1].Pav);
-    public double DQangio => MathUtils.Diff(Visits[0].Qangio, Visits[1].Qangio); // Handle NaN if needed
+    public double DTps { get; init; }
+    public double DCac { get; init; }
+    public double DNcpv { get; init; }
+    public double DTcpv { get; init; }
+    public double DPav { get; init; }
+    public double DQangio { get; init; }
+    public double TdTps { get; init; }
+    public double TdCac { get; init; }
+    public double TdNcpv { get; init; }
+    public double TdTcpv { get; init; }
+    public double TdPav { get; init; }
+    public double TdQangio { get; init; }
 
-    public double GeoMeanCac => MathUtils.GeoMean(Visits[0].Cac, Visits[1].Cac);
-    public double GeoMeanNcpv => MathUtils.GeoMean(Visits[0].Ncpv, Visits[1].Ncpv);
-    public double GeoMeanQangio => MathUtils.GeoMean(Visits[0].Qangio, Visits[1].Qangio);
-
-    public double LnDTps => MathUtils.Ln(DTps);
-    public double LnDCac => MathUtils.Ln(DCac);
-    public double LnDNcpv => MathUtils.Ln(DNcpv);
-    public double LnDTcpv => MathUtils.Ln(DTcpv);
-    public double LnDPav => MathUtils.Ln(DPav);
-    public double LnDQangio => MathUtils.Ln(DQangio);
-
-    public double LnGeoMeanCac => MathUtils.Ln(GeoMeanCac);
-    public double LnGeoMeanNcpv => MathUtils.Ln(GeoMeanNcpv);
-    public double LnGeoMeanQangio => MathUtils.Ln(GeoMeanQangio);
-
-    public double TdTps => MathUtils.Td(Visits[0].Tps, Visits[1].Tps);
-    public double TdCac => MathUtils.Td(Visits[0].Cac, Visits[1].Cac);
-    public double TdNcpv => MathUtils.Td(Visits[0].Ncpv, Visits[1].Ncpv);
-    public double TdTcpv => MathUtils.Td(Visits[0].Tcpv, Visits[1].Tcpv);
-    public double TdPav => MathUtils.Td(Visits[0].Pav, Visits[1].Pav);
-    public double TdQangio => MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
-
-    /*
-       if v2 > v1:  # growth
-           return dt * math.log(2) / math.log(v2 / v1)
-       elif v2 < v1:  # regression
-           return -(dt * math.log(2) / math.log(v2 / v1))  # negative = half-life
-       else:
-           return None  # no change 
-     */
     //LnTdCac is not valid since Td vars are already Ln transformed
-    // Todo: Replace this noise by introducing functions, min|max, sum|diff, avg, geoMean, ln, Td, half-life, Ln etc
 
     public bool IsBeta => IsAlpha && (Visits[0].Cac != 0 || Visits[1].Cac != 0);
     public bool IsAlpha => MemberSet != LeafSetName.Zeta; // Not a Unicorn
@@ -158,10 +181,10 @@ public class Element
     public override string ToString()
     {
         // T_d values are -infinity  half life and +infinity for +0 T_d
-        
+
         var repVisits = $"{Visits[0]}\n{Visits[1]}";
         return $"Id: {Id} {MemberSet}:,, DTps {DTps:F3}, DCac {DCac:F3}, DNcpv {DNcpv:F3}, DTcpv {DTcpv:F3}, DPav {DPav:F3}, DQAng {DQangio:F3}"
-               +$"\nhalf-life: ,, TdCac {TdCac:F4}, TdNcpv {TdNcpv:F4}, TdTps {TdTps:f4}, TdQangio {TdQangio:F4}"
+               + $"\nhalf-life: ,, TdCac {TdCac:F4}, TdNcpv {TdNcpv:F4}, TdTps {TdTps:f4}, TdQangio {TdQangio:F4}"
                + $"\n{repVisits}";
     }
 }
