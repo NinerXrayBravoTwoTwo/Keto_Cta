@@ -435,7 +435,6 @@ while (true)
         try
         {
             dusts = goldMiner.GoldDust(title[0]);
-            // miner.AddRange(dusts);
         }
         catch (Exception error)
         {
@@ -443,7 +442,6 @@ while (true)
             continue;
         }
 
-        //localDusts.AddRange(dusts);
         dusts.ToList().ForEach(item => goldMiner.DustQueue.Enqueue(item));
 
         List<SetName> useSets = [];
@@ -476,23 +474,8 @@ while (true)
         }
         else // create new dusts
         {
-            Console.WriteLine($"Generating regression for '{title[0]}'...");
-            try
-            {
-                var newDusts = goldMiner.GoldDust(title[0]);
-                if (newDusts.Length == 0)
-                {
-                    Console.WriteLine($"Regression '{title[0]}' can not be generated.");
-                    continue;
-                }
+            throw new SystemException("Can not get here. Thread lock error?");
 
-                foreach (var row in regressionList.Build(dusts.ToArray()))
-                    Console.WriteLine(row);
-            }
-            catch (KeyNotFoundException)
-            {
-                Console.WriteLine("Please us valid data names");
-            }
         }
     }
 }
