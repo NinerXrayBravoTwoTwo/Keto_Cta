@@ -21,11 +21,13 @@
     <Compile Remove="C2Compiler.cs" />
     <Compile Remove="CovariantDicer.cs" />
     <Compile Remove="CreateSelectorA.cs" />
+    <Compile Remove="GoldDustProcessor.cs" />
     <Compile Remove="HistogramTool.cs" />
     <Compile Remove="LnRatioVariableDicet.cs" />
     <Compile Remove="MineRegression.cs" />
     <Compile Remove="ParseToDataMap.cs" />
     <Compile Remove="RatioVariableDicer.cs" />
+    <Compile Remove="RegressionNameProcessor.cs" />
     <Compile Remove="RegressionParser.cs" />
     <Compile Remove="SaltMiner.cs" />
     <Compile Remove="SimpleVariableDicer.cs" />
