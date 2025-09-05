@@ -2,17 +2,21 @@
 
 ![Logo](./logo.jpg)
 
-## Disclaimer
+## Conflict of Interest Disclosure
 
-This project, **Keto_CTA**, is an independent software development initiative. It is **not affiliated with** the Citizen Science Foundation, Lundquist Institute, or any other organization. The dataset used is publicly available for research from the Citizen Science Foundation. All analyses and software specifications herein are provided solely for educational and research purposes.
+This project, **Keto_CTA**, is an independent software development initiative. It is **not affiliated with** the Citizen Science Foundation, Lundquist Institute, or any other organization.
+* The author, Jillian England, has no financial or personal relationships with any organizations that could influence the research or findings presented here. 
+
+## Data Source and Usage
+The dataset used is publicly available for research from the Citizen Science Foundation. All analyses and software specifications herein are provided solely for educational and research purposes.
 
 ---
 
-
 ## Overview
-### There are Two main components to this project both of which are highly dependent on Linear Regressions
-1. Data Mining, creating an exhaustive list of all possible linear relationships between the variables in the dataset.
-2. Ketone and Glucose data analysis, which plots ketone and glucose for participants
+### This is primarily a Data Analysis and Data Mining project
+1. Well over a million linear regressions are currently run with this software package pitting every variable against each other and other math metrics such as half-life or time-to-double calcuations.
+2. A seperate project measuring Ketone and Glucose data analysis will be customized for the Keto-CTA dataset when it is made available.
+3. As Qangio and Heartflow data become available, these data will be added to the analysis.  Currently there are 10 preliminary Qangio data points released.
 
 ### Top Level Data transformation 
  **High level objective**
@@ -24,7 +28,7 @@ This project, **Keto_CTA**, is an independent software development initiative. I
 
 [*See Keto-CTA Enhanced Data set*](./Analysis/Keto-CTA-EnhancedDataSet.txt).
 
-### **Element** and **Visit** Data Classes
+### **Element** and **Visit** Data Definitions
 - **Element**
 	1. **Sub Set** - The subset of the dataset that this element belongs to, based on the presence of plaque reversal and CAC scores. Zeta, Gamma, Theta, and Alpha are the leaf sets.
 	2. **Id** - The original keto-cta-quant dataset does not have a unique key, so we create one based on the row number of the source dataset.
