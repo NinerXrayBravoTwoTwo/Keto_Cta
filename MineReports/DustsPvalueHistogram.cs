@@ -20,7 +20,7 @@ public class DustsPvalueHistogram
             { SetName.Eta, new int[6] },
             { SetName.BetaUZeta, new int[6] },
         };
-        
+
         var dataPoints = new Dictionary<SetName, List<(double x, double y)>>
         {
             { SetName.Omega, [] },

@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.Collections.Concurrent;
 
 namespace DataMiner;
 
 // Generic base class for queue processing
 public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : class
 {
-    protected readonly ConcurrentQueue<TInput> _inputQueue;
-    protected readonly List<TProcessed> _results = new();
-    protected readonly CancellationTokenSource _cts = new();
-    protected readonly object _lock = new();
+    protected readonly ConcurrentQueue<TInput> InputQueue;
+    protected readonly List<TProcessed> Results = new();
+    protected readonly CancellationTokenSource Cts = new();
+    protected readonly object Lock = new();
     protected readonly GoldMiner _goldMiner;
     private readonly int _batchSize;
     private readonly string _outputFile;
@@ -22,17 +16,17 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
     protected QueueProcessor(GoldMiner goldMiner, ConcurrentQueue<TInput> inputQueue, string outputFile, int batchSize = 100)
     {
         _goldMiner = goldMiner ?? throw new ArgumentNullException(nameof(goldMiner));
-        _inputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
+        InputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
         _outputFile = outputFile ?? throw new ArgumentNullException(nameof(outputFile));
         _batchSize = batchSize > 0 ? batchSize : 100;
-        Task.Run(() => ProcessQueueAsync(_cts.Token));
+        Task.Run(() => ProcessQueueAsync(Cts.Token));
     }
 
     public void Add(TInput input)
     {
         if (IsValidInput(input))
         {
-            _inputQueue.Enqueue(input);
+            InputQueue.Enqueue(input);
             Console.WriteLine($"Enqueued item: {input}");
         }
     }
@@ -49,7 +43,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
             try
             {
                 var batch = new List<TInput>();
-                while (batch.Count < _batchSize && _inputQueue.TryDequeue(out var input) && IsValidInput(input))
+                while (batch.Count < _batchSize && InputQueue.TryDequeue(out var input) && IsValidInput(input))
                 {
                     batch.Add(input);
                 }
@@ -57,10 +51,10 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
                 if (batch.Count > 0)
                 {
                     var processedBatch = batch.Select(ProcessInput).ToList();
-                    lock (_lock)
+                    lock (Lock)
                     {
-                        _results.AddRange(processedBatch);
-                        if (_results.Count >= _batchSize)
+                        Results.AddRange(processedBatch);
+                        if (Results.Count >= _batchSize)
                         {
                             SaveToCsvAsync().GetAwaiter().GetResult(); // Synchronous for simplicity
                         }
@@ -69,7 +63,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
                 else
                 {
                     // Dynamic delay based on queue size
-                    await Task.Delay(_inputQueue.Count > 1000 ? 500 : 1000, cancellationToken);
+                    await Task.Delay(InputQueue.Count > 1000 ? 500 : 1000, cancellationToken);
                 }
             }
             catch (Exception ex)
@@ -79,14 +73,14 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
         }
     }
 
-    private async Task SaveToCsvAsync()
+    private Task SaveToCsvAsync()
     {
         try
         {
-            lock (_lock)
+            lock (Lock)
             {
                 var csvLines = new[] { GetCsvHeader() }
-                    .Concat(_results.Select(GetCsvLine))
+                    .Concat(Results.Select(GetCsvLine))
                     .ToList();
                 File.WriteAllLinesAsync(_outputFile, csvLines).GetAwaiter().GetResult();
             }
@@ -95,32 +89,34 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
         {
             Console.WriteLine($"Error saving to CSV: {ex.Message}");
         }
+
+        return Task.CompletedTask;
     }
 
     public IEnumerable<TProcessed> GetResults(Func<TProcessed, bool>? predicate = null)
     {
-        lock (_lock)
+        lock (Lock)
         {
             return predicate == null
-                ? _results.AsEnumerable()
-                : _results.Where(predicate).AsEnumerable();
+                ? Results.AsEnumerable()
+                : Results.Where(predicate).AsEnumerable();
         }
     }
 
     public void Stop()
     {
-        _cts.Cancel();
+        Cts.Cancel();
         try
         {
-            _cts.Token.ThrowIfCancellationRequested();
+            Cts.Token.ThrowIfCancellationRequested();
         }
         catch (OperationCanceledException)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 SaveToCsvAsync().GetAwaiter().GetResult();
-                var count = _results.Count;
-                var latest = _results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
+                var count = Results.Count;
+                var latest = Results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
 
                 Console.WriteLine($"Final results: {count} items processed");
                 if (latest != null)
@@ -131,7 +127,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
         }
         finally
         {
-            _cts.Dispose();
+            Cts.Dispose();
         }
     }
 
@@ -185,29 +181,16 @@ public class GoldDustProcessor : QueueProcessor<Dust, GoldDustProcessor.Processe
         $"Input={result.Input}, Timestamp={result.Timestamp:O}, Key={result.Input.Key}";
 }
 
-public class RegressionNamesProcessor : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>
+public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue)
+    : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>(goldMiner, inputQueue, "processed_strings.csv")
 {
-    public class ProcessedString
+    public class ProcessedString(string input)
     {
-        public string Input { get; set; }
-        public DateTime Timestamp { get; set; }
-        public int Length { get; set; }
-        public int CharCount { get; set; }
-        public bool Processed { get; set; }
-
-        public ProcessedString(string input)
-        {
-            Input = input;
-            Timestamp = DateTime.UtcNow;
-            Length = input.Length;
-            CharCount = input.Count(char.IsLetter);
-            Processed = true;
-        }
-    }
-
-    public RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue)
-        : base(goldMiner, inputQueue, "processed_strings.csv")
-    {
+        public string Input { get; set; } = input;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public int Length { get; set; } = input.Length;
+        public int CharCount { get; set; } = input.Count(char.IsLetter);
+        public bool Processed { get; set; } = true;
     }
 
     protected override bool IsValidInput(string input) => !string.IsNullOrEmpty(input);
@@ -234,18 +217,3 @@ public class RegressionNamesProcessor : QueueProcessor<string, RegressionNamesPr
     protected override string GetSummary(ProcessedString result) =>
         $"Input={result.Input}, Timestamp={result.Timestamp:O}, Length={result.Length}";
 }
-
-// Assuming GoldMiner class with DustsQueue
-//public partial class GoldMiner
-//{
-//    public readonly ConcurrentDictionary<Guid, Dust> DustDictionary = new();
-//    public readonly ConcurrentQueue<string> RegressionNameQueue = new();
-//    public readonly ConcurrentQueue<Dust> DustQueue = new();
-
-//    // Placeholder for GoldDust method
-//    public IEnumerable<Dust> GoldDust(string input)
-//    {
-//        // Implement actual logic here
-//        yield break;
-//    }
-//}

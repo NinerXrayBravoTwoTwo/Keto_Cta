@@ -30,7 +30,7 @@ public partial class GoldMiner
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
         BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta)
             .ToArray();
-        
+
         _setNameToData = new Dictionary<SetName, Element[]>
         {
             { SetName.Omega, Omega },

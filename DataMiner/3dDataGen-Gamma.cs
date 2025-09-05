@@ -24,7 +24,6 @@ namespace DataMiner
                 "LnPav0/LnNcpv0,LnPav0/LnNcpv1,LnPav1/LnNcpv1,Set"
             ];
 
-
             myData.AddRange(elements.Select(elem =>
                 $"{elem.Id},{elem.DPav},{elem.LnDPav},{elem.Visits[0].LnPav},{elem.Visits[1].LnPav},{elem.Visits[0].LnNcpv},{elem.Visits[1].LnNcpv}," +
                 $"{elem.Visits[0].Pav / elem.Visits[0].Ncpv},{elem.Visits[0].Pav / elem.Visits[1].Ncpv}," +
@@ -175,7 +174,7 @@ namespace DataMiner
             //Tps0 vs. Ln(Cac1 / DQangio)-- Qangio
             //Slope: 2.8462 N = 10 R ^ 2: 0.9264 p - value: 0.013141 y - int 0.1162
 
-            
+
             List<string> myData =
             [
                 "index,Tps0,Ln(Cac0/DQangio),Ln(Cac1/DQangio),Set"

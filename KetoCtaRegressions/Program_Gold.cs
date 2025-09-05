@@ -139,7 +139,7 @@ while (true)
             }
         }
 
-        Console.WriteLine("regression".PadRight(40) +
+        Console.WriteLine("regression".PadRight(47) +
                           "token".PadRight(24) +
                           "avg p-value".PadRight(14) +
                           "min p-value".PadRight(14)
@@ -383,7 +383,6 @@ while (true)
             else if (item.Contains("conf", StringComparison.InvariantCulture))
                 regressionList = new DustRegressionList(RegressionReport.ConfInterval);
         }
-
 
         if (!result.IsSuccess)
         {
