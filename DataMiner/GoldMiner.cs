@@ -276,12 +276,12 @@ public partial class GoldMiner
                 "Cac0",
                 "Cac1",
                 "DCac",
-                "Cac-dbl-yrs",
+                "Td-Cac-years",
                 "Ncpv0",
                 "Ncpv1",
                 "DNcpv",
-                "Ncpv-dbl-yrs",
-                "QAngio-dbl-yrs")
+                "Td-Ncpv-years",
+                "Td-QAngio-years")
         };
 
         foreach (var element in elements.OrderByDescending(e => e.TdNcpv))

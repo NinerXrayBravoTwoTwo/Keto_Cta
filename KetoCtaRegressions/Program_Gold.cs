@@ -105,12 +105,12 @@ while (true)
 
         foreach (var item in names.Values.OrderByDescending(l => l.minPvalue))
         {
-            if (result.SearchTerms.Length == 0 && result.DependentToken == Token.None && result.RegressionToken == Token.None
+            if (result.SearchTerms.Length == 0 && result is { DependentToken: Token.None, RegressionToken: Token.None }
                 || PassesFilters(item.title, result.SearchTerms)
                 && FilterTokens(item.depToken, item.regToken, result.DependentToken, result.RegressionToken))
             {
                 var sb = new StringBuilder();
-                sb.Append($"{item.title}".PadRight(40));
+                sb.Append($"{item.title}".PadRight(47));
                 sb.Append($"{item.depToken} vs {item.regToken}".PadRight(24));
                 sb.Append($"{item.sumPvalue / item.n:F4}".PadRight(14));
                 sb.Append($"{item.minPvalue:F6}".PadRight(14));

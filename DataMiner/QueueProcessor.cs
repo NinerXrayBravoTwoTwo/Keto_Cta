@@ -50,7 +50,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
 
                 if (batch.Count > 0)
                 {
-                    var processedBatch = batch.Select(ProcessInput).ToList();
+                    var processedBatch = batch.Select(ProcessInput);
                     lock (Lock)
                     {
                         Results.AddRange(processedBatch);
@@ -80,8 +80,8 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
             lock (Lock)
             {
                 var csvLines = new[] { GetCsvHeader() }
-                    .Concat(Results.Select(GetCsvLine))
-                    .ToList();
+                    .Concat(Results.Select(GetCsvLine));
+                
                 File.WriteAllLinesAsync(_outputFile, csvLines).GetAwaiter().GetResult();
             }
         }
@@ -162,12 +162,13 @@ public class GoldDustProcessor : QueueProcessor<Dust, GoldDustProcessor.Processe
 
     protected override ProcessedDust ProcessInput(Dust input)
     {
-        string error = string.Empty;
-        if (!_goldMiner.DustDictionary.TryAdd(input.Key, input))
+
+        var error = string.Empty;
+        if (input.IsInteresting && !_goldMiner.DustDictionary.TryAdd(input.Key, input))
         {
             error = $"Key {input.Key} already exists in DustDictionary";
         }
-        return new ProcessedDust(input, error);
+        return new ProcessedDust(input, input.IsInteresting ? error : $"Skipped p-value: {input.Regression.PValue}");
     }
 
     protected override string GetCsvHeader() => "Input,Timestamp,Comment,Processed";

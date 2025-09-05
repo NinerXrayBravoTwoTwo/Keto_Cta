@@ -43,7 +43,7 @@ public class Dust
     public readonly SetName SetName;
     public readonly string RegressionName;
     public RegressionPvalue Regression;
-    public bool IsInteresting => Regression is { N: >= 2, PValue: > 0.0 and <= 0.601 };
+    public bool IsInteresting => Regression is { N: >= 4, PValue: > 0.0 and <= 0.901 };
     public Guid Key = Guid.Empty;
 
     public static Guid GenerateGuidMd5(string hashMeHarder)

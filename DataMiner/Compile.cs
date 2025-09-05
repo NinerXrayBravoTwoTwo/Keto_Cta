@@ -5,12 +5,19 @@ namespace DataMiner;
 
 public static class Compile
 {
+    private static readonly string ElementVisitattr =
+        "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|GeoMeanTps|GeoMeanCac|GeoMeanNcpv|GeoMeanTcpv|GeoMeanPav|GeoMeanQangio|" +
+        "LnDTps|LnDCac|LnDNcpv|LnDTcpv|LnDPav|LnDQangio|LnGeoMeanTps|LnGeoMeanCac|LnGeoMeanNcpv|LnGeoMeanTcpv|LnGeoMeanPav|" +
+        "LnGeoMeanQangio|TdTps|TdCac|TdNcpv|TdTcpv|TdPav|TdQangio|MaxNcpv|LnMaxNcpv|" +
+        "Tps|Cac|Ncpv|Tcpv|Pav|Qangio|"+
+        "LnTps|LnCac|LnNcpv|LnTcpv|LnPav|LnQangio";
+
+    // perl -ane 'print $F[0]."|" if /\S/' elemVar
     private static readonly Dictionary<string, string> AttributeDictionary = new(
-        "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|GeoMeanCac|GeoMeanNcpv|TdTps|TdCac|TdNcpv|TdTcpv|TdPav|TdQangio|Tps|Cac|Ncpv|Tcpv|Pav|Qangio"
+        ElementVisitattr
             .Split('|')
             .SelectMany(att => new[] {
-                new KeyValuePair<string, string>(att.ToLower(), att),
-                new KeyValuePair<string, string>("ln" + att.ToLower(), "Ln" + att) })
+                new KeyValuePair<string, string>(att.ToLower(), att) })
     );
 
     public static (Token token, string numerator, string denominator) Build(string regressorOrDependent)
@@ -172,7 +179,6 @@ public static class Compile
 
     public static string AttributeCaseNormalize(string attribute)
     {
-
         if (attribute.Contains('/'))
             throw new SyntaxErrorException($"Valid attribute not found for: '{attribute}'");
 

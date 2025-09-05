@@ -43,7 +43,7 @@ public record Visit
     public double Ncpv { get; init; }
     public double Tcpv { get; init; }
     public double Pav { get; init; }
-    public double Qangio { get; init; } = 0.0; // Todo: Waiting for the QAngio data release. Delete 0.0 when complete data is available
+    public double Qangio { get; init; }
 
     public double LnTps { get; init; }
     public double LnCac { get; init; }
@@ -51,7 +51,7 @@ public record Visit
     public double LnTcpv { get; init; }
     public double LnPav { get; init; }
 
-    public double LnQangio { get; init; } = 0.0; // Todo: Waiting for the QAngio data release. Delete 0.0 when complete data is available
+    public double LnQangio { get; init; }
     public override string ToString()
     {
         return

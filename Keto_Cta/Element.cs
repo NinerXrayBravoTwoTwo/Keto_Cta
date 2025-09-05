@@ -111,8 +111,13 @@ public class Element
         TdPav = MathUtils.Td(Visits[0].Pav, Visits[1].Pav);
         TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
 
-        var xxx = MathUtils.GeoMean(Visits.Select(v => v.Cac).ToArray());
+        MaxNcpv = MathUtils.Max(Visits.Select(v => v.Ncpv).ToArray());
+        LnMaxNcpv = MathUtils.Ln(MaxNcpv);
+        
     }
+
+    public double MaxNcpv { get; init; }
+    public double LnMaxNcpv { get; init; }
 
     public double GeoMeanTps { get; init; }
     public double GeoMeanCac { get; init; }
@@ -134,15 +139,11 @@ public class Element
     public double LnGeoMeanTcpv { get; init; }
     public double LnGeoMeanPav { get; init; }
     public double LnGeoMeanQangio { get; init; }
-
-
+    
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
     public List<Visit> Visits { get; init; }
-
-    // Move it inside constructor to ensure it is computed once, it is outside for temporary testing
-    // ... (constructor remains similar)
 
     public double DTps { get; init; }
     public double DCac { get; init; }

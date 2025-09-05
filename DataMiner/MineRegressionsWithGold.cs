@@ -38,11 +38,13 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     [
         "Tps", "Cac", "Ncpv", "Tcpv", "Pav", "Qangio", "LnTps", "LnCac", "LnNcpv", "LnTcpv", "LnPav", "LnQangio"
     ];
-
+    // perl -ane 'print "\"".$F[0]."\", " if /\S/;' elemVar
     public static string[] ElementAttributes =
     [
-        "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio",
-        "TdTps", "TdCac", "TdNcpv", "TdTcpv", "TdPav", "TdQangio", "GeoMeanCac", "GeoMeanNcpv", "LnGeoMeanCac", "LnGeoMeanNcpv"
+        "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "GeoMeanTps", "GeoMeanCac", "GeoMeanNcpv", "GeoMeanTcpv",
+        "GeoMeanPav", "GeoMeanQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio", "LnGeoMeanTps",
+        "LnGeoMeanCac", "LnGeoMeanNcpv", "LnGeoMeanTcpv", "LnGeoMeanPav", "LnGeoMeanQangio", "TdTps", "TdCac", "TdNcpv",
+        "TdTcpv", "TdPav", "TdQangio", "MaxNcpv", "LnMaxNcpv"
     ];
 
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
