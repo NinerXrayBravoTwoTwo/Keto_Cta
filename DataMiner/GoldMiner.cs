@@ -15,21 +15,20 @@ public partial class GoldMiner
 {
     public GoldMiner(string ketoCtaPath, string qAngioPath = "")
     {
+        var heartflow = ReadHeartflowCsvFile(heartFlowPath); // Placeholder for future Heartflow data integration
         var qangio = ReadQangioCsvFile(qAngioPath);
 
         var elements = ReadKetoCtaFile(ketoCtaPath, qangio) ??
                        throw new ArgumentException("CSV file returned null elements.", nameof(ketoCtaPath));
 
-        Omega = elements.Where(e =>
-            e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
+        Omega = elements.Where(e => e.MemberSet is LeafSetName.Zeta or LeafSetName.Gamma or LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Alpha = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Gamma).ToArray();
         Beta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta).ToArray();
         Zeta = elements.Where(e => e.MemberSet == LeafSetName.Zeta).ToArray();
         Gamma = elements.Where(e => e.MemberSet == LeafSetName.Gamma).ToArray();
         Theta = elements.Where(e => e.MemberSet == LeafSetName.Theta).ToArray();
         Eta = elements.Where(e => e.MemberSet == LeafSetName.Eta).ToArray();
-        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta)
-            .ToArray();
+        BetaUZeta = elements.Where(e => e.MemberSet is LeafSetName.Theta or LeafSetName.Eta or LeafSetName.Zeta).ToArray();
 
         _setNameToData = new Dictionary<SetName, Element[]>
         {
@@ -70,7 +69,7 @@ public partial class GoldMiner
     /// <param name="qAngioData"></param>
     /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
     /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
-    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null)
+    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null, List<HeartflowData>? heartFlowData= null)
     {
         var list = new List<Element>();
         using var reader = new StreamReader(ketoCtaPath);
@@ -124,6 +123,37 @@ public partial class GoldMiner
 
         var list = new List<QAngio>();
         using var reader = new StreamReader(qAngioPath);
+        var lineNumber = 0;
+        if (!reader.EndOfStream) reader.ReadLine();
+        while (!reader.EndOfStream)
+        {
+            lineNumber++;
+
+            var line = reader.ReadLine();
+#pragma warning disable CS8602
+            var values = line.Split(',');
+#pragma warning restore CS8602
+
+            try
+            {
+                var qAngioRow = new QAngio(int.Parse(values[0]), double.Parse(values[1]), double.Parse(values[2]));
+                list.Add(qAngioRow);
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"QAngio - Skipping Row {lineNumber + 1}: invalid number format ({ex.Message}).");
+            }
+        }
+
+        return list;
+    }
+
+    private static List<QAngio> ReadHeartflowCsvFile(string heartFlowPath)
+    {
+        if (string.IsNullOrEmpty(heartFlowPath)) return [];
+
+        var list = new List<QAngio>();
+        using var reader = new StreamReader(heartFlowPath);
         var lineNumber = 0;
         if (!reader.EndOfStream) reader.ReadLine();
         while (!reader.EndOfStream)

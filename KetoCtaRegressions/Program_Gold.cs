@@ -473,8 +473,7 @@ while (true)
         }
         else // create new dusts
         {
-            throw new SystemException("Can not get here. Thread lock error?");
-
+            Console.WriteLine("Can not get here. Thread lock error on Regression-Dictionary?");
         }
     }
 }

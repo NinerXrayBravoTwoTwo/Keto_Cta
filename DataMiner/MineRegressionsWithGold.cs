@@ -21,7 +21,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-        PermutationsCc(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
         Success = true;
         return Success;
@@ -130,74 +129,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
     public static string[] PermutationsB(string[] visitAttributes, string[] elementAttributes)
     {
-        List<string> permutations = [];
-
-        // EVE
-        foreach (var reg in elementAttributes) //regressor loop
-            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
-                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
-                {
-
-                    //for (var x = 0; x < 2; x++)
-                    for (var y = 0; y < 2; y++)
-                    //for (var z = 0; z < 2; z++)
-
-                    {
-                        permutations.Add($"{num}/{den}{y} vs. {reg}");
-                        permutations.Add($"Ln({num}/{den}{y}) vs. {reg}");
-                    }
-                }
-        // VEE
-        foreach (var reg in ElementAttributes) //regressor loop
-            foreach (var num in visitAttributes.Where(a => !a.StartsWith("Ln")))
-                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
-                {
-
-                    for (var x = 0; x < 2; x++)
-                    //for (var y = 0; y < 2; y++)
-                    //for (var z = 0; z < 2; z++)
-
-                    {
-                        permutations.Add($"{num}{x}/{den} vs. {reg}");
-                        permutations.Add($"Ln({num}{x}/{den}) vs. {reg}");
-                    }
-                }
-        // EEE
-        foreach (var reg in elementAttributes) //regressor loop
-            foreach (var num in elementAttributes.Where(a => !a.StartsWith("Ln")))
-                foreach (var den in elementAttributes.Where(a => !a.StartsWith("Ln")))
-                {
-                    if (!num.Equals(den))
-                    {
-                        //for (var x = 0; x < 2; x++)
-                        //for (var y = 0; y < 2; y++)
-                        //for (var z = 0; z < 2; z++)
-                        {
-                            permutations.Add($"{num}/{den} vs. {reg}");
-                            permutations.Add($"Ln({num}/{den} vs. {reg}");
-                        }
-                    }
-                }
-        //VVV
-        foreach (var reg in VisitAttributes) //regressor loop
-            foreach (var num in VisitAttributes.Where(a => !a.StartsWith("Ln")))
-                foreach (var den in VisitAttributes.Where(a => !a.StartsWith("Ln")))
-                {
-                    for (var x = 0; x < 2; x++)
-                        for (var y = 0; y < 2; y++)
-                            for (var z = 0; z < 2; z++)
-                                if (!$"{num}{x}".Equals("{den}{y}"))
-                                {
-                                    permutations.Add($"{num}{x}/{den}{y} vs. {reg}{z}");
-                                    permutations.Add($"Ln({num}{x}/{den}{y}) vs. {reg}{z}");
-                                }
-                }
-
-        return permutations.ToArray();
-    }
-
-    public static string[] PermutationsCc(string[] visitAttributes, string[] elementAttributes)
-    {
         /*
          * VVVV
          * EEEE
@@ -229,7 +160,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                                             permutations.Add($"Ln({depN}{x}/{depD}{y}) vs. Ln({regN}{z}/{regD}{o})");
                                         }
                                     }
-
                     }
 
         // Element attributes permutations EEEE
@@ -291,7 +221,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
                             }
                     }
 
-
         // Visit attributes permutations VVEE
         foreach (var depD in visitAttributes.Where(a => !a.StartsWith("Ln"))) //regressor loop
             foreach (var depN in visitAttributes.Where(a => !a.StartsWith("Ln")))
@@ -338,7 +267,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
     public string[] RootComboRatio()
     {
-        return MineRegressionsWithGold.PermutationsCc(MineRegressionsWithGold.VisitAttributes,
+        return MineRegressionsWithGold.PermutationsB(MineRegressionsWithGold.VisitAttributes,
                 MineRegressionsWithGold.ElementAttributes)
             .ToArray();
 
