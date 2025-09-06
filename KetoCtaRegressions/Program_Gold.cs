@@ -255,7 +255,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'comRatio', 'ratioVsDelta' 'cool' 'LnStudy' 'mono'");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', Delta' 'cool' 'LnStudy' 'mono', 'mine'");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -282,14 +282,7 @@ while (true)
                     newFilterTerms = result.SearchTerms.Where(s => !s.Contains("ratio", StringComparison.OrdinalIgnoreCase));
                     break;
 
-                case "comRatio":
-                    miner.RootComboRatio()
-                        .ToList()
-                        .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("comratio", StringComparison.OrdinalIgnoreCase));
-                    break;
-
-                case "ratiovsdelta":
+                case "delta":
                     miner.RatioVsDelta()
                         .ToList()
                         .ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));

@@ -9,7 +9,7 @@ namespace MineReports
             return new ListRegressionBasic();
         }
 
-        private const string HeaderFormat = "{0,-45}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
+        private const string HeaderFormat = "{0,-48}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
         private const string RowFormat = HeaderFormat;
 
         public List<string> ReportBuffer(IEnumerable<Dust> orderedDusts)
@@ -40,8 +40,8 @@ namespace MineReports
             string setName = dust.SetName.ToString();
 
             // Truncate strings to avoid overflow, compatible with older C#
-            regressionName = regressionName.Length > 41 ? regressionName.Substring(0, 41) : regressionName;
-            setName = setName.Length > 10 ? setName.Substring(0, 10) : setName;
+            regressionName = regressionName.Length > 47 ? regressionName.Substring(0, 47) : regressionName;
+            setName = setName.Length > 10 ? setName.Substring(0, 12) : setName;
 
             var moeX = dust.Regression.MarginOfError();
             var moeY = dust.Regression.MarginOfError(true);
