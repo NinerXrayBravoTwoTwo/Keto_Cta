@@ -15,7 +15,7 @@ public partial class GoldMiner
 {
     public GoldMiner(string ketoCtaPath, string qAngioPath = "")
     {
-        var heartflow = ReadHeartflowCsvFile(heartFlowPath); // Placeholder for future Heartflow data integration
+        //var heartflow = ReadHeartflowCsvFile(heartFlowPath); // Placeholder for future Heartflow data integration
         var qangio = ReadQangioCsvFile(qAngioPath);
 
         var elements = ReadKetoCtaFile(ketoCtaPath, qangio) ??
@@ -294,9 +294,10 @@ public partial class GoldMiner
            ? _setNameToData[SetName.Omega]
            : _setNameToData[setNames[0]];
 
-        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,10:F0}{5,14:F4}{6,10:F0}{7,10:F0}{8,10:F2}{9,14:F4}{10,16:F4}";
+        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,7:F4}{5,7:F4}{6,14:F3}{7,15:F3}{8,15:F3}";
         const string rowFormat = headerFormat;
 
+        
         var reportBuffer = new List<string>
         {
             string.Format(
@@ -305,13 +306,11 @@ public partial class GoldMiner
                 "Set",
                 "Cac0",
                 "Cac1",
-                "DCac",
-                "Td-Cac-years",
                 "Ncpv0",
                 "Ncpv1",
-                "DNcpv",
+                "Td-Cac-years",
                 "Td-Ncpv-years",
-                "Td-QAngio-years")
+                "Td-QAngio-yrs")
         };
 
         foreach (var element in elements.OrderByDescending(e => e.TdNcpv))
@@ -322,11 +321,9 @@ public partial class GoldMiner
                 element.MemberSet,
                 FormatNumber(element.Visits[0].Cac, 0),
                 FormatNumber(element.Visits[1].Cac, 0),
-                FormatNumber(element.DCac, 0),
-                FormatNumber(element.TdCac, 5),
                 FormatNumber(element.Visits[0].Ncpv, 1),
                 FormatNumber(element.Visits[1].Ncpv, 1),
-                FormatNumber(element.DNcpv, 1),
+                FormatNumber(element.TdCac, 5),
                 FormatNumber(element.TdNcpv, 5),
                 FormatNumber(element.TdQangio, 5)
             ));
