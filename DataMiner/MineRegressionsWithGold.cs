@@ -13,12 +13,12 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         _doneMineOperation = true;
 
+        PermutationsRank(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+        
         RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-        RootComboRatio().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         RootRatioMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         V1vsV0matrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         CoolMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
@@ -46,6 +46,26 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         "TdTcpv", "TdPav", "TdQangio", "MaxNcpv", "LnMaxNcpv"
     ];
 
+    public static string[] PermutationsRank(string[] visitAttributes, string[] elementAttributes)
+    {
+        List<string> permutations = [];
+        
+        foreach (var attr in visitAttributes) permutations.Add($"{attr} vs. RankA");
+        foreach (var attr in elementAttributes) permutations.Add($"{attr} vs. RankA");
+        foreach (var attr in visitAttributes) permutations.Add($"{attr} vs. RankD");
+        foreach (var attr in elementAttributes) permutations.Add($"{attr} vs. RankD");
+
+        foreach (var visit in VisitAttributes.Where(v => !v.StartsWith("Ln")))
+        {
+            permutations.Add($"{visit}1/{visit}0 vs. RankA");
+            permutations.Add($"{visit}0/{visit}1 vs. RankA");
+
+            permutations.Add($"Ln({visit}1/{visit}0) vs. RankA"); // In practice these are identical to the above except in magnitude
+            permutations.Add($"Ln({visit}0/{visit}1) vs. RankA");
+        }
+
+        return permutations.ToArray();
+    }
     public static string[] PermutationsA(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
@@ -265,13 +285,13 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         return permutations.ToArray();
     }
 
-    public string[] RootComboRatio()
-    {
-        return MineRegressionsWithGold.PermutationsB(MineRegressionsWithGold.VisitAttributes,
-                MineRegressionsWithGold.ElementAttributes)
-            .ToArray();
+    //public string[] RootComboRatio()
+    //{
+    //    return MineRegressionsWithGold.PermutationsB(MineRegressionsWithGold.VisitAttributes,
+    //            MineRegressionsWithGold.ElementAttributes)
+    //        .ToArray();
 
-    }
+    //}
 
     private bool _isRatioMatrix;
     public string[] RootRatioMatrix()
