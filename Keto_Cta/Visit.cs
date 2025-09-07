@@ -1,5 +1,6 @@
 ﻿namespace Keto_Cta;
 
+[Serializable]
 public record Visit
 {
     /// <summary>
@@ -48,7 +49,7 @@ public record Visit
     public double Pav { get; init; }
     public double Qangio { get; init; }
     public double Heartflow { get; init; }
-
+    
     public double LnTps { get; init; }
     public double LnCac { get; init; }
     public double LnNcpv { get; init; }

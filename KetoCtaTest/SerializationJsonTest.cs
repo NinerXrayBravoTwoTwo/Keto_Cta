@@ -10,7 +10,7 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     [Fact]
     public void SerializeVisit()
     {
-        var visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5, 0);
+        var visit = new Visit("123", DateTime.Now, 10, 20, 30.5, 40.5, 50.5, 0, 0);
         var json = System.Text.Json.JsonSerializer.Serialize(visit);
         _testOutputHelper.WriteLine(json);
         Assert.NotNull(json);
@@ -20,7 +20,7 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     //[Fact]
     //public void DeserializeVisit()
     //{
-    //    var json = "{\"Id\":\"123\",\"VisitDate\":\"2023-10-01T00:00:00Z\",\"Tps\":10.0,\"Cac\":20.0,\"Ncpv\":30.5,\"Tcpv\":40.5,\"Pav\":50.5}";
+    //    var json = "{\"Id\":\"123\",\"VisitDate\":\"2023-10-01T00:00:00Z\",\"Tps\":10.0,\"Cac\":20.0,\"Ncpv\":30.5,\"Tcpv\":40.5,\"Pav\":50.5, \"Qangio\":0.0, \"Heartflow\":0.0}";
     //    var visit = System.Text.Json.JsonSerializer.Deserialize<Visit>(json);
     //    Assert.NotNull(visit);
     //    Assert.Equal("123", visit.Id);
@@ -53,7 +53,7 @@ public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
     //}
     #endregion
 
-    #region Event Serialization Tests
+    #region Element Serialization Tests
     //[Fact]
     //public void SerializeElement()
     //{

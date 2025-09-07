@@ -26,6 +26,7 @@ namespace Keto_Cta;
 //     • θ : Theta, { x ∈ β | Δcac(x) ≤ 10 }
 //     ◦ 23 participants (smaller CAC increase)
 // </summary>
+[Serializable]
 public enum LeafSetName
 {
     Zeta = 1, // Unicorns
@@ -33,7 +34,7 @@ public enum LeafSetName
     Theta = 3, // Smaller CAC increase  
     Eta = 4 // Larger CAC increase
 }
-
+[Serializable]
 public enum SetName
 {
     Omega = 0, // All participants, Zeta U Gamma U Theta U Eta
@@ -56,6 +57,7 @@ public enum SetName
 //     It also avoids the potential confusion of using a term like "Participant" when the
 //     data does not actually contain personal information.
 // </summary>
+[Serializable]
 public class Element
 {
     /// <summary>
