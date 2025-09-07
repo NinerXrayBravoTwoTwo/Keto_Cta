@@ -16,7 +16,6 @@ GoldDustProcessor threadB = new GoldDustProcessor(goldMiner, goldMiner.DustQueue
 
 #region Chart Specific Regression
 
-
 void DustsToCvs(IEnumerable<Dust> dust)
 {
     foreach (var dust1 in dust)
@@ -58,13 +57,13 @@ void DustsToCvs(IEnumerable<Dust> dust)
 string MetaDataX(RegressionPvalue regression)
 {
     var moe = regression.MarginOfError();
-    return $"MeanX: {moe.Mean} moeX: {moe.MarginOfError:F4} StdDevX: {regression.StdDevX} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
+    return $"MeanX: {moe.Mean:F4} moeX: {moe.MarginOfError:F4} StdDevX: {regression.StdDevX:F4} Slope: {regression.Slope:F4} p-value: {regression.PValue:F6}";
 }
 
 string MetaDataY(RegressionPvalue regression)
 {
     var moe = regression.MarginOfError(true);
-    return $"MeanY: {moe.Mean} moeY: {moe.MarginOfError:F4} StdDevY: {regression.StdDevY} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
+    return $"MeanY: {moe.Mean:F4} moeY: {moe.MarginOfError:F4} StdDevY: {regression.StdDevY:F4} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
 }
 
 
