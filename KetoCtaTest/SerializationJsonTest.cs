@@ -1,4 +1,6 @@
-﻿namespace KetoCtaTest;
+﻿using System.Text.Json.Serialization;
+
+namespace KetoCtaTest;
 using Keto_Cta;
 using Xunit.Abstractions;
 
@@ -6,6 +8,8 @@ using Xunit.Abstractions;
 public class SerializationJsonTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+    // use MineRegressionsWithGoldMiner to generate attributes for Json serialization tests
+   
     #region Visit Serialization Tests
     [Fact]
     public void SerializeVisit()

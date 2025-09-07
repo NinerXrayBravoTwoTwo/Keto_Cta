@@ -3,6 +3,7 @@ using Keto_Cta;
 using MineReports;
 using System.Text;
 using System.Text.RegularExpressions;
+using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -27,8 +28,24 @@ void DustsToCvs(IEnumerable<Dust> dust)
         var dependent = parts[0];
         var ids = dust1.Regression.IdPoints.ToArray();
 
-        Console.WriteLine($"\n-,-,{dust1.RegressionName} -- {dust1.SetName}" +
-                          $"\n-,-,Slope: {target.Slope:F4} N={target.N} R^2: {target.RSquared:F4} p-value: {target.PValue:F6} y-int {target.YIntercept:F4}");
+        string metadata;
+        if (dust1.RegToken is Token.RankA or Token.RankD
+            && dust1.DepToken is not (Token.RankA or Token.RankD))
+        {
+            metadata = MetaDataY(target);
+        }
+        else if (dust1.DepToken is Token.RankA or Token.RankD)
+        {
+            metadata = MetaDataX(target);
+        }
+        else
+        {
+            metadata = MetaDataX(target);
+        }
+
+        Console.WriteLine($"\n-,-,{dust1.RegressionName} - {dust1.SetName}" +
+                          $"\n-,-," + metadata);
+
         Console.WriteLine($"Id, {regressor}, {dependent}");
         var n = 0;
         foreach (var point in target.DataPoints)
@@ -37,6 +54,20 @@ void DustsToCvs(IEnumerable<Dust> dust)
         }
     }
 }
+
+string MetaDataX(RegressionPvalue regression)
+{
+    var moe = regression.MarginOfError();
+    return $"MeanX: {moe.Mean} moeX: {moe.MarginOfError:F4} StdDevX: {regression.StdDevX} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
+}
+
+string MetaDataY(RegressionPvalue regression)
+{
+    var moe = regression.MarginOfError(true);
+    return $"MeanY: {moe.Mean} moeY: {moe.MarginOfError:F4} StdDevY: {regression.StdDevY} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
+}
+
+
 #endregion
 
 var vsPattern = @"^([A-Z\d\s\(/\(\)]+)\s(vs\.?)\s([A-Z\d\s\(/\(\)]+)\s*(-.+)?$";
@@ -409,6 +440,24 @@ while (true)
             "Possible Commands: 'independent vs. regressor', dust Search  1 (prints thousands of lines, ,01 = 10, mine takes a minite, matrix, " +
             "keto, clear, histogram, Element, q|exit|quit|end|help");
     }
+    else if (IsMatch(command, @"^stop", RegexOptions.IgnoreCase))
+    {
+        Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
+        try
+        {
+            threadA.Stop();
+            threadB.Stop();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            threadA = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
+            threadB = new GoldDustProcessor(goldMiner, goldMiner.DustQueue);
+
+            Console.WriteLine($"Dust regression processing is RESTARTED.");
+        }
+    }
+
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta
     else if (IsMatch(command, vsPattern, RegexOptions.IgnoreCase))
     {
@@ -470,3 +519,4 @@ while (true)
         }
     }
 }
+
