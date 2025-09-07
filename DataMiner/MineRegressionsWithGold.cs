@@ -43,7 +43,8 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         "DTps", "DCac", "DNcpv", "DTcpv", "DPav", "DQangio", "GeoMeanTps", "GeoMeanCac", "GeoMeanNcpv", "GeoMeanTcpv",
         "GeoMeanPav", "GeoMeanQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio", "LnGeoMeanTps",
         "LnGeoMeanCac", "LnGeoMeanNcpv", "LnGeoMeanTcpv", "LnGeoMeanPav", "LnGeoMeanQangio", "TdTps", "TdCac", "TdNcpv",
-        "TdTcpv", "TdPav", "TdQangio", "MaxNcpv", "LnMaxNcpv"
+        "TdTcpv", "TdPav", "TdQangio",
+        "MaxNcpv", "LnMaxNcpv", "MinNcpv", "LnMinNcpv", "MaxCac", "LnMinCac", 
     ];
 
     public static string[] PermutationsRank(string[] visitAttributes, string[] elementAttributes)

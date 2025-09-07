@@ -8,7 +8,9 @@ public static class Compile
     private static readonly string ElementVisitattr =
         "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|GeoMeanTps|GeoMeanCac|GeoMeanNcpv|GeoMeanTcpv|GeoMeanPav|GeoMeanQangio|" +
         "LnDTps|LnDCac|LnDNcpv|LnDTcpv|LnDPav|LnDQangio|LnGeoMeanTps|LnGeoMeanCac|LnGeoMeanNcpv|LnGeoMeanTcpv|LnGeoMeanPav|" +
-        "LnGeoMeanQangio|TdTps|TdCac|TdNcpv|TdTcpv|TdPav|TdQangio|MaxNcpv|LnMaxNcpv|" +
+        "LnGeoMeanQangio|TdTps|TdCac|TdNcpv|TdTcpv|TdPav|TdQangio|"+
+        "MaxNcpv|LnMaxNcpv|MinNcpv|LnMinNcpv|"+
+        "MaxCac|LnMaxCac|MinCac|LnMinCac|" +
         "Tps|Cac|Ncpv|Tcpv|Pav|Qangio|"+
         "LnTps|LnCac|LnNcpv|LnTcpv|LnPav|LnQangio";
 

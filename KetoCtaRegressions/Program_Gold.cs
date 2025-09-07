@@ -466,7 +466,7 @@ while (true)
         }
         else // create new dusts
         {
-            Console.WriteLine("Can not get here. Thread lock error on Regression-Dictionary?");
+            Console.WriteLine("You have requested a regression I have no data definition for, or a possible timing conflict error on Regression-Dictionary? Try Again.");
         }
     }
 }

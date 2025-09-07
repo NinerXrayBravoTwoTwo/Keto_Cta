@@ -112,12 +112,26 @@ public class Element
         TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
 
         MaxNcpv = MathUtils.Max(Visits.Select(v => v.Ncpv).ToArray());
-        LnMaxNcpv = MathUtils.Ln(MaxNcpv);
+        LnMaxNcpv = MathUtils.Min(Visits.Select(v => v.Ncpv).ToArray());
+        MinNcpv = MathUtils.Ln(MaxNcpv);
+        LnMinNcpv = MathUtils.Ln(MinNcpv);
+
+        MaxCac = MathUtils.Min(Visits.Select(v => v.Cac).ToArray());
+        LnMaxCac = MathUtils.Ln(MinCac);
+        MinCac = MathUtils.Min(Visits.Select(v => v.Cac).ToArray());
+        LnMinCac = MathUtils.Ln(MinCac);
         
     }
 
     public double MaxNcpv { get; init; }
     public double LnMaxNcpv { get; init; }
+    public double MinNcpv { get; init; }
+    public double LnMinNcpv { get; init; }
+    
+    public double MaxCac { get; init; }
+    public double LnMaxCac { get; init; }
+    public double MinCac { get; init; }
+    public double LnMinCac { get; init; }
 
     public double GeoMeanTps { get; init; }
     public double GeoMeanCac { get; init; }
