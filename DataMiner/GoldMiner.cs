@@ -67,6 +67,7 @@ public partial class GoldMiner
     /// contains invalid numeric data, it is skipped, and a message is logged to the console.</remarks>
     /// <param name="ketoCtaPath">The file path of the CSV file to read. The file must exist and be accessible.</param>
     /// <param name="qAngioData"></param>
+    /// <param name="heartFlowData"></param>
     /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
     /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
     private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null, List<HeartflowData>? heartFlowData= null)
