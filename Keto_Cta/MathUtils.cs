@@ -32,14 +32,37 @@ public static class MathUtils
     /// </summary>
     public static double Td(double v1, double v2, double dt = 1.0)
     {
+        // infinite time to double or half life is actually just a signal of no change to the v2 value
         if (Math.Abs(v1 - v2) < 0.00000001) return 0;
+
+        // And into the weeds we go ... :) Log ratios are undefined for zero/negative values, use inverse sqr time for those cases
         if (v1 <= 0 || v2 <= 0) return double.NaN; // Invalid for log ratio
 
         double ratio = v2 / v1;
-        if (ratio > 1) // Growth: time to double
-            return dt * Math.Log(2) / Math.Log(ratio);
-        else // Regression: half-life (negative)
-            return -(dt * Math.Log(2) / Math.Log(1 / ratio)); // Equivalent to log(v1/v2)
+
+        // Growth: time to double
+        var result = ratio > 1
+        ? dt * Math.Log(2) / Math.Log(ratio)
+
+        // Regression: half-life (negative)
+        : -(dt * Math.Log(2) / Math.Log(1 / ratio)); // Equivalent to log(v1/v2)
+        return result;
+    }
+
+    public static double DblPredict(double td, double baseline, double years = 1)
+    {
+        // Td of NaN means invalid, return NaN
+        if (double.IsNaN(td)) return double.NaN;
+
+        // Td of zero means no change, return baseline.
+        if (td == 0) return baseline;
+
+        // compute ratio growth/decay rate
+        var r = double.IsPositive(td)
+            ? Math.Log(2, double.E) / td
+            : Math.Log(0.5, double.E) / -td; // half-life case
+
+        return baseline * Math.Pow(double.E, years * r);
     }
 
     public static double Min(double v1, double v2) => Math.Min(v1, v2);

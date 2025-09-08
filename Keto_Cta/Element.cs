@@ -122,14 +122,24 @@ public class Element
         LnMaxCac = MathUtils.Ln(MinCac);
         MinCac = MathUtils.Min(Visits.Select(v => v.Cac).ToArray());
         LnMinCac = MathUtils.Ln(MinCac);
-        
+
+        CacPredict = MathUtils.DblPredict(TdCac, Visits[1].Cac, 1);
+        NcpvPredict = MathUtils.DblPredict(TdNcpv, Visits[1].Ncpv, 1);
+        LnCacPredict = MathUtils.Ln(CacPredict);
+        LnNcpvPredict = MathUtils.Ln(NcpvPredict);
     }
+
+
+    public double CacPredict { get; init; }
+    public double NcpvPredict { get; init; }
+    public double LnCacPredict { get; set; }
+    public double LnNcpvPredict { get; set; }
 
     public double MaxNcpv { get; init; }
     public double LnMaxNcpv { get; init; }
     public double MinNcpv { get; init; }
     public double LnMinNcpv { get; init; }
-    
+
     public double MaxCac { get; init; }
     public double LnMaxCac { get; init; }
     public double MinCac { get; init; }
@@ -155,7 +165,7 @@ public class Element
     public double LnGeoMeanTcpv { get; init; }
     public double LnGeoMeanPav { get; init; }
     public double LnGeoMeanQangio { get; init; }
-    
+
     public LeafSetName MemberSet { get; init; }
 
     public string Id { get; init; }
