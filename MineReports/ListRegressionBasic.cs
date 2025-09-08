@@ -9,7 +9,7 @@ namespace MineReports
             return new ListRegressionBasic();
         }
 
-        private const string HeaderFormat = "{0,-48}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F3}{6,10:F4}{7,10:F3}{8,13:F8}";
+        private const string HeaderFormat = "{0,-48}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F4}{6,10:F3}{7,10:F4}{8,10:F4}{9,13:F8}";
         private const string RowFormat = HeaderFormat;
 
         public List<string> ReportBuffer(IEnumerable<Dust> orderedDusts)
@@ -18,15 +18,16 @@ namespace MineReports
         {
             string.Format(
                 HeaderFormat,
-                "Regression",
+                "Regression", // 0
                 "Set",
                 "Mean X",
                 "moe X",
-                "Mean Y",
+                "Mean Y", // 4 
                 "moe Y",
                 "Slope",
-                "xSD",
-                "p-value")
+                "StdErr", // 7 StdErr is standard error of the slope
+                "xStdDev",
+                "p-value") // 9
         };
 
             reportBuffer.AddRange(from dust in orderedDusts select FormatRow(dust));
@@ -54,7 +55,8 @@ namespace MineReports
                 FormatNumber(moeY.Mean, 3),
                 FormatNumber(moeY.MarginOfError, 3),
                 FormatNumber(dust.Regression.Slope, 4),
-                FormatNumber(dust.Regression.StdDevX, 3),
+                FormatNumber(dust.Regression.ConfidenceIntervalPlus().StandardError, 4),
+                FormatNumber(dust.Regression.StdDevX, 4),
                 FormatNumber(dust.Regression.PValue, 8));
         }
 
