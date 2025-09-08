@@ -81,7 +81,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
             {
                 var csvLines = new[] { GetCsvHeader() }
                     .Concat(Results.Select(GetCsvLine));
-                
+
                 File.WriteAllLinesAsync(_outputFile, csvLines).GetAwaiter().GetResult();
             }
         }

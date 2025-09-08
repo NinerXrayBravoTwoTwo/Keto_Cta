@@ -70,7 +70,7 @@ public partial class GoldMiner
     /// <param name="heartFlowData"></param>
     /// <returns>A list of <see cref="Element"/> objects created from the parsed rows of the CSV file.  Each <see
     /// cref="Element"/> contains two <see cref="Visit"/> objects representing the data in the row.</returns>
-    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null, List<HeartflowData>? heartFlowData= null)
+    private static List<Element> ReadKetoCtaFile(string ketoCtaPath, List<QAngio>? qAngioData = null, List<HeartflowData>? heartFlowData = null)
     {
         var list = new List<Element>();
         using var reader = new StreamReader(ketoCtaPath);
@@ -295,10 +295,9 @@ public partial class GoldMiner
            ? _setNameToData[SetName.Omega]
            : _setNameToData[setNames[0]];
 
-        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,7:F4}{5,7:F4}{6,14:F3}{7,15:F3}{8,15:F3}";
+        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,9:F4}{5,7:F4}{6,10:F4}{7,12:F4}{8,14:F3}{9,17:F3}{10,15:F3}";
         const string rowFormat = headerFormat;
 
-        
         var reportBuffer = new List<string>
         {
             string.Format(
@@ -307,26 +306,30 @@ public partial class GoldMiner
                 "Set",
                 "Cac0",
                 "Cac1",
+                "CacPred",
                 "Ncpv0",
                 "Ncpv1",
+                "NcpvPred",
                 "Td-Cac-years",
                 "Td-Ncpv-years",
                 "Td-QAngio-yrs")
         };
 
-        foreach (var element in elements.OrderByDescending(e => e.TdNcpv))
+        foreach (var element in elements.OrderByDescending(e => e.TdCac))
         {
             reportBuffer.Add(string.Format(
                 rowFormat,
-                element.Id,
+                element.Id, // 0
                 element.MemberSet,
                 FormatNumber(element.Visits[0].Cac, 0),
                 FormatNumber(element.Visits[1].Cac, 0),
+                FormatNumber(element.CacPredict, 2), // 4
                 FormatNumber(element.Visits[0].Ncpv, 1),
                 FormatNumber(element.Visits[1].Ncpv, 1),
+                FormatNumber(element.NcpvPredict, 2), // 7
                 FormatNumber(element.TdCac, 5),
                 FormatNumber(element.TdNcpv, 5),
-                FormatNumber(element.TdQangio, 5)
+                FormatNumber(element.TdQangio, 5) //10
             ));
         }
 

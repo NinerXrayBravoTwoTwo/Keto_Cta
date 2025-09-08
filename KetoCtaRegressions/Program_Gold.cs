@@ -1,9 +1,9 @@
 ﻿using DataMiner;
 using Keto_Cta;
+using LinearRegression;
 using MineReports;
 using System.Text;
 using System.Text.RegularExpressions;
-using LinearRegression;
 using static System.Text.RegularExpressions.Regex;
 
 var ctaDataPath = "TestData/keto-cta-quant-and-semi-quant.csv";
@@ -54,18 +54,17 @@ void DustsToCvs(IEnumerable<Dust> dust)
     }
 }
 
-string MetaDataX(RegressionPvalue regression)
+string MetaDataX(RegressionPvalue regr)
 {
-    var moe = regression.MarginOfError();
-    return $"MeanX: {moe.Mean:F4} moeX: {moe.MarginOfError:F4} StdDevX: {regression.StdDevX:F4} Slope: {regression.Slope:F4} p-value: {regression.PValue:F6}";
+    var moe = regr.MarginOfError();
+    return $"MeanX: {moe.Mean:F4} moeX: {moe.MarginOfError:F4} StdDevX: {regr.StdDevX:F4} Slope: {regr.Slope:F4} StdErr: {regr.ConfidenceIntervalPlus().StandardError:F4} p-value: {regr.PValue:F6} N={regr.N}";
 }
 
-string MetaDataY(RegressionPvalue regression)
+string MetaDataY(RegressionPvalue regr)
 {
-    var moe = regression.MarginOfError(true);
-    return $"MeanY: {moe.Mean:F4} moeY: {moe.MarginOfError:F4} StdDevY: {regression.StdDevY:F4} Slope: {regression.Slope:F4} N={regression.N} p-value: {regression.PValue:F6}";
+    var moe = regr.MarginOfError(true);
+    return $"MeanY: {moe.Mean:F4} moeY: {moe.MarginOfError:F4} StdDevY: {regr.StdDevY:F4} Slope: {regr.Slope:F4} StdErr: {regr.ConfidenceIntervalPlus().StandardError:F4} p-value: {regr.PValue:F6} N={regr.N}";
 }
-
 
 #endregion
 
@@ -366,7 +365,7 @@ while (true)
             Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
         }
     }
-    else if (IsMatch(command, @"^keto.*", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^keto", RegexOptions.IgnoreCase))
     {
         var result = new CommandParser("keto").Parse(command);
 
@@ -423,7 +422,7 @@ while (true)
             Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
         }
     }
-    else if (IsMatch(command, @"^hist*", RegexOptions.IgnoreCase))
+    else if (IsMatch(command, @"^hist", RegexOptions.IgnoreCase))
     {
         var report = DustsPvalueHistogram.Build(goldMiner.DustDictionary.Values.ToArray());
 
