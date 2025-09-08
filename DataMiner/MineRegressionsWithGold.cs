@@ -14,7 +14,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         _doneMineOperation = true;
 
         PermutationsRank(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-        
+
         RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         RootRatioMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         V1vsV0matrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
@@ -44,13 +44,14 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         "GeoMeanPav", "GeoMeanQangio", "LnDTps", "LnDCac", "LnDNcpv", "LnDTcpv", "LnDPav", "LnDQangio", "LnGeoMeanTps",
         "LnGeoMeanCac", "LnGeoMeanNcpv", "LnGeoMeanTcpv", "LnGeoMeanPav", "LnGeoMeanQangio", "TdTps", "TdCac", "TdNcpv",
         "TdTcpv", "TdPav", "TdQangio",
-        "MaxNcpv", "LnMaxNcpv", "MinNcpv", "LnMinNcpv", "MaxCac", "LnMinCac", 
+        "MaxNcpv", "LnMaxNcpv", "MinNcpv", "LnMinNcpv", "MaxCac", "LnMinCac",
+        "CacPredict", "NcpvPredict", "LnCacPredict", "LnNcpvPredict"
     ];
 
     public static string[] PermutationsRank(string[] visitAttributes, string[] elementAttributes)
     {
         List<string> permutations = [];
-        
+
         foreach (var attr in visitAttributes) permutations.Add($"{attr} vs. RankA");
         foreach (var attr in elementAttributes) permutations.Add($"{attr} vs. RankA");
         foreach (var attr in visitAttributes) permutations.Add($"{attr} vs. RankD");
