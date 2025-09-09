@@ -478,7 +478,7 @@ while (true)
         catch (Exception error)
         {
             Console.WriteLine($"Error generating regression for '{title[0]}': {error.Message}");
-            continue;
+            throw;
         }
 
         dusts.ToList().ForEach(item => goldMiner.DustQueue.Enqueue(item));

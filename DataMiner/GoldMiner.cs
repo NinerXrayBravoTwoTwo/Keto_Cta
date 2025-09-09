@@ -327,9 +327,9 @@ public partial class GoldMiner
                 FormatNumber(element.Visits[0].Ncpv, 1),
                 FormatNumber(element.Visits[1].Ncpv, 1),
                 FormatNumber(element.NcpvPredict, 2), // 7
-                FormatNumber(element.TdCac, 5),
-                FormatNumber(element.TdNcpv, 5),
-                FormatNumber(element.TdQangio, 5) //10
+                FormatNumber(element.TdCac.Td, 5),
+                FormatNumber(element.TdNcpv.Td, 5),
+                FormatNumber(element.TdQangio.Td, 5) //10
             ));
         }
 

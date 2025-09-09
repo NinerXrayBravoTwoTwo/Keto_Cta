@@ -52,7 +52,19 @@ public class MazeTwistyPassages
 
             if (propInfo == null) return null;
 
+            var a = propInfo.GetMethod;
+
             current = propInfo.GetValue(current);
+            // Check if current is a ValueTuple<double, bool>
+            if (current is (double value, bool flag))
+            {
+                // If the boolean flag is true, perform additional logic
+                current = flag ? double.PositiveInfinity : value;
+                // Additional logic here
+                // For example, store data to pass up the call stack
+                // You can use a return object, context, or other mechanism (see below)
+                // Extract the double value to return as current
+            }
 
             if (index == -1) continue;
 

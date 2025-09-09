@@ -30,13 +30,13 @@ public static class MathUtils
     /// Time to double (positive) or half-life (negative) assuming dt=1 (e.g., years between visits).
     /// Returns 0 if no change; handles v1/v2 order for growth/regression.
     /// </summary>
-    public static double Td(double v1, double v2, double dt = 1.0)
+    public static (double Td,  bool isInfinite) Td(double v1, double v2, double dt = 1.0)
     {
         // infinite time to double or half life is actually just a signal of no change to the v2 value
-        if (Math.Abs(v1 - v2) < 0.00000001) return 0;
+        if (Math.Abs(v1 - v2) < 0.00000001) return (td: 0.0, isInfinite: true);
 
         // And into the weeds we go ... :) Log ratios are undefined for zero/negative values, use inverse sqr time for those cases
-        if (v1 <= 0 || v2 <= 0) return double.NaN; // Invalid for log ratio
+        if (v1 <= 0 || v2 <= 0) return (td:double.NaN, isInfinite: false); // Invalid for log ratio
 
         double ratio = v2 / v1;
 
@@ -46,21 +46,21 @@ public static class MathUtils
 
         // Regression: half-life (negative)
         : -(dt * Math.Log(2) / Math.Log(1 / ratio)); // Equivalent to log(v1/v2)
-        return result;
+        return (result,false);
     }
 
-    public static double DblPredict(double td, double baseline, double years = 1)
+    public static double DblPredict((double T_d, bool isInfinit) td, double baseline, double years = 1)
     {
         // Td of NaN means invalid, return NaN
-        if (double.IsNaN(td)) return double.NaN;
+        if (double.IsNaN(td.T_d)) return double.NaN;
 
         // Td of zero means no change, return baseline.
-        if (td == 0) return baseline;
+        if (td.T_d == 0) return baseline;
 
         // compute ratio growth/decay rate
-        var r = double.IsPositive(td)
-            ? Math.Log(2, double.E) / td
-            : Math.Log(0.5, double.E) / -td; // half-life case
+        var r = double.IsPositive(td.T_d)
+            ? Math.Log(2, double.E) / td.T_d
+            : Math.Log(0.5, double.E) / -td.T_d; // half-life case
 
         return baseline * Math.Pow(double.E, years * r);
     }
@@ -84,10 +84,10 @@ public static class MathUtils
         return Math.Pow(product, 1.0 / values.Length);
     }
 
-    // Half-life as a separate wrapper (positive value for regression cases)
-    public static double HalfLife(double v1, double v2, double dt = 1.0)
-    {
-        double td = Td(v1, v2, dt);
-        return td < 0 ? -td : double.NaN; // Only meaningful for regression
-    }
+    //// Half-life as a separate wrapper (positive value for regression cases)
+    //public static double HalfLife(double v1, double v2, double dt = 1.0)
+    //{
+    //    double td = Td(v1, v2, dt);
+    //    return td < 0 ? -td : double.NaN; // Only meaningful for regression
+    //}
 }

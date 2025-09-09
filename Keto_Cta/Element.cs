@@ -129,7 +129,6 @@ public class Element
         LnNcpvPredict = MathUtils.Ln(NcpvPredict);
     }
 
-
     public double CacPredict { get; init; }
     public double NcpvPredict { get; init; }
     public double LnCacPredict { get; set; }
@@ -177,12 +176,12 @@ public class Element
     public double DTcpv { get; init; }
     public double DPav { get; init; }
     public double DQangio { get; init; }
-    public double TdTps { get; init; }
-    public double TdCac { get; init; }
-    public double TdNcpv { get; init; }
-    public double TdTcpv { get; init; }
-    public double TdPav { get; init; }
-    public double TdQangio { get; init; }
+    public (double Td, bool isInfinite) TdTps { get; init; }
+    public (double Td, bool isInfinite) TdCac { get; set; }
+    public (double Td, bool isInfinite) TdNcpv { get; init; }
+    public (double Td, bool isInfinite) TdTcpv { get; init; }
+    public (double Td, bool isInfinite) TdPav { get; init; }
+    public (double Td, bool isInfinite) TdQangio { get; init; }
 
     //LnTdCac is not valid since Td vars are already Ln transformed
 
