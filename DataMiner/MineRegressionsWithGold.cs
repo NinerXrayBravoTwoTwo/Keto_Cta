@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace DataMiner;
+﻿namespace DataMiner;
 
 public class MineRegressionsWithGold(GoldMiner goldMiner)
 {
@@ -15,14 +13,12 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         PermutationsNcpvVsCac().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsRank(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-
         RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         RootRatioMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         V1vsV0matrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         CoolMatrix().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
-
 
         Success = true;
         return Success;
@@ -37,33 +33,33 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         string[] names =
         [
-"Ncpv0 vs. Cac0",
-"Ncpv1 vs. Cac1",
-"DNcpv vs. DCac",
-"GeoMeanNcpv vs. GeoMeanCac",
-"Ncpv0/Ncpv1 vs. Cac0/Cac1",
-"TdNcpv vs. TdCac",
+            "Ncpv0 vs. Cac0",
+            "Ncpv1 vs. Cac1",
+            "DNcpv vs. DCac",
+            "GeoMeanNcpv vs. GeoMeanCac",
+            "Ncpv0/Ncpv1 vs. Cac0/Cac1",
+            "TdNcpv vs. TdCac",
 
-"LnNcpv0 vs. LnCac0",
-"LnNcpv1 vs. LnCac1",
-"LnDNcpv vs. LnDCac",
-"LnGeoMeanNcpv vs. LnGeoMeanCac",
-"Ln(Ncpv1/Ncpv0) vs. Ln(Cac1/Cac0)",
-"LnTdNcpv vs. LnTdCac",
+            "LnNcpv0 vs. LnCac0",
+            "LnNcpv1 vs. LnCac1",
+            "LnDNcpv vs. LnDCac",
+            "LnGeoMeanNcpv vs. LnGeoMeanCac",
+            "Ln(Ncpv1/Ncpv0) vs. Ln(Cac1/Cac0)",
+            "LnTdNcpv vs. LnTdCac",
 
-"QAngio0 vs. Cac0",
-"QAngio1 vs. Cac1",
-"DQAngio vs. DCac",
-"GeoMeanQAngio vs. GeoMeanCac",
-"Qangio1/Qangio0 vs. Cac1/Cac0",
-"TdQAngio vs. TdCac",
+            "QAngio0 vs. Cac0",
+            "QAngio1 vs. Cac1",
+            "DQAngio vs. DCac",
+            "GeoMeanQAngio vs. GeoMeanCac",
+            "Qangio1/Qangio0 vs. Cac1/Cac0",
+            "TdQAngio vs. TdCac",
 
-"LnQAngio0 vs. LnCac0",
-"LnQAngio1 vs. LnCac1",
-"LnDQAngio vs. LnDCac",
-"GeoMeanQangio vs. GeoMeanCac",
-"Ln(Qangio1/Qangio1) vs. Ln(Cac1/Cac0)",
-"LnTdQAngio0 vs. LnTdCac",
+            "LnQAngio0 vs. LnCac0",
+            "LnQAngio1 vs. LnCac1",
+            "LnDQAngio vs. LnDCac",
+            "GeoMeanQangio vs. GeoMeanCac",
+            "Ln(Qangio1/Qangio1) vs. Ln(Cac1/Cac0)",
+            "LnTdQAngio0 vs. LnTdCac"
         ];
         return names.ToArray();
     }
@@ -190,7 +186,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         return permutations.ToArray();
     }
-
     public static string[] PermutationsB(string[] visitAttributes, string[] elementAttributes)
     {
         /*
@@ -328,15 +323,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         return permutations.ToArray();
     }
-
-    //public string[] RootComboRatio()
-    //{
-    //    return MineRegressionsWithGold.PermutationsB(MineRegressionsWithGold.VisitAttributes,
-    //            MineRegressionsWithGold.ElementAttributes)
-    //        .ToArray();
-
-    //}
-
+    
     private bool _isRatioMatrix;
     public string[] RootRatioMatrix()
     {
@@ -350,10 +337,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     }
 
     private bool _isV1vsV0matrix;
-    /// <summary>
-    /// #1
-    /// </summary>0
-    /// <returns></returns>
     public string[] V1vsV0matrix()
     {
         if (_isV1vsV0matrix) return [];
@@ -366,11 +349,6 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
     }
 
     private bool _isRatioVsDelta;
-
-    /// <summary>
-    /// #2 Ratio vs Delta
-    /// </summary>
-    /// <returns></returns>
     public string[] RatioVsDelta()
     {
         if (_isRatioVsDelta)
@@ -426,13 +404,13 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Ln(Cac1/Cac0) vs. Ln(Ncpv1/Ncpv0)",
             "Ln(Cac0/Cac1) vs. Ln(Ncpv0/Ncpv1)",
             "Ln(Qangio1/Qangio0) vs. Ln(Ncpv1/Ncpv0)",
-            "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)",
+            "Ln(Qangio0/Qangio1) vs. Ln(Cac1/Cac0)"
 
         ];
         return names.ToArray();
     }
 
-    private bool _isLnStudy;
+    private bool _isLnStudy = false;
     public string[] LnStudy()
     {
         if (_isLnStudy)
