@@ -32,6 +32,7 @@ public static class MathUtils
     /// </summary>
     public static (double Td,  bool isInfinite) Td(double v1, double v2, double dt = 1.0)
     {
+
         // infinite time to double or half life is actually just a signal of no change to the v2 value
         if (Math.Abs(v1 - v2) < 0.00000001) return (td: 0.0, isInfinite: true);
 
@@ -51,6 +52,8 @@ public static class MathUtils
 
     public static double DblPredict((double T_d, bool isInfinit) td, double baseline, double years = 1)
     {
+        // Todo: Or, if the half life is infinite I could use MaxValue(var + 1 StdDev) or something like that
+
         // Td of NaN means invalid, return NaN
         if (double.IsNaN(td.T_d)) return double.NaN;
 

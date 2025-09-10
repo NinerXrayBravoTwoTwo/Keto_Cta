@@ -13,6 +13,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         _doneMineOperation = true;
 
+        PermutationsNcpvVsCac().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsRank(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
         RatioVsDelta().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
@@ -22,8 +23,49 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         PermutationsA(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
         PermutationsB(VisitAttributes, ElementAttributes).ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
 
+
         Success = true;
         return Success;
+    }
+
+    public string[] PermutationsNcpvVsCac()
+    {
+        if (_isCool)
+            return [];
+
+        _isCool = true;
+
+        string[] names =
+        [
+"Ncpv0 vs. Cac0",
+"Ncpv1 vs. Cac1",
+"DNcpv vs. DCac",
+"GeoMeanNcpv vs. GeoMeanCac",
+"Ncpv0/Ncpv1 vs. Cac0/Cac1",
+"TdNcpv vs. TdCac",
+
+"LnNcpv0 vs. LnCac0",
+"LnNcpv1 vs. LnCac1",
+"LnDNcpv vs. LnDCac",
+"LnGeoMeanNcpv vs. LnGeoMeanCac",
+"Ln(Ncpv1/Ncpv0) vs. Ln(Cac1/Cac0)",
+"LnTdNcpv vs. LnTdCac",
+
+"QAngio0 vs. Cac0",
+"QAngio1 vs. Cac1",
+"DQAngio vs. DCac",
+"GeoMeanQAngio vs. GeoMeanCac",
+"Qangio1/Qangio0 vs. Cac1/Cac0",
+"TdQAngio vs. TdCac",
+
+"LnQAngio0 vs. LnCac0",
+"LnQAngio1 vs. LnCac1",
+"LnDQAngio vs. LnDCac",
+"GeoMeanQangio vs. GeoMeanCac",
+"Ln(Qangio1/Qangio1) vs. Ln(Cac1/Cac0)",
+"LnTdQAngio0 vs. LnTdCac",
+        ];
+        return names.ToArray();
     }
 
     public void Clear()

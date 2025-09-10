@@ -284,7 +284,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', Delta' 'cool' 'LnStudy' 'mono', 'mine'");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', Delta' 'cool' 'LnStudy' 'mono', 'mine', whycac'");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -295,7 +295,12 @@ while (true)
             // Create a histogram or regression list report
 
             switch (filter.ToLower())
-            {
+            {// PermutationsNcpvVsCac
+                case "whycac":
+                    miner.PermutationsNcpvVsCac().ToList().ForEach(item => goldMiner.RegressionNameQueue.Enqueue(item));
+                    newFilterTerms = result.SearchTerms.Where(s => !s.Contains("visit", StringComparison.OrdinalIgnoreCase));
+                    break;
+
                 case "visit":
                     miner.V1vsV0matrix()
                         .ToList()

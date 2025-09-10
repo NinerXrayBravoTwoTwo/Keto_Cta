@@ -112,7 +112,14 @@ public class Element
         TdTcpv = MathUtils.Td(Visits[0].Tcpv, Visits[1].Tcpv);
         TdPav = MathUtils.Td(Visits[0].Pav, Visits[1].Pav);
         TdQangio = MathUtils.Td(Visits[0].Qangio, Visits[1].Qangio); // Will return NaN if invalid
-
+        
+        LnTdTps = MathUtils.Ln(TdTps.Td);
+        LnTdCac = MathUtils.Ln(TdCac.Td);
+        LnTdNcpv = MathUtils.Ln(TdNcpv.Td);
+        LnTdTcpv = MathUtils.Ln(TdTcpv.Td);
+        LnTdPav = MathUtils.Ln(TdPav.Td);
+        LnTdQangio = MathUtils.Ln(TdQangio.Td);
+        
         MaxNcpv = MathUtils.Max(Visits.Select(v => v.Ncpv).ToArray());
         LnMaxNcpv = MathUtils.Min(Visits.Select(v => v.Ncpv).ToArray());
         MinNcpv = MathUtils.Ln(MaxNcpv);
@@ -128,6 +135,13 @@ public class Element
         LnCacPredict = MathUtils.Ln(CacPredict);
         LnNcpvPredict = MathUtils.Ln(NcpvPredict);
     }
+    
+    public double LnTdTps { get; init; }
+    public double LnTdCac { get; init; }
+    public double LnTdNcpv { get; init; }
+    public double LnTdTcpv { get; init; }
+    public double LnTdPav { get; init; }
+    public double LnTdQangio { get; init; }
 
     public double CacPredict { get; init; }
     public double NcpvPredict { get; init; }
