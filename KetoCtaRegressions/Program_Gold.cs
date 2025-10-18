@@ -284,7 +284,7 @@ while (true)
         IEnumerable<string> newFilterTerms = [];
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', Delta' 'cool' 'LnStudy' 'mono', 'mine', whycac'");
+            Console.WriteLine($"No matrix mining operations were requested, 'visit', 'ratio', 'Delta' 'cool' 'LnStudy' 'mono', 'mine', 'whycac'");
 
         // var myDusts = new List<Dust>();
         foreach (var filter in result.SearchTerms)
@@ -471,7 +471,7 @@ while (true)
         if (!tokens.Success)
         {
             Console.WriteLine(
-                $"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0, (Omega|Beta)'");
+                $"Please submit regressions in the form of 'Dependent vs Regressor' for example 'Cac1 vs Cac0 - (Omega|Beta|Theta|...)'");
             continue;
         }
 

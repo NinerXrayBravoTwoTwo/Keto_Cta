@@ -249,7 +249,9 @@ public partial class GoldMiner
             selectedData = data.Select(selector.Selector);
         }
 
-        var regression = new RegressionPvalue(selectedData.Where(t => !double.IsNaN(t.x) && !double.IsNaN(t.y)).ToList());
+        var regression = new RegressionPvalue(selectedData.Where(t =>
+            !double.IsNaN(t.x) && !double.IsNaN(t.y) &&
+            !double.IsInfinity(t.x) && !double.IsInfinity(t.y)).ToList());
 
         return regression.DataPointsCount() < 3 ? null : new Dust(setName, chartTitle, regression, selector.DependentCompile.token, selector.RegressorCompile.token);
     }

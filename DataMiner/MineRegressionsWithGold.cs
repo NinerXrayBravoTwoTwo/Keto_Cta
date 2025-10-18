@@ -323,7 +323,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
 
         return permutations.ToArray();
     }
-    
+
     private bool _isRatioMatrix;
     public string[] RootRatioMatrix()
     {
