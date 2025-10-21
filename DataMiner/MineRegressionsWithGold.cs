@@ -425,7 +425,13 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Cac1/Cac0 vs. DCac",
             "Cac0/Cac1 vs. DCac",
             "Ln(Cac1/LnCac0) vs. LnDCac",
+            "Ln(Cac1/LnCac0) vs. RankA",
             "Ln(Cac0/LnCac1) vs. LnDCac",
+            "Ln(Cac0/LnCac1) vs. RankA",
+            "DCac vs. RankA",
+            "LnDCac vs. RankA",
+            "TdCac vs. RankA",
+            "LnTdCac vs. RankA",
 
             "Ncpv1 vs. Ncpv0",
             "LnNcpv1 vs. LnNcpv0",
@@ -433,6 +439,13 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Ncpv0/Ncpv1 vs. DNcpv",
             "Ln(Ncpv1/LnNcpv0) vs. LnDNcpv",
             "Ln(Ncpv0/LnNcpv1) vs. LnDNcpv",
+            "Ln(Ncpv1/LnNcpv0) vs. RankA",
+            "Ln(Ncpv0/LnNcpv1) vs. RankA",
+            "DNcpv vs. RankA",
+            "LnDNcpv vs. RankA",
+            "TdNcpv vs. RankA",
+            "LnTdNcpv vs. RankA"
+            
         ];
         return names.ToArray();
     }
