@@ -425,9 +425,12 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "Cac1/Cac0 vs. DCac",
             "Cac0/Cac1 vs. DCac",
             "Ln(Cac1/LnCac0) vs. LnDCac",
-            "Ln(Cac1/LnCac0) vs. RankA",
             "Ln(Cac0/LnCac1) vs. LnDCac",
+
+            "Ln(Cac1/LnCac0) vs. RankA",
             "Ln(Cac0/LnCac1) vs. RankA",
+            "Cac1/LnCac0 vs. RankA",
+            "Cac0/LnCac1 vs. RankA",
             "DCac vs. RankA",
             "LnDCac vs. RankA",
             "TdCac vs. RankA",

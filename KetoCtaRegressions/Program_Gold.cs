@@ -375,7 +375,7 @@ while (true)
         var result = new CommandParser("keto").Parse(command);
 
         if (result.SearchTerms is { Length: 0 })
-            Console.WriteLine("Keto-CTA data report options: Extend, growth, HalfLife ");
+            Console.WriteLine("Keto-CTA data report options: Extended, growth, HalfLife ");
 
         foreach (var filter in result.SearchTerms)
         {

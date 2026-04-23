@@ -297,7 +297,11 @@ public partial class GoldMiner
            ? _setNameToData[SetName.Omega]
            : _setNameToData[setNames[0]];
 
-        const string headerFormat = "{0,-4}{1,8}{2,7:F0}{3,7:F0}{4,9:F4}{5,7:F4}{6,10:F4}{7,12:F4}{8,14:F3}{9,17:F3}{10,15:F3}";
+        const string headerFormat = "{0,-4}{1,8}" +
+                                    "{2,7:F0}{3,7:F0}{4,9:F4}" + // Cac0, Cac1, CacPred
+                                    "{5,7:F0}{6,7:F0}{7,9:F4}" + // Cac0, Cac1, CacPred
+                                    "{8,7:F4}{9,10:F4}{10,12:F4}" + // Ncpv0, Ncpv1, NcpvPred
+                                    "{11,14:F3}{12,17:F3}{13,15:F3}{14,15:F3}"; // Td-Cac-years, Td-Tps-years, Td-Ncpv-years, Td-QAngio-yrs,
         const string rowFormat = headerFormat;
 
         var reportBuffer = new List<string>
@@ -309,10 +313,14 @@ public partial class GoldMiner
                 "Cac0",
                 "Cac1",
                 "CacPred",
+                "Tps0",
+                "Tps1",
+                "TpsPred",
                 "Ncpv0",
                 "Ncpv1",
                 "NcpvPred",
                 "Td-Cac-years",
+                "Td-Tps-years",
                 "Td-Ncpv-years",
                 "Td-QAngio-yrs")
         };
@@ -326,12 +334,19 @@ public partial class GoldMiner
                 FormatNumber(element.Visits[0].Cac, 0),
                 FormatNumber(element.Visits[1].Cac, 0),
                 FormatNumber(element.CacPredict, 2), // 4
+
+                FormatNumber(element.Visits[0].Tps, 0),
+                FormatNumber(element.Visits[1].Tps, 0),
+                FormatNumber(element.TpsPredict, 2), // 7
+
                 FormatNumber(element.Visits[0].Ncpv, 1),
                 FormatNumber(element.Visits[1].Ncpv, 1),
-                FormatNumber(element.NcpvPredict, 2), // 7
+                FormatNumber(element.NcpvPredict, 2), // 10
+
                 FormatNumber(element.TdCac.Td, 5),
+                FormatNumber(element.TdTps.Td, 5),
                 FormatNumber(element.TdNcpv.Td, 5),
-                FormatNumber(element.TdQangio.Td, 5) //10
+                FormatNumber(element.TdQangio.Td, 5) //14
             ));
         }
 
@@ -368,12 +383,12 @@ public partial class GoldMiner
 
         List<string> myData =
         [
-            "Id,subSet, Cac 0,Cac 1,Ncpv 0,Ncpv 1"
+            "Id,subSet,Cac 0,Cac 1,Tps 0,Tps 1,Ncpv 0,Ncpv 1"
         ];
 
         myData.AddRange(from element in Elements
                         where IsSetNameMatch(element.MemberSet, leafSetNames)
-                        select $"{element.Id},{element.MemberSet},{element.Visits[0].Cac},{element.Visits[1].Cac},{element.Visits[0].Ncpv},{element.Visits[1].Ncpv}");
+                        select $"{element.Id},{element.MemberSet},{element.Visits[0].Cac},{element.Visits[1].Cac},{element.Visits[0].Tps},{element.Visits[1].Tps},{element.Visits[0].Ncpv},{element.Visits[1].Ncpv}");
 
         ////return myData.ToArray();
 
@@ -384,6 +399,12 @@ public partial class GoldMiner
                     where IsSetNameMatch(element.MemberSet, leafSetNames)
                     select element.Visits[0].Cac).ToList();
         var Cac1 = (from element in Elements
+                    where IsSetNameMatch(element.MemberSet, leafSetNames)
+                    select element.Visits[1].Cac).ToList();
+        var Tps0 = (from element in Elements
+                    where IsSetNameMatch(element.MemberSet, leafSetNames)
+                    select element.Visits[0].Cac).ToList();
+        var Tps1 = (from element in Elements
                     where IsSetNameMatch(element.MemberSet, leafSetNames)
                     select element.Visits[1].Cac).ToList();
         var Ncpv0 = (from element in Elements
@@ -399,6 +420,8 @@ public partial class GoldMiner
             "\t\"Id\": [" + string.Join(',', Id) + "],",
             "\t\"Cac0\": [" + string.Join(',', Cac0) + "],",
             "\t\"Cac1\": [" + string.Join(',', Cac1) + "],",
+            "\t\"Tps0\": [" + string.Join(',', Tps0)+ "],",
+            "\t\"Tps1\": [" + string.Join(',', Tps1) + "],",
             "\t\"Ncpv0\": [" + string.Join(',', Ncpv0) + "],",
             "\t\"Ncpv1\": [" + string.Join(',', Ncpv1) + "]\n}"
 
@@ -406,7 +429,7 @@ public partial class GoldMiner
 
         return myData.ToArray();
         /*
-             * # Input dataset
+              # Input dataset
                data = {
                    "Id": [62,76,78,79,80,82,83,84,85,86,88,90,93,96,98,99,100],
                    "Cac0": [27,69,81,53,66,191,217,17,222,211,88,388,199,556,265,194,221],

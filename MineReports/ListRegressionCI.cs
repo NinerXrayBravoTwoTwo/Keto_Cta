@@ -54,7 +54,7 @@ namespace MineReports
                 FormatNumber(confInt.StandardError, 4),
                 FormatNumber(dust.Regression.StdDevX, 3),
                 FormatNumber(dust.Regression.StdDevY, 3),
-                FormatNumber(dust.Regression.PValue, 8));
+                FormatNumber(dust.Regression.PValue, 9));
         }
 
         private static string FormatNumber(double value, int precision)

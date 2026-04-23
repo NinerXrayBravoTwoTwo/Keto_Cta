@@ -34,6 +34,7 @@ public enum LeafSetName
     Theta = 3, // Smaller CAC increase  
     Eta = 4 // Larger CAC increase
 }
+
 [Serializable]
 public enum SetName
 {
@@ -132,6 +133,8 @@ public class Element
 
         CacPredict = MathUtils.DblPredict(TdCac, Visits[1].Cac, 1);
         NcpvPredict = MathUtils.DblPredict(TdNcpv, Visits[1].Ncpv, 1);
+        TpsPredict = MathUtils.DblPredict(TdTps, Visits[1].Tps, 1);
+        LnTpsPredict = MathUtils.Ln(TpsPredict);    
         LnCacPredict = MathUtils.Ln(CacPredict);
         LnNcpvPredict = MathUtils.Ln(NcpvPredict);
     }
@@ -147,7 +150,9 @@ public class Element
     public double NcpvPredict { get; init; }
     public double LnCacPredict { get; set; }
     public double LnNcpvPredict { get; set; }
-
+    public double TpsPredict { get; set; }
+    public double LnTpsPredict { get; set; }
+    
     public double MaxNcpv { get; init; }
     public double LnMaxNcpv { get; init; }
     public double MinNcpv { get; init; }
@@ -211,10 +216,10 @@ public class Element
     {
         if (
              v2.Tps < v1.Tps
-            || v2.Cac < v1.Cac
-            || v2.Ncpv < v1.Ncpv
-            || v2.Tcpv < v1.Tcpv
-            || v2.Pav < v1.Pav
+             || v2.Cac < v1.Cac
+            //|| v2.Ncpv < v1.Ncpv
+            //|| v2.Tcpv < v1.Tcpv
+            //|| v2.Pav < v1.Pav
             )
             return LeafSetName.Zeta; // Unicorns
 

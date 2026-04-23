@@ -112,8 +112,7 @@ namespace KetoCtaTest
             var enumerable = selResult as (string id, double x, double y)[] ?? selResult.ToArray();
             var valueTuples = selResult as (string id, double x, double y)[] ?? enumerable.ToArray();
 
-            Assert.Equal(0, valueTuples[0].y);
-
+            Assert.Equal(-6, valueTuples[0].y);  // TODO: This is a bit brittle, but it verifies that the correct data is being selected and transformed before the regression.
             var newTuples = valueTuples.OrderBy(t => t.y).Select((t, index) => (t.id, x: (double)(index + 1), t.y))
                 .ToArray();
             foreach (var (id, x, y) in valueTuples)
