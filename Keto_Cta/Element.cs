@@ -186,7 +186,7 @@ public class Element
 
     public LeafSetName MemberSet { get; init; }
 
-    public string Id { get; init; }
+    public string Id { get; init; } // The synthetic identifier for the element, based on data row number, not a personal identifier in the study data.
     public List<Visit> Visits { get; init; }
 
     public double DTps { get; init; }

@@ -52,7 +52,7 @@ public class MazeTwistyPassages
 
             if (propInfo == null) return null;
 
-            var a = propInfo.GetMethod;
+            //var a = propInfo.GetMethod; // debug point to inspect the property info
 
             current = propInfo.GetValue(current);
             // Check if current is a ValueTuple<double, bool>
