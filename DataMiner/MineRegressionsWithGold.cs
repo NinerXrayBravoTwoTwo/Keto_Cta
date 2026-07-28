@@ -448,7 +448,7 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
             "LnDNcpv vs. RankA",
             "TdNcpv vs. RankA",
             "LnTdNcpv vs. RankA"
-            
+
         ];
         return names.ToArray();
     }

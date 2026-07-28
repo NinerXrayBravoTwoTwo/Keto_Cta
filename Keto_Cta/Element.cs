@@ -134,7 +134,7 @@ public class Element
         CacPredict = MathUtils.DblPredict(TdCac, Visits[1].Cac, 1);
         NcpvPredict = MathUtils.DblPredict(TdNcpv, Visits[1].Ncpv, 1);
         TpsPredict = MathUtils.DblPredict(TdTps, Visits[1].Tps, 1);
-        LnTpsPredict = MathUtils.Ln(TpsPredict);    
+        LnTpsPredict = MathUtils.Ln(TpsPredict);
         LnCacPredict = MathUtils.Ln(CacPredict);
         LnNcpvPredict = MathUtils.Ln(NcpvPredict);
     }
@@ -152,7 +152,7 @@ public class Element
     public double LnNcpvPredict { get; set; }
     public double TpsPredict { get; set; }
     public double LnTpsPredict { get; set; }
-    
+
     public double MaxNcpv { get; init; }
     public double LnMaxNcpv { get; init; }
     public double MinNcpv { get; init; }

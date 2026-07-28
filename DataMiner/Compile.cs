@@ -5,7 +5,7 @@ namespace DataMiner;
 
 public static class Compile
 {
-    private static readonly string ElementVisitattr = 
+    private static readonly string ElementVisitattr =
         "Id|" +
         "DTps|DCac|DNcpv|DTcpv|DPav|DQangio|GeoMeanTps|GeoMeanCac|GeoMeanNcpv|GeoMeanTcpv|GeoMeanPav|GeoMeanQangio|" +
         "LnDTps|LnDCac|LnDNcpv|LnDTcpv|LnDPav|LnDQangio|" +
