@@ -1,7 +1,6 @@
-﻿using Keto_Cta;
+using Keto_Cta;
 using LinearRegression;
 using System.Text;
-using Xunit.Abstractions;
 
 namespace KetoCtaTest;
 

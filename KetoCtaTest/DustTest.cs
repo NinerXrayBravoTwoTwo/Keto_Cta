@@ -1,7 +1,6 @@
-﻿using DataMiner;
+using DataMiner;
 using Keto_Cta;
 using LinearRegression;
-using Xunit.Abstractions;
 using static Xunit.Assert;
 
 namespace KetoCtaTest

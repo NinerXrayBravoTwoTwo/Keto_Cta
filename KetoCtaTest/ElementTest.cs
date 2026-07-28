@@ -1,5 +1,4 @@
 using Keto_Cta;
-using Xunit.Abstractions;
 
 namespace KetoCtaTest;
 

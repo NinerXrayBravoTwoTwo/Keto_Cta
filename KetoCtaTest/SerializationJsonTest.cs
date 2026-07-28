@@ -1,6 +1,5 @@
-﻿namespace KetoCtaTest;
+namespace KetoCtaTest;
 using Keto_Cta;
-using Xunit.Abstractions;
 
 
 public class SerializationJsonTest(ITestOutputHelper testOutputHelper)

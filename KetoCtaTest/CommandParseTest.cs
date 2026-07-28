@@ -1,6 +1,5 @@
-﻿using Keto_Cta;
+using Keto_Cta;
 using MineReports;
-using Xunit.Abstractions;
 
 namespace KetoCtaTest
 {
