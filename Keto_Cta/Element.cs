@@ -217,7 +217,7 @@ public class Element
         if (
              v2.Tps < v1.Tps
              || v2.Cac < v1.Cac
-            //|| v2.Ncpv < v1.Ncpv
+            //|| v2.Ncpv < v1.Ncpv // The Cleery data is flawed and does not regress by design of the unblinded cleerly data.
             //|| v2.Tcpv < v1.Tcpv
             //|| v2.Pav < v1.Pav
             )
