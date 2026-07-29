@@ -14,13 +14,13 @@ namespace Keto_Cta;
 //     • Ω : Omega, All participants
 //     ◦ 100 participants
 //     • α : Alpha, { x ∈ Ω | ¬isZeta(x) }
-//     ◦ 88 participants (CAC and TPS stable or increasing)
+//     ◦ 89 participants (CAC and TPS stable or increasing)
 //     • ζ : Zeta, { x ∈ Ω | isZeta(x) }
-//     ◦ 12 participants (CAC or TPS decrease, “Unicorns”)
+//     ◦ 11 participants (CAC or TPS decrease, “Unicorns”)
 //     • β : Beta, { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }
 //     ◦ 40 participants (non-zero CAC in α)
 //     • γ : Gamma, { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }
-//     ◦ 4 participants (zero CAC in α)
+//     ◦ 49 participants (zero CAC in α)
 //     • η : Eta, { x ∈ β | Δcac(x) &gt; 10 }
 //     ◦ 17 participants (larger CAC increase)
 //     • θ : Theta, { x ∈ β | Δcac(x) ≤ 10 }
