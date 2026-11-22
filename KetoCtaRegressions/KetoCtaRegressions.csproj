@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LinearRegression.Pvalues" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataMiner\DataMiner.csproj" />
     <ProjectReference Include="..\MineReports\MineReports.csproj" />
   </ItemGroup>
