@@ -11,8 +11,39 @@ var ctaQangioPath = "TestData/keto-cta-qangio.csv";
 var goldMiner = new GoldMiner(ctaDataPath, ctaQangioPath);
 var miner = new MineRegressionsWithGold(goldMiner);
 
-RegressionNamesProcessor threadA = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
-GoldDustProcessor threadB = new GoldDustProcessor(goldMiner, goldMiner.DustQueue);
+RegressionNamesProcessor? nameProcessor = null;
+GoldDustProcessor? dustProcessor = null;
+
+void StartMining()
+{
+    if (nameProcessor is not null)
+    {
+        Console.WriteLine("Mining is already running.");
+        return;
+    }
+
+    nameProcessor = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
+    dustProcessor = new GoldDustProcessor(goldMiner, goldMiner.DustQueue);
+    Console.WriteLine("Mining started.");
+}
+
+void StopMining()
+{
+    if (nameProcessor is null || dustProcessor is null)
+    {
+        Console.WriteLine("Mining is already stopped. Type 'start' to resume.");
+        return;
+    }
+
+    Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
+    nameProcessor.Stop();
+    dustProcessor.Stop();
+    nameProcessor = null;
+    dustProcessor = null;
+    Console.WriteLine("Mining stopped. Type 'start' to resume.");
+}
+
+StartMining();
 
 #region Chart Specific Regression
 
@@ -441,24 +472,15 @@ while (true)
     {
         Console.WriteLine(
             "Possible Commands: 'independent vs. regressor', dust Search  1 (prints thousands of lines, ,01 = 10, mine takes a minite, matrix, " +
-            "keto, clear, histogram, Element, q|exit|quit|end|help");
+            "keto, clear, histogram, Element, start, stop, q|exit|quit|end|help");
     }
     else if (IsMatch(command, @"^stop", RegexOptions.IgnoreCase))
     {
-        Console.WriteLine($"Total Regressions: {goldMiner.DustDictionary.Count} Queued Names: {goldMiner.RegressionNameQueue.Count} Queued Dusts: {goldMiner.DustQueue.Count}");
-        try
-        {
-            threadA.Stop();
-            threadB.Stop();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            threadA = new RegressionNamesProcessor(goldMiner, goldMiner.RegressionNameQueue);
-            threadB = new GoldDustProcessor(goldMiner, goldMiner.DustQueue);
-
-            Console.WriteLine($"Dust regression processing is RESTARTED.");
-        }
+        StopMining();
+    }
+    else if (IsMatch(command, @"^start", RegexOptions.IgnoreCase))
+    {
+        StartMining();
     }
 
     // Explore the regression for a single regression title across sub-phenotypes Zeta, Gamma, Theta, Eta

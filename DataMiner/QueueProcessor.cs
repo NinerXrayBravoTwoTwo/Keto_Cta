@@ -12,6 +12,8 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
     protected readonly GoldMiner _goldMiner;
     private readonly int _batchSize;
     private readonly string _outputFile;
+    private readonly Task _worker;
+    private bool _stopRequested;
 
     protected QueueProcessor(GoldMiner goldMiner, ConcurrentQueue<TInput> inputQueue, string outputFile, int batchSize = 100)
     {
@@ -19,7 +21,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
         InputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
         _outputFile = outputFile ?? throw new ArgumentNullException(nameof(outputFile));
         _batchSize = batchSize > 0 ? batchSize : 100;
-        Task.Run(() => ProcessQueueAsync(Cts.Token));
+        _worker = Task.Run(() => ProcessQueueAsync(Cts.Token));
     }
 
     public void Add(TInput input)
@@ -66,6 +68,10 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
                     await Task.Delay(InputQueue.Count > 1000 ? 500 : 1000, cancellationToken);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing batch: {ex.Message}");
@@ -105,30 +111,37 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
 
     public void Stop()
     {
+        if (_stopRequested)
+            return;
+
+        _stopRequested = true;
         Cts.Cancel();
         try
         {
-            Cts.Token.ThrowIfCancellationRequested();
+            _worker.Wait();
         }
-        catch (OperationCanceledException)
+        catch (AggregateException ex)
         {
-            lock (Lock)
-            {
-                SaveToCsvAsync().GetAwaiter().GetResult();
-                var count = Results.Count;
-                var latest = Results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
+            var real = ex.Flatten().InnerExceptions
+                .FirstOrDefault(e => e is not OperationCanceledException);
+            if (real is not null)
+                Console.WriteLine(real.Message);
+        }
 
-                Console.WriteLine($"Final results: {count} items processed");
-                if (latest != null)
-                {
-                    Console.WriteLine($"Latest result: {GetSummary(latest)}");
-                }
+        lock (Lock)
+        {
+            SaveToCsvAsync().GetAwaiter().GetResult();
+            var count = Results.Count;
+            var latest = Results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
+
+            Console.WriteLine($"Final results: {count} items processed");
+            if (latest != null)
+            {
+                Console.WriteLine($"Latest result: {GetSummary(latest)}");
             }
         }
-        finally
-        {
-            Cts.Dispose();
-        }
+
+        Cts.Dispose();
     }
 
     protected abstract DateTime GetTimestamp(TProcessed result);
