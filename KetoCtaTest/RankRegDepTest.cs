@@ -44,7 +44,7 @@ namespace KetoCtaTest
             // Act 2
             Assert.NotNull(selector);
             Assert.NotNull(regression);
-            Assert.Equal(0.3, regression.PValue, 0.32);
+            Assert.Equal(1.500e-12, regression.PValue, 3.0e-14);
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
@@ -87,7 +87,7 @@ namespace KetoCtaTest
             // Act 2
             Assert.NotNull(selector);
             Assert.NotNull(regression);
-            Assert.Equal(0.3, regression.PValue, 0.32);
+            Assert.Equal(1.500e-12, regression.PValue, 3.0e-14);
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
@@ -143,7 +143,7 @@ namespace KetoCtaTest
             Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
-            Assert.Equal(0.00582, regression.PValue, 0.0058);
+            Assert.Equal(0.005826, regression.PValue, 0.00012);
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
@@ -198,7 +198,7 @@ namespace KetoCtaTest
             Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
-            Assert.Equal(0.3, regression.PValue, 0.32);
+            Assert.Equal(1.500e-12, regression.PValue, 3.0e-14);
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
