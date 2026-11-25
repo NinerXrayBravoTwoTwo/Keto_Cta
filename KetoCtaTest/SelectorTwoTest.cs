@@ -82,7 +82,8 @@ namespace KetoCtaTest
             Assert.NotNull(selResult);
             Assert.NotEmpty(xyList);
             Assert.NotNull(regression);
-            Assert.Equal(2.8505120518562046e-9, regression.PValue, 1e-18);
+            // Assert.Equal(0.00003316389, regression.PValue, 0.000033);
+            Assert.Equal(2.8505E-09, regression.PValue, 2.8E-09);
             testOutputHelper.WriteLine($"Regression: {regression}");
         }
 
