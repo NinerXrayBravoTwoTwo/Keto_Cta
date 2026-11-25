@@ -9,7 +9,7 @@ namespace MineReports
             return new ListRegressionBasic();
         }
 
-        private const string HeaderFormat = "{0,-48}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F4}{6,10:F3}{7,10:F4}{8,10:F4}{9,10:F4}{10,13:F8}";
+        private const string HeaderFormat = "{0,-48}{1,-13}{2,10:F3}{3,8:F3}{4,10:F3}{5,8:F4}{6,10:F3}{7,10:F4}{8,10:F4}{9,10:F4}{10,13:F16}";
         private const string RowFormat = HeaderFormat;
 
         public List<string> ReportBuffer(IEnumerable<Dust> orderedDusts)
