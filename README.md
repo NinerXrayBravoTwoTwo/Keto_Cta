@@ -22,7 +22,7 @@ The dataset used is publicly available for research from the Citizen Science Fou
  **High level objective**
 - **Pupose:** To understand what this all means, at the deepest level of the data
 	- Ceation of a new Keto-CTA file enhanced with Delta and Logarithmic values for each of the variables in the dataset.
-	- Division of the Keto-CTA dataset into sets based on the presence of plaque reversal and CAC scores done in core classes, 
+	- Division of the Keto-CTA dataset into sets based on a drop in TPS or CAC, and on the CAC score, done in core classes, 
 	- Preliminary analisis of the Keo-CTA dataset to revealed the exponetial character of the data the logarithmic relationship between the variables in the dataset.
 	- Preliminary analysis also reveled the presence of clear divisions in the data based on  NCPV and CAC and their change (Deltas)between visits.
 
@@ -30,7 +30,7 @@ The dataset used is publicly available for research from the Citizen Science Fou
 
 ### **Element** and **Visit** Data Definitions
 - **Element**
-	1. **Sub Set** - The subset of the dataset that this element belongs to, based on the presence of plaque reversal and CAC scores. Zeta, Gamma, Theta, and Alpha are the leaf sets.
+	1. **Sub Set** - The subset of the dataset that this element belongs to. Omega is the full set. Zeta, Gamma, Theta, and Eta are the leaf sets. Alpha is every participant who is not Zeta.
 	2. **Id** - The original keto-cta-quant dataset does not have a unique key, so we create one based on the row number of the source dataset.
 	3. An array of **Visit[]** indexed from 0. There are currently two visits for each element.  
 	4. **DCac** - One year change in Coronary Artery Calcium
@@ -38,26 +38,25 @@ The dataset used is publicly available for research from the Citizen Science Fou
 	6. **DTps** - One year change in Total Plaque Score
 	7. **DTcpv** - One year change in Total Calcified Plaque Volume
 	8. **DPav** - One year change in Percent Atheroma Volume
-	9. **LnDCac, LnDNcpv, LnTcpv, LnDPav**, Logarithmic transformations of the above values to improve linear relationships and handle
-exponential distributions of these root values.
+	9. **LnDTps, LnDCac, LnDNcpv, LnDTcpv, LnDPav**, Logarithmic transformations of the delta values above. Each one is `ln(|value| + 1)`, the natural log (base e).
 
 - **Visit** 
-	1. **Id** - Visit number, starting from 0, also called 'baseline'
+	1. **Id** - Visit label: `V1` is the baseline visit (array index 0) and `V2` is the follow-up (array index 1)
 	2. **VisitDate** - Currently not popilated but we do need this data to see if there are group changes related to enviromental data like seasons or the Covid Pandemic
 	3. **Tps** - Total Plaque Score
 	4. **Cac** - Coronary Artery Calcium score
 	5. **Ncpv** - Non-Calcified Plaque Volume
 	6. **Tcpv** - Total Calcified Plaque Volume
 	7. **Pav** - Percent Atheroma Volume
-	8. **LnTps, LnCac, LnNcpv, LnTcpv, LnPav** - Logarithmic transformations of the above values to improve linear relationships.
+	8. **LnTps, LnCac, LnNcpv, LnTcpv, LnPav** - The same `ln(|value| + 1)` transform of the visit values above.
 	Delta values are not applickable to individual Visit data.
 
 ---
 
 
 ### Set Hierarchy
-- In set mathmatics theory it is traditonal to name sets using greek letters, typically the superset is given the label Omega to represent everything.
-- This Omega set hierarchy was used to categorize Participant based in the presence of  Plaque reversal and their CAC scores.
+- Omega (Ω) is the full set of participants. Alpha, Beta, Zeta, Gamma, Eta, and Theta are subsets of Omega.
+- Participants are placed by whether TPS or CAC fell from the first visit to the second, and by the CAC score.
 - This is the most important part of the analysis, as it allows us to see how the participants are divided based on their CAC and TPS scores.
 - ==This IS the root of this project.==
 
@@ -65,25 +64,24 @@ exponential distributions of these root values.
 ![Set division pie chart](./Analysis/setdivisioncharts.png)
 
 
-- The hierarchy is based on the presence of plaque reversal and CAC scores, with the following categories:
+- The hierarchy is based on a drop in TPS or CAC, and on the CAC score, with the following categories:
 **Definitions based on the provided sets and conditions:**
-- **isZeta** = (This set contains participants with oulier CAC or Cleerly decreases))
+- **isZeta** = visit 2 TPS is lower than visit 1, or visit 2 CAC is lower than visit 1
 	- v2.Tps < v1.Tps
 	- or v2.Cac < v1.Cac
-	- or v2.Ncpv < v1.Ncpv
-	- or v2.Tcpv < v1.Tcpv
-	- or v2.Pav < v1.Pav;
+
+NCPV, TCPV, and PAV decreases are not used for Zeta. The Cleerly AI analysis did not blind the two scans from each other and forced the second scan to be at or above the first, so no plaque reversals can appear in that data.
 
 - **Ω (Omega)** : All participants  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 100 participants
 - **α (Alpha)** : { x ∈ Ω | ¬isZeta(x) }  
-  &nbsp;&nbsp;&nbsp;&nbsp;◦ 88 participants (CAC and TPS stable or increasing)
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 89 participants (CAC and TPS stable or increasing)
 - **ζ (Zeta)** : { x ∈ Ω | isZeta(x) }  
-  &nbsp;&nbsp;&nbsp;&nbsp;◦ 12 participants (CAC or TPS decrease, “Unicorns”)
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 11 participants (CAC or TPS decrease, “Unicorns”)
 - **β (Beta)** : { x ∈ α | cac1(x) ≠ 0 ∨ cac2(x) ≠ 0 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 40 participants (non-zero CAC in α)
 - **γ (Gamma)** : { x ∈ α | cac1(x) = 0 ∧ cac2(x) = 0 }  
-  &nbsp;&nbsp;&nbsp;&nbsp;◦ 48 participants (zero CAC in α)
+  &nbsp;&nbsp;&nbsp;&nbsp;◦ 49 participants (zero CAC in α)
 - **η (Eta)** : { x ∈ β | Δcac(x) > 10 }  
   &nbsp;&nbsp;&nbsp;&nbsp;◦ 17 participants (larger CAC increase)
 - **θ (Theta)** : { x ∈ β | Δcac(x) ≤ 10 }  
@@ -125,7 +123,7 @@ The following modules define the prototype platform for dataset ingestion, analy
 ### 2. Statistical Analysis
 - Correlation and \( R^2 \) computation for raw and log-transformed data.
 - Ensure invariance to input row order.
-- Handle zero values with `ln(value + 0.1)` transform.
+- Logarithmic fields use `MathUtils.Ln`: the natural log of the absolute value plus 1.0, `ln(|value| + 1)`.
 
 ### 4. Visualization with CSV exports for Excel, and Graphics matrixes for Python plotting
 - Scatter plots (raw/log) with labeled axes and trendlines.
