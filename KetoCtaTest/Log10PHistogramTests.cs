@@ -57,4 +57,49 @@ public class Log10PHistogramTests
         Assert.Single(summary.NegLog10Descending);
         Assert.Equal(10, summary.NegLog10Descending[0], 6);
     }
+
+    [Fact]
+    public void EachSetKeepsItsOwnBinsAndInvalidCounts()
+    {
+        var rows = new (string Set, double P)[]
+        {
+            ("Omega", 0.05),
+            ("Gamma", double.NaN),
+            ("Gamma", 0),
+            ("Zeta", Math.Pow(10, -5.5))
+        };
+
+        var bySet = Log10PHistogram.SummarizeBySet(rows);
+
+        Assert.Equal(Log10PHistogram.SetOrder, bySet.Select(row => row.Name).ToArray());
+
+        var omega = bySet.Single(row => row.Name == "Omega").Summary;
+        var gamma = bySet.Single(row => row.Name == "Gamma").Summary;
+        var zeta = bySet.Single(row => row.Name == "Zeta").Summary;
+        var alpha = bySet.Single(row => row.Name == "Alpha").Summary;
+
+        Assert.Equal(1, omega.Counts[Log10PHistogram.BinOfScore(-Math.Log10(0.05))]);
+        Assert.Equal(0, omega.Invalid);
+        Assert.Equal(0, omega.Perfect);
+        Assert.Equal(1, omega.Decades[1]);
+
+        Assert.Equal(1, gamma.Invalid);
+        Assert.Equal(1, gamma.Perfect);
+        Assert.All(gamma.Counts, count => Assert.Equal(0, count));
+        Assert.Empty(gamma.NegLog10Descending);
+
+        Assert.Equal(1, zeta.Decades[5]);
+        Assert.Equal(0, zeta.Invalid);
+        Assert.Equal(0, alpha.Counts.Sum());
+        Assert.Equal(0, alpha.Invalid);
+    }
+
+    [Fact]
+    public void UnknownSetIsAppendedAfterTheConsoleOrder()
+    {
+        var bySet = Log10PHistogram.SummarizeBySet([("Nope", 1)]);
+
+        Assert.Equal(Log10PHistogram.SetOrder.Append("Nope"), bySet.Select(row => row.Name));
+        Assert.Equal(1, bySet[^1].Summary.Counts[0]);
+    }
 }

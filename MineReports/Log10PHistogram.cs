@@ -11,6 +11,36 @@ public static class Log10PHistogram
     public const double AxisMax = 10.0;
     public const int BinCount = 50;
 
+    /// <summary>Same order as the console histogram: one row per subset, empty sets included.</summary>
+    public static readonly string[] SetOrder =
+    [
+        "Omega", "Alpha", "Beta", "Zeta", "Gamma", "Theta", "Eta", "BetaUZeta"
+    ];
+
+    public static IReadOnlyList<SetLog10PSummary> SummarizeBySet(IEnumerable<(string Set, double P)> rows)
+    {
+        ArgumentNullException.ThrowIfNull(rows);
+
+        var groups = SetOrder.ToDictionary(name => name, _ => new List<double>(), StringComparer.Ordinal);
+        var extras = new List<string>();
+        foreach (var (set, p) in rows)
+        {
+            var name = set ?? "";
+            if (!groups.TryGetValue(name, out var list))
+            {
+                list = [];
+                groups[name] = list;
+                extras.Add(name);
+            }
+
+            list.Add(p);
+        }
+
+        return SetOrder.Concat(extras)
+            .Select(name => new SetLog10PSummary(name, Summarize(groups[name])))
+            .ToList();
+    }
+
     public static Log10PSummary Summarize(IEnumerable<double> pValues)
     {
         ArgumentNullException.ThrowIfNull(pValues);
@@ -85,4 +115,21 @@ public sealed class Log10PSummary(
 
     /// <summary>Finite −log10(p) values, most significant first. Includes the ≥10 tail. Excludes p = 0 and invalid p.</summary>
     public IReadOnlyList<double> NegLog10Descending { get; } = negLog10Descending;
+
+    /// <summary>Ten columns, index k is −log10(p) in [k, k+1). The ≥10 tail stays in <see cref="Overflow"/>.</summary>
+    public IReadOnlyList<int> Decades { get; } = ToDecades(counts);
+
+    private static int[] ToDecades(int[] counts)
+    {
+        var decades = new int[10];
+        for (var bin = 0; bin < counts.Length; bin++)
+            decades[Math.Min(bin / 5, 9)] += counts[bin];
+        return decades;
+    }
+}
+
+public sealed class SetLog10PSummary(string name, Log10PSummary summary)
+{
+    public string Name { get; } = name;
+    public Log10PSummary Summary { get; } = summary;
 }

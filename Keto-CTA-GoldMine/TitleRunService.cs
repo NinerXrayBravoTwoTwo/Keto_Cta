@@ -44,6 +44,17 @@ public sealed class TitleRunService(IWebHostEnvironment environment)
                 dusts.Add(dust);
 
             var summary = Log10PHistogram.Summarize(dusts.Select(d => d.Regression.PValue));
+            var sets = Log10PHistogram.SummarizeBySet(dusts.Select(d => (d.SetName.ToString(), d.Regression.PValue)))
+                .Select(set => new SetHistogramRow(
+                    set.Name,
+                    set.Summary.Counts.Sum() + set.Summary.Overflow + set.Summary.Perfect + set.Summary.Invalid,
+                    set.Summary.Counts,
+                    set.Summary.Decades,
+                    set.Summary.Overflow,
+                    set.Summary.Perfect,
+                    set.Summary.Invalid,
+                    set.Summary.NegLog10Descending))
+                .ToList();
             var rows = dusts
                 .Select(ToRow)
                 .OrderByDescending(row => row.NegLog10 ?? double.NegativeInfinity)
@@ -59,6 +70,7 @@ public sealed class TitleRunService(IWebHostEnvironment environment)
                 summary.AxisMax,
                 summary.Counts,
                 summary.NegLog10Descending,
+                sets,
                 rows);
         }
         finally
@@ -114,7 +126,18 @@ public sealed record RunResponse(
     double AxisMax,
     IReadOnlyList<int> Bins,
     IReadOnlyList<double> Curve,
+    IReadOnlyList<SetHistogramRow> Sets,
     IReadOnlyList<DustRow> Dusts);
+
+public sealed record SetHistogramRow(
+    string Name,
+    int Dusts,
+    IReadOnlyList<int> Bins,
+    IReadOnlyList<int> Decades,
+    int Overflow,
+    int Perfect,
+    int Invalid,
+    IReadOnlyList<double> Curve);
 
 public sealed record DustRow(
     string Title,
