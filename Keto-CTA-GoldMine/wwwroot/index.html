@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Keto-CTA regressions</title>
+    <link rel="stylesheet" href="site.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Keto-CTA regressions</h1>
+        <p>Paste chart titles, one per line. Each title is compiled the same way as the console and run on every subset. Lists above 2,000 titles are refused; the full mine stays a console job.</p>
+    </header>
+    <main>
+        <section class="panel">
+            <label for="titles">Titles</label>
+            <textarea id="titles" spellcheck="false" placeholder="LnNcpv1 vs. LnCac0"></textarea>
+            <div class="actions">
+                <button type="button" id="cool" class="secondary">Load matrix cool</button>
+                <button type="button" id="run">Run</button>
+                <span id="status"></span>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="charts">
+                <div>
+                    <h2>−log10(p) histogram</h2>
+                    <div class="chart-box"><canvas id="hist"></canvas></div>
+                </div>
+                <div>
+                    <h2>Sorted significance</h2>
+                    <div class="chart-box"><canvas id="curve"></canvas></div>
+                </div>
+            </div>
+            <p class="legend">
+                <span class="p05">p = 0.05 (−log10 = 1.301)</span>
+                <span class="p20">p = 0.2 (−log10 = 0.699)</span>
+            </p>
+            <p id="excluded"></p>
+        </section>
+
+        <section class="panel table-wrap">
+            <table id="dusts">
+                <caption>Click a column heading to sort.</caption>
+                <thead>
+                    <tr>
+                        <th data-key="title">Title</th>
+                        <th data-key="set">Set</th>
+                        <th data-key="n">N</th>
+                        <th data-key="slope">Slope</th>
+                        <th data-key="rSquared">R²</th>
+                        <th data-key="p">p</th>
+                        <th data-key="negLog10">−log10(p)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
