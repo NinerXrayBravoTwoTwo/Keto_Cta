@@ -76,6 +76,10 @@ button.secondary { background: #1e293b; color: var(--text); border: 1px solid va
 button:disabled { opacity: 0.55; cursor: wait; }
 
 #status { color: var(--muted); }
+.warning { color: #fecaca; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; }
+.filters input { margin-left: 0.35rem; background: #0f172a; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.45rem; }
+.hint { margin-bottom: 0; }
 
 .charts {
     display: grid;

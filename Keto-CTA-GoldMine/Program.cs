@@ -1,17 +1,23 @@
-using Keto_CTA_GoldMine;
+using MineReports;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<TitleRunService>();
+var maxTitles = builder.Configuration.GetValue("Mining:MaxTitles", 20000);
+builder.Services.AddSingleton(sp =>
+{
+    var environment = sp.GetRequiredService<IWebHostEnvironment>();
+    return new BackgroundMinerSession(FindData(environment, "keto-cta-quant-and-semi-quant.csv"), FindData(environment, "keto-cta-qangio.csv"), maxTitles);
+});
+builder.Services.AddHostedService<MinerHost>();
 
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapGet("/api/presets/cool", (TitleRunService runs) =>
+app.MapGet("/api/presets/cool", (BackgroundMinerSession miner) =>
 {
     try
     {
-        return Results.Ok(new { titles = runs.CoolTitles() });
+        return Results.Ok(new { titles = miner.CoolTitles() });
     }
     catch (Exception ex) when (ex is FileNotFoundException or IOException)
     {
@@ -19,31 +25,71 @@ app.MapGet("/api/presets/cool", (TitleRunService runs) =>
     }
 });
 
-app.MapPost("/api/runs", (RunBody body, TitleRunService runs) =>
+app.MapPost("/api/titles", (TitleBody body, BackgroundMinerSession miner) =>
 {
-    var titles = (body.Titles ?? [])
-        .Select(title => title.Trim())
-        .Where(title => title.Length > 0)
-        .ToArray();
-
     try
     {
-        return Results.Ok(runs.Run(titles));
+        var accepted = miner.Enqueue(body.Titles ?? []);
+        return Results.Ok(new { accepted, status = miner.Status() });
     }
     catch (ArgumentException ex)
     {
         return Results.BadRequest(new { error = ex.Message });
     }
-    catch (TimeoutException ex)
-    {
-        return Results.Problem(ex.Message, statusCode: StatusCodes.Status504GatewayTimeout);
-    }
-    catch (Exception ex) when (ex is FileNotFoundException or IOException)
-    {
-        return Results.Problem(ex.Message);
-    }
 });
+
+app.MapPost("/api/miner/start", (BackgroundMinerSession miner) =>
+{
+    var already = miner.IsRunning;
+    miner.Start();
+    return Results.Ok(new { alreadyRunning = already, status = miner.Status() });
+});
+
+app.MapPost("/api/miner/stop", (BackgroundMinerSession miner) =>
+{
+    miner.Stop();
+    return Results.Ok(miner.Status());
+});
+
+app.MapPost("/api/miner/clear", (BackgroundMinerSession miner) =>
+{
+    miner.Clear();
+    return Results.Ok(miner.Status());
+});
+
+app.MapGet("/api/miner/status", (BackgroundMinerSession miner) => Results.Ok(miner.Status()));
+
+app.MapPost("/api/dusts", (DustQueryBody body, BackgroundMinerSession miner) =>
+    Results.Ok(miner.Query(body.Search, body.Limit, body.MaxP, body.Sets)));
 
 app.Run();
 
-public sealed record RunBody(string[]? Titles);
+static string FindData(IWebHostEnvironment environment, string fileName)
+{
+    var candidates = new[]
+    {
+        Path.Combine(AppContext.BaseDirectory, "Data", fileName),
+        Path.GetFullPath(Path.Combine(environment.ContentRootPath, "..", "KetoCtaRegressions", "TestData", fileName))
+    };
+    return candidates.FirstOrDefault(File.Exists)
+        ?? throw new FileNotFoundException($"Dataset file '{fileName}' was not next to the app or in KetoCtaRegressions/TestData.");
+}
+
+public sealed class MinerHost(BackgroundMinerSession session) : IHostedService
+{
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        session.Start();
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        session.Stop();
+        return Task.CompletedTask;
+    }
+}
+
+public sealed record TitleBody(string[]? Titles);
+
+public sealed record DustQueryBody(string? Search, int Limit, double? MaxP, string[]? Sets);

@@ -202,9 +202,13 @@ public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<strin
     : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>(goldMiner, inputQueue, "processed_strings.csv")
 {
     private long _completed;
+    private long _droppedBecauseQueueFull;
 
     /// <summary>Titles this worker has finished, including titles that failed to compile.</summary>
     public long Completed => Interlocked.Read(ref _completed);
+
+    /// <summary>Titles skipped because <c>DustQueue</c> was already over 40,000.</summary>
+    public long DroppedBecauseQueueFull => Interlocked.Read(ref _droppedBecauseQueueFull);
 
     public class ProcessedString(string input)
     {
@@ -227,6 +231,10 @@ public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<strin
                 {
                     _goldMiner.DustQueue.Enqueue(dust);
                 }
+            }
+            else
+            {
+                Interlocked.Increment(ref _droppedBecauseQueueFull);
             }
         }
         catch (Exception ex)

@@ -2,9 +2,12 @@ const titlesEl = document.getElementById("titles");
 const statusEl = document.getElementById("status");
 const excludedEl = document.getElementById("excluded");
 const tableBody = document.querySelector("#dusts tbody");
-const runButton = document.getElementById("run");
+const addButton = document.getElementById("add");
+const startButton = document.getElementById("start");
+const stopButton = document.getElementById("stop");
+const clearButton = document.getElementById("clear");
 const coolButton = document.getElementById("cool");
-const cap = 2000;
+const warningEl = document.getElementById("warning");
 const p05 = -Math.log10(0.05);
 const p20 = -Math.log10(0.2);
 
@@ -23,7 +26,9 @@ let histChart;
 let curveChart;
 let rows = [];
 let sets = [];
-let selected = new Set();
+const setNames = ["Omega", "Alpha", "Beta", "Zeta", "Gamma", "Theta", "Eta", "BetaUZeta"];
+let selected = new Set(setNames);
+let running = false;
 let sortKey = "negLog10";
 let sortDir = -1;
 
@@ -34,37 +39,68 @@ coolButton.addEventListener("click", async () => {
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || body.title || response.statusText);
         titlesEl.value = (body.titles || []).join("\n");
-        setBusy(false, `${body.titles.length} matrix cool titles loaded. Press Run.`);
+        setBusy(false, `${body.titles.length} matrix cool titles loaded. Press Add titles.`);
     } catch (error) {
         setBusy(false, error.message);
     }
 });
 
-runButton.addEventListener("click", async () => {
+addButton.addEventListener("click", async () => {
     const titles = titlesEl.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
     if (titles.length === 0) {
         statusEl.textContent = "Paste at least one title.";
         return;
     }
-    if (titles.length > cap) {
-        statusEl.textContent = `${titles.length} titles is over the cap of ${cap}. Full mine stays on the console.`;
-        return;
-    }
-
-    setBusy(true, `Running ${titles.length} title${titles.length === 1 ? "" : "s"}…`);
     try {
-        const response = await fetch("/api/runs", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ titles })
-        });
-        const body = await response.json();
-        if (!response.ok) throw new Error(body.error || body.title || response.statusText);
-        render(body);
+        const body = await postJson("/api/titles", { titles });
+        showStatus(body.status);
+        await refreshDusts();
     } catch (error) {
-        setBusy(false, error.message);
+        statusEl.textContent = error.message;
     }
 });
+
+startButton.addEventListener("click", async () => {
+    try {
+        const body = await postJson("/api/miner/start");
+        showStatus(body.status);
+        await refreshDusts();
+    } catch (error) {
+        statusEl.textContent = error.message;
+    }
+});
+
+stopButton.addEventListener("click", async () => {
+    try {
+        showStatus(await postJson("/api/miner/stop"));
+        await refreshDusts();
+    } catch (error) {
+        statusEl.textContent = error.message;
+    }
+});
+
+clearButton.addEventListener("click", async () => {
+    try {
+        showStatus(await postJson("/api/miner/clear"));
+        await refreshDusts();
+    } catch (error) {
+        statusEl.textContent = error.message;
+    }
+});
+
+for (const id of ["search", "limit", "maxP"]) {
+    document.getElementById(id).addEventListener("change", () => refreshDusts());
+}
+
+setInterval(async () => {
+    try {
+        const status = await (await fetch("/api/miner/status")).json();
+        showStatus(status);
+        if (status.running) await refreshDusts();
+    } catch {
+        // The next poll retries.
+    }
+}, 1000);
 
 document.querySelectorAll("#dusts th").forEach(header => {
     header.addEventListener("click", () => {
@@ -78,29 +114,48 @@ document.querySelectorAll("#dusts th").forEach(header => {
 function render(body) {
     rows = body.dusts || [];
     sets = body.sets || [];
-    selected = new Set(sets.map(set => set.name));
-    statusEl.textContent = `${body.titles} titles → ${rows.length} dusts in ${(body.elapsedMs / 1000).toFixed(1)} s.`;
-    sortKey = "negLog10";
-    sortDir = -1;
+    excludedEl.textContent = `Showing ${body.shown} of ${body.matched} matching dusts (${body.stored} stored). Not plotted: p = 0 (${body.perfect}), invalid p (${body.invalid}), −log10(p) ≥ 10 (${body.overflow}).`;
     paintSets();
-    applyFilter();
-    setBusy(false);
+    drawHistogram(checkedSets());
+    drawCurve(checkedSets());
+    paintTable();
+}
+
+async function refreshDusts() {
+    const body = await postJson("/api/dusts", {
+        search: document.getElementById("search").value,
+        limit: Number(document.getElementById("limit").value) || 500,
+        maxP: document.getElementById("maxP").value === "" ? null : Number(document.getElementById("maxP").value),
+        sets: [...selected]
+    });
+    render(body);
+}
+
+function showStatus(status) {
+    running = status.running;
+    statusEl.textContent = `${status.running ? "Running" : "Stopped"}. Queued ${status.titlesQueued}, done ${status.titlesDone}, dusts ${status.dusts}. Cap ${status.maxTitles} (Mining:MaxTitles).`;
+    if (status.warning) {
+        warningEl.hidden = false;
+        warningEl.textContent = status.warning;
+    } else {
+        warningEl.hidden = true;
+        warningEl.textContent = "";
+    }
+}
+
+async function postJson(url, payload) {
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload ?? {})
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || body.title || response.statusText);
+    return body;
 }
 
 function checkedSets() {
     return sets.filter(set => selected.has(set.name));
-}
-
-function applyFilter() {
-    const active = checkedSets();
-    const perfect = active.reduce((sum, set) => sum + set.perfect, 0);
-    const invalid = active.reduce((sum, set) => sum + set.invalid, 0);
-    const overflow = active.reduce((sum, set) => sum + set.overflow, 0);
-    const plotted = active.reduce((sum, set) => sum + set.curve.length, 0);
-    excludedEl.textContent = `Showing ${active.length} of ${sets.length} sets. On the chart: ${plotted}. Not plotted: p = 0 (${perfect}), invalid p (${invalid}), −log10(p) ≥ 10 (${overflow}).`;
-    drawHistogram(active);
-    drawCurve(active);
-    paintTable();
 }
 
 function paintSets() {
@@ -114,7 +169,7 @@ function paintSets() {
         box.addEventListener("change", () => {
             if (box.checked) selected.add(set.name);
             else selected.delete(set.name);
-            applyFilter();
+            refreshDusts();
         });
         checkCell.append(box);
 
@@ -304,7 +359,7 @@ function fmt(value, digits) {
 }
 
 function setBusy(busy, message) {
-    runButton.disabled = busy;
+    addButton.disabled = busy;
     coolButton.disabled = busy;
     if (message != null) statusEl.textContent = message;
 }
