@@ -109,7 +109,7 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
         }
     }
 
-    public void Stop()
+    public void Stop(bool writeReport = true)
     {
         if (_stopRequested)
             return;
@@ -128,16 +128,19 @@ public abstract class QueueProcessor<TInput, TProcessed> where TProcessed : clas
                 Console.WriteLine(real.Message);
         }
 
-        lock (Lock)
+        if (writeReport)
         {
-            SaveToCsvAsync().GetAwaiter().GetResult();
-            var count = Results.Count;
-            var latest = Results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
-
-            Console.WriteLine($"Final results: {count} items processed");
-            if (latest != null)
+            lock (Lock)
             {
-                Console.WriteLine($"Latest result: {GetSummary(latest)}");
+                SaveToCsvAsync().GetAwaiter().GetResult();
+                var count = Results.Count;
+                var latest = Results.OrderByDescending(r => GetTimestamp(r)).FirstOrDefault();
+
+                Console.WriteLine($"Final results: {count} items processed");
+                if (latest != null)
+                {
+                    Console.WriteLine($"Latest result: {GetSummary(latest)}");
+                }
             }
         }
 
@@ -198,6 +201,11 @@ public class GoldDustProcessor : QueueProcessor<Dust, GoldDustProcessor.Processe
 public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue)
     : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>(goldMiner, inputQueue, "processed_strings.csv")
 {
+    private long _completed;
+
+    /// <summary>Titles this worker has finished, including titles that failed to compile.</summary>
+    public long Completed => Interlocked.Read(ref _completed);
+
     public class ProcessedString(string input)
     {
         public string Input { get; set; } = input;
@@ -211,13 +219,25 @@ public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<strin
 
     protected override ProcessedString ProcessInput(string input)
     {
-        if (_goldMiner.DustQueue.Count <= 40000)
+        try
         {
-            foreach (var dust in _goldMiner.GoldDust(input))
+            if (_goldMiner.DustQueue.Count <= 40000)
             {
-                _goldMiner.DustQueue.Enqueue(dust);
+                foreach (var dust in _goldMiner.GoldDust(input))
+                {
+                    _goldMiner.DustQueue.Enqueue(dust);
+                }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error processing '{input}': {ex.Message}");
+        }
+        finally
+        {
+            Interlocked.Increment(ref _completed);
+        }
+
         return new ProcessedString(input);
     }
 

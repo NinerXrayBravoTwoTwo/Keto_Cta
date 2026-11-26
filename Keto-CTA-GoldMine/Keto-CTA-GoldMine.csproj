@@ -8,7 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="itextsharp.xmlworker" Version="5.5.13.7" />
+    <ProjectReference Include="..\DataMiner\DataMiner.csproj" />
+    <ProjectReference Include="..\MineReports\MineReports.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\KetoCtaRegressions\TestData\keto-cta-quant-and-semi-quant.csv" Link="Data\keto-cta-quant-and-semi-quant.csv" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\KetoCtaRegressions\TestData\keto-cta-qangio.csv" Link="Data\keto-cta-qangio.csv" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
