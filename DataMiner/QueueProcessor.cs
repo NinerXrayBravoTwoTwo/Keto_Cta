@@ -198,8 +198,8 @@ public class GoldDustProcessor : QueueProcessor<Dust, GoldDustProcessor.Processe
         $"Input={result.Input}, Timestamp={result.Timestamp:O}, Key={result.Input.Key}";
 }
 
-public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue)
-    : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>(goldMiner, inputQueue, "processed_strings.csv")
+public class RegressionNamesProcessor(GoldMiner goldMiner, ConcurrentQueue<string> inputQueue, int batchSize = 100)
+    : QueueProcessor<string, RegressionNamesProcessor.ProcessedString>(goldMiner, inputQueue, "processed_strings.csv", batchSize)
 {
     private long _completed;
     private long _droppedBecauseQueueFull;

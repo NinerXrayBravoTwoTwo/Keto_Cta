@@ -61,7 +61,9 @@ public sealed class BackgroundMinerSession : IDisposable
             if (_running)
                 return;
 
-            _names = new RegressionNamesProcessor(_miner, _miner.RegressionNameQueue);
+            // A large batch size skips the processor's periodic CSV flush. The web session
+            // keeps dusts in memory and does not want processed_strings.csv in the project folder.
+            _names = new RegressionNamesProcessor(_miner, _miner.RegressionNameQueue, batchSize: int.MaxValue);
             _dustCts = new CancellationTokenSource();
             _dustPump = Task.Run(() => PumpDusts(_dustCts.Token));
             _running = true;
