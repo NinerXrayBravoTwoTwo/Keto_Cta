@@ -33,7 +33,36 @@ public sealed class BackgroundMinerSession : IDisposable
         get { lock (_gate) return _running; }
     }
 
-    public string[] CoolTitles() => new MineRegressionsWithGold(_miner).CoolMatrix();
+    private IReadOnlyList<PresetSummary>? _presets;
+
+    public IReadOnlyList<PresetSummary> PresetSummaries()
+    {
+        if (_presets is not null)
+            return _presets;
+
+        var rows = new List<PresetSummary>();
+        foreach (var name in MineRegressionsWithGold.PresetNames)
+        {
+            var count = new MineRegressionsWithGold(_miner).TitlesFor(name).Length;
+            var allowed = count <= MaxTitles;
+            var reason = allowed
+                ? null
+                : $"{count:N0} titles is over Mining:MaxTitles ({MaxTitles:N0}) in appsettings.json. Raise that setting, or run {name} from the console.";
+            rows.Add(new PresetSummary(name, count, allowed, reason));
+        }
+
+        _presets = rows;
+        return rows;
+    }
+
+    public string[] PresetTitles(string name)
+    {
+        var titles = new MineRegressionsWithGold(_miner).TitlesFor(name);
+        if (titles.Length > MaxTitles)
+            throw new ArgumentException(
+                $"{titles.Length:N0} titles is over Mining:MaxTitles ({MaxTitles:N0}) in appsettings.json. Raise that setting, or run {name} from the console.");
+        return titles;
+    }
 
     public int Enqueue(IReadOnlyList<string> titles)
     {
@@ -235,6 +264,8 @@ public sealed class BackgroundMinerSession : IDisposable
             score);
     }
 }
+
+public sealed record PresetSummary(string Name, int Count, bool Allowed, string? Reason);
 
 public sealed record MinerStatus(
     bool Running,

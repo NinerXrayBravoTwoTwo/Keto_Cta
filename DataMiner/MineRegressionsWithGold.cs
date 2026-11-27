@@ -452,5 +452,27 @@ public class MineRegressionsWithGold(GoldMiner goldMiner)
         ];
         return names.ToArray();
     }
+
+    public static readonly string[] PresetNames = ["whycac", "visit", "ratio", "delta", "cool", "lnstudy", "mono"];
+
+    /// <summary>
+    /// Titles for one console matrix command. Uses the same generators the console enqueues.
+    /// A new instance returns the full list; the one-shot flags still apply if the console
+    /// calls the generators again on an instance it already used.
+    /// </summary>
+    public string[] TitlesFor(string name)
+    {
+        return (name ?? "").Trim().ToLowerInvariant() switch
+        {
+            "whycac" => PermutationsNcpvVsCac(),
+            "visit" => V1vsV0matrix(),
+            "ratio" => RootRatioMatrix(),
+            "delta" => RatioVsDelta(),
+            "cool" => CoolMatrix(),
+            "lnstudy" => LnStudy(),
+            "mono" => ElemMono(),
+            _ => throw new ArgumentException($"Unknown matrix '{name}'. Use {string.Join(", ", PresetNames)}.")
+        };
+    }
 }
 // end of class MineRegressionsWithGold
