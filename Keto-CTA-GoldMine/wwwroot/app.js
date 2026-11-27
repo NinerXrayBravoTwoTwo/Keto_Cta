@@ -6,7 +6,7 @@ const addButton = document.getElementById("add");
 const startButton = document.getElementById("start");
 const stopButton = document.getElementById("stop");
 const clearButton = document.getElementById("clear");
-const coolButton = document.getElementById("cool");
+const presetsEl = document.getElementById("presets");
 const warningEl = document.getElementById("warning");
 const p05 = -Math.log10(0.05);
 const p20 = -Math.log10(0.2);
@@ -32,18 +32,35 @@ let running = false;
 let sortKey = "negLog10";
 let sortDir = -1;
 
-coolButton.addEventListener("click", async () => {
-    setBusy(true, "Loading matrix cool…");
+loadPresets();
+
+async function loadPresets() {
+    const response = await fetch("/api/presets");
+    const body = await response.json();
+    presetsEl.replaceChildren(...(body.presets || []).map(preset => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "secondary";
+        button.textContent = `${preset.name} (${preset.count.toLocaleString()})`;
+        button.disabled = !preset.allowed;
+        button.title = preset.allowed ? `Load ${preset.count.toLocaleString()} titles` : preset.reason;
+        button.addEventListener("click", () => loadPreset(preset.name));
+        return button;
+    }));
+}
+
+async function loadPreset(name) {
+    setBusy(true, `Loading ${name}…`);
     try {
-        const response = await fetch("/api/presets/cool");
+        const response = await fetch(`/api/presets/${name}`);
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || body.title || response.statusText);
         titlesEl.value = (body.titles || []).join("\n");
-        setBusy(false, `${body.titles.length} matrix cool titles loaded. Press Add titles.`);
+        setBusy(false, `${body.count.toLocaleString()} ${name} titles loaded. Press Add titles.`);
     } catch (error) {
         setBusy(false, error.message);
     }
-});
+}
 
 addButton.addEventListener("click", async () => {
     const titles = titlesEl.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -360,6 +377,5 @@ function fmt(value, digits) {
 
 function setBusy(busy, message) {
     addButton.disabled = busy;
-    coolButton.disabled = busy;
     if (message != null) statusEl.textContent = message;
 }

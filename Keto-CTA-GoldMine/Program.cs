@@ -13,15 +13,18 @@ var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.MapGet("/api/presets/cool", (BackgroundMinerSession miner) =>
+app.MapGet("/api/presets", (BackgroundMinerSession miner) => Results.Ok(new { presets = miner.PresetSummaries() }));
+
+app.MapGet("/api/presets/{name}", (string name, BackgroundMinerSession miner) =>
 {
     try
     {
-        return Results.Ok(new { titles = miner.CoolTitles() });
+        var titles = miner.PresetTitles(name);
+        return Results.Ok(new { name, count = titles.Length, titles });
     }
-    catch (Exception ex) when (ex is FileNotFoundException or IOException)
+    catch (ArgumentException ex)
     {
-        return Results.Problem(ex.Message);
+        return Results.BadRequest(new { error = ex.Message });
     }
 });
 

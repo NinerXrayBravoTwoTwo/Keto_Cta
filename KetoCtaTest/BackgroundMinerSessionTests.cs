@@ -11,6 +11,19 @@ public class BackgroundMinerSessionTests
         AppContext.BaseDirectory, "..", "..", "..", "..", "KetoCtaRegressions", "TestData", "keto-cta-qangio.csv"));
 
     [Fact]
+    public void PresetTitlesComeFromTheExistingGenerators()
+    {
+        using var session = new BackgroundMinerSession(Quant, Qangio, maxTitles: 50);
+        var miner = new DataMiner.GoldMiner(Quant, Qangio);
+        var cool = new DataMiner.MineRegressionsWithGold(miner).CoolMatrix();
+        var viaPreset = session.PresetTitles("cool");
+
+        Assert.Equal(cool, viaPreset);
+        Assert.Equal(8, session.PresetSummaries().Single(row => row.Name == "cool").Count);
+        Assert.Throws<ArgumentException>(() => session.PresetTitles("ratio"));
+    }
+
+    [Fact]
     public void ClearStopsWorkersAndDustsStayAtZero()
     {
         using var session = new BackgroundMinerSession(Quant, Qangio, maxTitles: 50);
