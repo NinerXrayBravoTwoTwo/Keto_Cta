@@ -10,7 +10,7 @@
 <body>
     <header>
         <h1>Keto-CTA regressions</h1>
-        <p>Paste chart titles, one per line. Each title is compiled the same way as the console and run on every subset. Lists above 2,000 titles are refused; the full mine stays a console job.</p>
+        <p>Paste chart titles, one per line, then add them to the background miner. Charts keep updating while titles are still running. The enqueue cap is <code>Mining:MaxTitles</code> in appsettings.json.</p>
     </header>
     <main>
         <section class="panel">
@@ -18,9 +18,22 @@
             <textarea id="titles" spellcheck="false" placeholder="LnNcpv1 vs. LnCac0"></textarea>
             <div class="actions">
                 <button type="button" id="cool" class="secondary">Load matrix cool</button>
-                <button type="button" id="run">Run</button>
+                <button type="button" id="add">Add titles</button>
+                <button type="button" id="start" class="secondary">Start</button>
+                <button type="button" id="stop" class="secondary">Stop</button>
+                <button type="button" id="clear" class="secondary">Clear</button>
                 <span id="status"></span>
             </div>
+            <p id="warning" class="warning" hidden></p>
+        </section>
+
+        <section class="panel">
+            <div class="filters">
+                <label>Search titles <input id="search" type="search" placeholder="substring, not a set name"></label>
+                <label>Limit <input id="limit" type="number" min="1" value="500"></label>
+                <label>Max p <input id="maxP" type="number" min="0" max="1" step="0.01" placeholder="any"></label>
+            </div>
+            <p class="hint">Search matches the chart title only, so “Zeta” does not also select Eta. Sets are the checkboxes in the table below. The limit keeps the most significant rows.</p>
         </section>
 
         <section class="panel">
