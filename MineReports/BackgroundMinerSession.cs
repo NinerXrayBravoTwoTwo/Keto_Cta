@@ -55,7 +55,8 @@ public sealed class BackgroundMinerSession : IDisposable
         return rows;
     }
 
-    public ScatterResult Scatter(string title, string setName) => ScatterSeries.Build(_miner, title, setName);
+    public ScatterResult Scatter(string title, string setName, double level = 0.95) =>
+        ScatterSeries.Build(_miner, title, setName, level);
 
     public string[] PresetTitles(string name)
     {

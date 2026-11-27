@@ -62,11 +62,11 @@ app.MapPost("/api/miner/clear", (BackgroundMinerSession miner) =>
 
 app.MapGet("/api/miner/status", (BackgroundMinerSession miner) => Results.Ok(miner.Status()));
 
-app.MapGet("/api/scatter", (string title, string set, BackgroundMinerSession miner) =>
+app.MapGet("/api/scatter", (string title, string set, double? level, BackgroundMinerSession miner) =>
 {
     try
     {
-        return Results.Ok(miner.Scatter(title, set));
+        return Results.Ok(miner.Scatter(title, set, level ?? 0.95));
     }
     catch (ArgumentException ex)
     {
