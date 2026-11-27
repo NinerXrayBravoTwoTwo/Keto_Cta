@@ -14,6 +14,7 @@ const canvas = document.getElementById("scatter");
 
 let chart;
 let drawn = [];
+let levelParam = new URLSearchParams(location.search).get("level");
 
 fillSelect(setEl, "Beta");
 fillSelect(set2El, "Zeta");
@@ -35,6 +36,9 @@ document.getElementById("remove").addEventListener("click", () => {
     extraEl.hidden = true;
     if (titleEl.value.trim()) plot();
 });
+
+document.getElementById("meanBand").addEventListener("change", () => { if (drawn.length) draw(drawn); });
+document.getElementById("predictionBand").addEventListener("change", () => { if (drawn.length) draw(drawn); });
 
 themeButton.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
@@ -108,12 +112,15 @@ async function plot() {
         query.set("title2", series[1].title);
         query.set("set2", series[1].set);
     }
+    if (levelParam) query.set("level", levelParam);
     history.replaceState(null, "", "scatter.html?" + query.toString());
     messageEl.textContent = errors.length ? errors.join(" ") : series.map(item => `${item.set}: N=${item.fit.n}`).join(" · ");
 }
 
 async function loadSeries(title, set) {
-    const response = await fetch(`/api/scatter?title=${encodeURIComponent(title)}&set=${encodeURIComponent(set)}`);
+    const query = new URLSearchParams({ title, set });
+    if (levelParam) query.set("level", levelParam);
+    const response = await fetch("/api/scatter?" + query.toString());
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || body.title || response.statusText);
     return body;
@@ -126,6 +133,7 @@ function draw(series) {
     series.forEach((item, index) => {
         const color = colors[index % colors.length];
         const label = item.title === series[0].title ? item.set : `${item.title} — ${item.set}`;
+        datasets.push(...bandDatasets(item, color, label));
         const line = fitLine(item);
         if (line) {
             datasets.push({
@@ -136,7 +144,8 @@ function draw(series) {
                 borderWidth: 2,
                 pointRadius: 0,
                 pointHitRadius: 0,
-                fill: false
+                fill: false,
+                order: 1
             });
         }
         datasets.push({
@@ -146,7 +155,8 @@ function draw(series) {
             backgroundColor: color,
             borderColor: color,
             pointRadius: 4,
-            pointHoverRadius: 6
+            pointHoverRadius: 6,
+            order: 0
         });
     });
 
@@ -162,7 +172,7 @@ function draw(series) {
                 legend: {
                     labels: {
                         color: theme.text,
-                        filter: item => !item.text.endsWith(" fit")
+                        filter: item => !/ (fit|band|prediction)$/.test(item.text)
                     }
                 },
                 title: {
@@ -172,6 +182,7 @@ function draw(series) {
                     text: chartTitle(series)
                 },
                 tooltip: {
+                    filter: item => item.raw && item.raw.id != null,
                     callbacks: {
                         label(context) {
                             const point = context.raw;
@@ -191,6 +202,66 @@ function draw(series) {
     });
     pngButton.disabled = false;
     csvButton.disabled = false;
+}
+
+function bandDatasets(item, color, label) {
+    const datasets = [];
+    if (document.getElementById("predictionBand").checked && item.predictionBand) {
+        datasets.push(dashed(label + " prediction", item.predictionBand, "upper", color));
+        datasets.push(dashed(label + " prediction", item.predictionBand, "lower", color));
+    }
+    if (document.getElementById("meanBand").checked && item.meanBand) {
+        datasets.push({
+            type: "line",
+            label: label + " band",
+            data: item.meanBand.map(row => ({ x: row.x, y: row.upper })),
+            borderWidth: 0,
+            pointRadius: 0,
+            pointHitRadius: 0,
+            fill: "+1",
+            backgroundColor: withAlpha(color, 0.2),
+            tension: 0,
+            order: 3
+        });
+        datasets.push({
+            type: "line",
+            label: label + " band",
+            data: item.meanBand.map(row => ({ x: row.x, y: row.lower })),
+            borderWidth: 0,
+            pointRadius: 0,
+            pointHitRadius: 0,
+            tension: 0,
+            order: 3
+        });
+    }
+    return datasets;
+}
+
+function dashed(label, band, edge, color) {
+    return {
+        type: "line",
+        label,
+        data: band.map(row => ({ x: row.x, y: row[edge] })),
+        borderColor: color,
+        borderDash: [6, 4],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHitRadius: 0,
+        fill: false,
+        tension: 0,
+        order: 2
+    };
+}
+
+function withAlpha(hex, alpha) {
+    const value = parseInt(hex.slice(1), 16);
+    return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+}
+
+function formatLevel(level) {
+    if (level == null) return "";
+    const percent = Math.round(level * 1000) / 10;
+    return Number.isInteger(percent) ? `${percent}%` : `${percent.toFixed(1)}%`;
 }
 
 function fitLine(series) {
@@ -244,6 +315,7 @@ const statsPlugin = {
             const fit = item.fit;
             const name = item.title === series[0].title ? item.set : `${item.set}: ${item.title}`;
             lines.push({ color, text: name });
+            lines.push({ color, text: `${formatLevel(item.level)} band` });
             lines.push({ color, text: `Slope ${formatNumber(fit.slope)}    N = ${fit.n}` });
             lines.push({ color, text: `y-int ${formatNumber(fit.intercept)}    SE ${formatNumber(fit.slopeStandardError)}` });
             lines.push({ color, text: `R² ${formatNumber(fit.rSquared)}` });
