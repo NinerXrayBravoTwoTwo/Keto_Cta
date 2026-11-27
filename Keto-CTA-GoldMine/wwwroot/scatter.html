@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Keto-CTA scatter</title>
+    <script>
+        try {
+            if (localStorage.getItem("keto-theme") === "light")
+                document.documentElement.dataset.theme = "light";
+        } catch (error) { /* private mode */ }
+    </script>
+    <link rel="stylesheet" href="site.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="top">
+            <div>
+                <h1>Scatter</h1>
+                <p><a href="index.html">Mining</a></p>
+            </div>
+            <button type="button" id="theme" class="secondary">Light theme</button>
+        </div>
+    </header>
+    <main>
+        <section class="panel">
+            <form id="form" class="filters">
+                <label>Title <input id="title" type="text" required placeholder="LnNcpv1 vs. LnCac0" autocomplete="off"></label>
+                <label>Set <select id="set"></select></label>
+                <button type="submit">Plot</button>
+                <button type="button" id="add" class="secondary">Add series</button>
+            </form>
+            <div id="extra" class="filters" hidden>
+                <label>Overlay title <input id="title2" type="text" autocomplete="off"></label>
+                <label>Set <select id="set2"></select></label>
+                <button type="button" id="remove" class="secondary">Remove series</button>
+            </div>
+            <p id="message"></p>
+        </section>
+        <section class="panel">
+            <div class="chart-box tall"><canvas id="scatter"></canvas></div>
+            <div class="actions">
+                <button type="button" id="png" class="secondary" disabled>Download PNG</button>
+                <button type="button" id="csv" class="secondary" disabled>Download CSV</button>
+            </div>
+        </section>
+    </main>
+    <script src="scatter.js"></script>
+</body>
+</html>

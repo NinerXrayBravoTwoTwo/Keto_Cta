@@ -344,7 +344,7 @@ function paintTable() {
     tableBody.replaceChildren(...sorted.map(row => {
         const tr = document.createElement("tr");
         tr.append(
-            cell(row.title),
+            titleCell(row),
             cell(row.set),
             cell(fmt(row.n, 0)),
             cell(fmt(row.slope, 4)),
@@ -354,6 +354,16 @@ function paintTable() {
         );
         return tr;
     }));
+}
+
+function titleCell(row) {
+    const td = document.createElement("td");
+    const link = document.createElement("a");
+    link.href = `scatter.html?title=${encodeURIComponent(row.title)}&set=${encodeURIComponent(row.set)}`;
+    link.textContent = row.title;
+    link.title = `Scatter plot, ${row.set}`;
+    td.append(link);
+    return td;
 }
 
 function cell(text) {

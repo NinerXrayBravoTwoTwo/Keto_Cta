@@ -1,0 +1,311 @@
+const sets = ["Omega", "Alpha", "Beta", "Zeta", "Gamma", "Theta", "Eta", "BetaUZeta"];
+const colors = ["#ef4444", "#3b82f6"];
+
+const titleEl = document.getElementById("title");
+const setEl = document.getElementById("set");
+const title2El = document.getElementById("title2");
+const set2El = document.getElementById("set2");
+const extraEl = document.getElementById("extra");
+const messageEl = document.getElementById("message");
+const themeButton = document.getElementById("theme");
+const pngButton = document.getElementById("png");
+const csvButton = document.getElementById("csv");
+const canvas = document.getElementById("scatter");
+
+let chart;
+let drawn = [];
+
+fillSelect(setEl, "Beta");
+fillSelect(set2El, "Zeta");
+syncThemeButton();
+
+document.getElementById("form").addEventListener("submit", event => {
+    event.preventDefault();
+    plot();
+});
+
+document.getElementById("add").addEventListener("click", () => {
+    extraEl.hidden = false;
+    if (!title2El.value.trim()) title2El.value = titleEl.value;
+    if (set2El.value === setEl.value) set2El.value = setEl.value === "Zeta" ? "Alpha" : "Zeta";
+    if (titleEl.value.trim()) plot();
+});
+
+document.getElementById("remove").addEventListener("click", () => {
+    extraEl.hidden = true;
+    if (titleEl.value.trim()) plot();
+});
+
+themeButton.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    if (next === "light") document.documentElement.dataset.theme = "light";
+    else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem("keto-theme", next); } catch (error) { /* private mode */ }
+    syncThemeButton();
+    if (drawn.length) draw(drawn);
+});
+
+pngButton.addEventListener("click", () => {
+    if (!chart) return;
+    const link = document.createElement("a");
+    link.href = chart.toBase64Image("image/png", 1);
+    link.download = fileStem() + ".png";
+    link.click();
+});
+
+csvButton.addEventListener("click", () => {
+    const lines = ["id,x,y,set"];
+    for (const series of drawn) {
+        for (const point of series.points) {
+            lines.push([csvField(point.id), point.x, point.y, csvField(series.set)].join(","));
+        }
+    }
+    const blob = new Blob([lines.join("\n") + "\n"], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileStem() + ".csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+});
+
+const params = new URLSearchParams(location.search);
+if (params.get("title")) titleEl.value = params.get("title");
+if (params.get("set") && sets.includes(params.get("set"))) setEl.value = params.get("set");
+if (params.get("title2")) {
+    extraEl.hidden = false;
+    title2El.value = params.get("title2");
+    if (params.get("set2") && sets.includes(params.get("set2"))) set2El.value = params.get("set2");
+}
+if (titleEl.value.trim()) plot();
+
+function fillSelect(select, selected) {
+    select.replaceChildren(...sets.map(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        option.selected = name === selected;
+        return option;
+    }));
+}
+
+async function plot() {
+    messageEl.textContent = "Loading…";
+    const requests = [loadSeries(titleEl.value.trim(), setEl.value)];
+    const overlay = !extraEl.hidden && title2El.value.trim();
+    if (overlay) requests.push(loadSeries(title2El.value.trim(), set2El.value));
+    const settled = await Promise.allSettled(requests);
+    const series = settled.filter(item => item.status === "fulfilled").map(item => item.value);
+    const errors = settled.filter(item => item.status === "rejected").map(item => item.reason.message);
+    if (!series.length) {
+        messageEl.textContent = errors[0] || "No series.";
+        pngButton.disabled = true;
+        csvButton.disabled = true;
+        return;
+    }
+    draw(series);
+    const query = new URLSearchParams({ title: series[0].title, set: series[0].set });
+    if (series[1]) {
+        query.set("title2", series[1].title);
+        query.set("set2", series[1].set);
+    }
+    history.replaceState(null, "", "scatter.html?" + query.toString());
+    messageEl.textContent = errors.length ? errors.join(" ") : series.map(item => `${item.set}: N=${item.fit.n}`).join(" · ");
+}
+
+async function loadSeries(title, set) {
+    const response = await fetch(`/api/scatter?title=${encodeURIComponent(title)}&set=${encodeURIComponent(set)}`);
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || body.title || response.statusText);
+    return body;
+}
+
+function draw(series) {
+    drawn = series;
+    const theme = currentTheme();
+    const datasets = [];
+    series.forEach((item, index) => {
+        const color = colors[index % colors.length];
+        const label = item.title === series[0].title ? item.set : `${item.title} — ${item.set}`;
+        const line = fitLine(item);
+        if (line) {
+            datasets.push({
+                type: "line",
+                label: label + " fit",
+                data: line,
+                borderColor: color,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 0,
+                fill: false
+            });
+        }
+        datasets.push({
+            type: "scatter",
+            label,
+            data: item.points.map(point => ({ x: point.x, y: point.y, id: point.id })),
+            backgroundColor: color,
+            borderColor: color,
+            pointRadius: 4,
+            pointHoverRadius: 6
+        });
+    });
+
+    if (chart) chart.destroy();
+    chart = new Chart(canvas, {
+        type: "scatter",
+        data: { datasets },
+        options: {
+            animation: false,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: theme.text,
+                        filter: item => !item.text.endsWith(" fit")
+                    }
+                },
+                title: {
+                    display: true,
+                    color: theme.text,
+                    font: { size: 16 },
+                    text: chartTitle(series)
+                },
+                tooltip: {
+                    callbacks: {
+                        label(context) {
+                            const point = context.raw;
+                            if (!point || point.id == null) return context.dataset.label;
+                            return `${point.id}: (${formatNumber(point.x)}, ${formatNumber(point.y)})`;
+                        }
+                    }
+                },
+                statsBox: { series }
+            },
+            scales: {
+                x: axis(series[0].xLabel, theme),
+                y: axis(series[0].yLabel, theme)
+            }
+        },
+        plugins: [backgroundPlugin, statsPlugin]
+    });
+    pngButton.disabled = false;
+    csvButton.disabled = false;
+}
+
+function fitLine(series) {
+    const fit = series.fit;
+    if (fit.slope == null || fit.intercept == null || series.points.length < 2) return null;
+    const xs = series.points.map(point => point.x);
+    const min = Math.min(...xs);
+    const max = Math.max(...xs);
+    if (min === max) return null;
+    return [
+        { x: min, y: fit.slope * min + fit.intercept },
+        { x: max, y: fit.slope * max + fit.intercept }
+    ];
+}
+
+function chartTitle(series) {
+    const setsLabel = series.map(item => item.set).join(" / ");
+    const sameTitle = series.every(item => item.title === series[0].title);
+    const heading = sameTitle ? `${series[0].yLabel} vs. ${series[0].xLabel}` : series.map(item => item.title).join("  ·  ");
+    return `${heading} — ${setsLabel}`;
+}
+
+function axis(title, theme) {
+    return {
+        title: { display: true, text: title, color: theme.text },
+        ticks: { color: theme.muted },
+        grid: { color: theme.grid }
+    };
+}
+
+const backgroundPlugin = {
+    id: "themeBackground",
+    beforeDraw(chart) {
+        const { ctx, width, height } = chart;
+        ctx.save();
+        ctx.fillStyle = currentTheme().bg;
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+    }
+};
+
+const statsPlugin = {
+    id: "statsBox",
+    afterDraw(chart) {
+        const series = chart.options.plugins.statsBox?.series || [];
+        if (!series.length) return;
+        const theme = currentTheme();
+        const lines = [];
+        series.forEach((item, index) => {
+            const color = colors[index % colors.length];
+            const fit = item.fit;
+            const name = item.title === series[0].title ? item.set : `${item.set}: ${item.title}`;
+            lines.push({ color, text: name });
+            lines.push({ color, text: `Slope ${formatNumber(fit.slope)}    N = ${fit.n}` });
+            lines.push({ color, text: `y-int ${formatNumber(fit.intercept)}    SE ${formatNumber(fit.slopeStandardError)}` });
+            lines.push({ color, text: `R² ${formatNumber(fit.rSquared)}` });
+            lines.push({ color, text: `p ${formatP(fit.p)}` });
+        });
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = "13px Segoe UI, sans-serif";
+        const width = Math.max(...lines.map(line => ctx.measureText(line.text).width)) + 20;
+        const height = lines.length * 18 + 12;
+        const left = chart.chartArea.left + 8;
+        const top = chart.chartArea.top + 8;
+        ctx.fillStyle = theme.box;
+        ctx.strokeStyle = theme.grid;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(left, top, width, height, 6);
+        ctx.fill();
+        ctx.stroke();
+        lines.forEach((line, index) => {
+            ctx.fillStyle = line.color;
+            ctx.fillText(line.text, left + 10, top + 18 + index * 18);
+        });
+        ctx.restore();
+    }
+};
+
+function currentTheme() {
+    const styles = getComputedStyle(document.documentElement);
+    const light = document.documentElement.dataset.theme === "light";
+    return {
+        bg: styles.getPropertyValue("--bg").trim(),
+        text: styles.getPropertyValue("--text").trim(),
+        muted: styles.getPropertyValue("--muted").trim(),
+        grid: styles.getPropertyValue("--grid").trim(),
+        box: light ? "rgba(255,255,255,0.9)" : "rgba(15,23,42,0.88)"
+    };
+}
+
+function syncThemeButton() {
+    themeButton.textContent = document.documentElement.dataset.theme === "light" ? "Dark theme" : "Light theme";
+}
+
+function formatNumber(value) {
+    if (value == null || Number.isNaN(value)) return "n/a";
+    const abs = Math.abs(value);
+    if (abs !== 0 && (abs < 0.0001 || abs >= 10000)) return Number(value).toExponential(3);
+    return Number(value).toFixed(4);
+}
+
+function formatP(value) {
+    if (value == null || Number.isNaN(value)) return "n/a";
+    if (value === 0) return "0";
+    if (value < 0.001) return Number(value).toExponential(3);
+    return Number(value).toFixed(4);
+}
+
+function fileStem() {
+    return drawn.map(item => `${item.title} -- ${item.set}`).join(" + ").replace(/[\\/:*?"<>|]/g, "");
+}
+
+function csvField(value) {
+    const text = String(value ?? "");
+    return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
