@@ -283,8 +283,7 @@ while (true)
             if (miner.Success)
                 Console.WriteLine("Woooa!  Cool yer jets there Haus, these regressions already are running.\n" +
                                   " If you want to start over type 'Clear' which will erase all computed data and clear the queues");
-
-
+           
             miner.MineOperation();
             foreach (var line in regressionList.Build(
                          goldMiner.DustDictionary.Values, result.SearchTerms,
