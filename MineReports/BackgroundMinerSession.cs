@@ -55,6 +55,8 @@ public sealed class BackgroundMinerSession : IDisposable
         return rows;
     }
 
+    public ScatterResult Scatter(string title, string setName) => ScatterSeries.Build(_miner, title, setName);
+
     public string[] PresetTitles(string name)
     {
         var titles = new MineRegressionsWithGold(_miner).TitlesFor(name);

@@ -8,6 +8,22 @@
     --accent: #38bdf8;
     --red: #f43f5e;
     --orange: #fb923c;
+    --field: #0f172a;
+    --chip: #1e293b;
+    --grid: #334155;
+}
+
+html[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f4f7fb;
+    --panel: #ffffff;
+    --line: #d5dde8;
+    --text: #0f172a;
+    --muted: #475569;
+    --accent: #0369a1;
+    --field: #ffffff;
+    --chip: #e8eef6;
+    --grid: #d5dde8;
 }
 
 * { box-sizing: border-box; }
@@ -28,6 +44,10 @@ header { padding: 1.5rem 0 0.5rem; }
 
 h1 { font-size: 1.6rem; margin: 0 0 0.25rem; }
 
+.top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+
+a { color: var(--accent); }
+
 h2 { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem; }
 
 p { color: var(--muted); }
@@ -46,7 +66,7 @@ textarea {
     resize: vertical;
     border-radius: 8px;
     border: 1px solid var(--line);
-    background: #0f172a;
+    background: var(--field);
     color: var(--text);
     font: 14px/1.4 ui-monospace, Consolas, monospace;
     padding: 0.75rem;
@@ -71,14 +91,15 @@ button {
     font-weight: 650;
 }
 
-button.secondary { background: #1e293b; color: var(--text); border: 1px solid var(--line); }
+button.secondary { background: var(--chip); color: var(--text); border: 1px solid var(--line); }
 
 button:disabled { opacity: 0.55; cursor: wait; }
 
 #status { color: var(--muted); }
 .warning { color: #fecaca; }
 .filters { display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; }
-.filters input { margin-left: 0.35rem; background: #0f172a; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.45rem; }
+.filters input, .filters select { margin-left: 0.35rem; background: var(--field); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.45rem; }
+.filters input[type="text"], .filters input:not([type]) { min-width: 18rem; }
 .hint { margin-bottom: 0; }
 
 .charts {
@@ -88,6 +109,7 @@ button:disabled { opacity: 0.55; cursor: wait; }
 }
 
 .chart-box { height: 320px; }
+.chart-box.tall { height: 560px; }
 .chart-box canvas { width: 100% !important; height: 100% !important; }
 
 .legend { display: flex; gap: 1.25rem; flex-wrap: wrap; margin: 0.25rem 0 0; }

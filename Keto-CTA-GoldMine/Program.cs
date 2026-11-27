@@ -62,6 +62,18 @@ app.MapPost("/api/miner/clear", (BackgroundMinerSession miner) =>
 
 app.MapGet("/api/miner/status", (BackgroundMinerSession miner) => Results.Ok(miner.Status()));
 
+app.MapGet("/api/scatter", (string title, string set, BackgroundMinerSession miner) =>
+{
+    try
+    {
+        return Results.Ok(miner.Scatter(title, set));
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
 app.MapPost("/api/dusts", (DustQueryBody body, BackgroundMinerSession miner) =>
     Results.Ok(miner.Query(body.Search, body.Limit, body.MaxP, body.Sets)));
 

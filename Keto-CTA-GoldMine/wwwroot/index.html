@@ -9,7 +9,10 @@
 </head>
 <body>
     <header>
-        <h1>Keto-CTA regressions</h1>
+        <div class="top">
+            <h1>Keto-CTA regressions</h1>
+            <a href="scatter.html">Scatter plot</a>
+        </div>
         <p>Paste chart titles, one per line, then add them to the background miner. Charts keep updating while titles are still running. The enqueue cap is <code>Mining:MaxTitles</code> in appsettings.json.</p>
     </header>
     <main>
@@ -74,7 +77,7 @@
 
         <section class="panel table-wrap">
             <table id="dusts">
-                <caption>Click a column heading to sort.</caption>
+                <caption>Click a column heading to sort. Click a title to open its scatter plot.</caption>
                 <thead>
                     <tr>
                         <th data-key="title">Title</th>
