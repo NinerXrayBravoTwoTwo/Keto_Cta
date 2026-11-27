@@ -90,7 +90,14 @@ public static class Log10PHistogram
         if (score >= AxisMax)
             return -1;
 
-        var index = (int)Math.Floor((decimal)score / (decimal)BinWidth);
+        // A score that is mathematically k * 0.2 is often a hair low in double:
+        // 0.6 / 0.2 is 2.9999999999999996, and -log10(10^-0.2) is 0.19999999999999998.
+        // Floor then puts the point in the lower bin. Casting through decimal does not
+        // fix it: double-to-decimal uses OleAut on Windows and a different conversion
+        // on Linux, so the same edge passed here and failed on Windows.
+        // 1e-9 of a bin is about 2e-10 on the score, enough for that rounding and far
+        // smaller than a real gap below the boundary.
+        var index = (int)Math.Floor(score / BinWidth + 1e-9);
         if (index < 0)
             return 0;
         if (index >= BinCount)

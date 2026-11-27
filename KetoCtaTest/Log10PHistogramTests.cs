@@ -35,13 +35,34 @@ public class Log10PHistogramTests
     [Theory]
     [InlineData(0, 0)]
     [InlineData(0.2, 1)]
+    [InlineData(0.4, 2)]
+    [InlineData(0.6, 3)]
     [InlineData(1.301, 6)]
     [InlineData(0.699, 3)]
     [InlineData(9.8, 49)]
     [InlineData(9.999, 49)]
+    // These are the values double actually produces just below an edge
+    // (-log10(10^-0.2) is the first). They belong in the higher bin.
+    [InlineData(0.19999999999999998, 1)]
+    [InlineData(0.39999999999999997, 2)]
+    // A score clearly below 0.2 stays in bin 0; the nudge is much smaller than this gap.
+    [InlineData(0.1999, 0)]
     public void BinEdgesAreHalfOpenIntervalsOfWidthPointTwo(double score, int expectedBin)
     {
         Assert.Equal(expectedBin, Log10PHistogram.BinOfScore(score));
+    }
+
+    [Fact]
+    public void TenAndTheLog10ShortfallJustBelowItAreOverflow()
+    {
+        Assert.Equal(-1, Log10PHistogram.BinOfScore(10));
+        Assert.Equal(-1, Log10PHistogram.BinOfScore(9.999999999999998));
+
+        var summary = Log10PHistogram.Summarize([0, double.NaN, -0.1, 1.5, double.PositiveInfinity, Math.Pow(10, -10)]);
+        Assert.Equal(1, summary.Perfect);
+        Assert.Equal(4, summary.Invalid);
+        Assert.Equal(1, summary.Overflow);
+        Assert.All(summary.Counts, count => Assert.Equal(0, count));
     }
 
     [Fact]
