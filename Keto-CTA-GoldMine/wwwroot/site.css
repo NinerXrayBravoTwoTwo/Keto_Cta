@@ -102,6 +102,7 @@ button:disabled { opacity: 0.55; cursor: wait; }
 .filters input[type="text"], .filters input:not([type]) { min-width: 18rem; }
 .hint { margin-bottom: 0; }
 .check { color: var(--muted); display: inline-flex; align-items: center; gap: 0.35rem; }
+.actions select { margin-left: 0.35rem; background: var(--field); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.45rem; }
 
 .charts {
     display: grid;
