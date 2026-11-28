@@ -1,5 +1,11 @@
 const sets = ["Omega", "Alpha", "Beta", "Zeta", "Gamma", "Theta", "Eta", "BetaUZeta"];
 const colors = ["#ef4444", "#3b82f6"];
+const legendPlaces = {
+    tl: { corner: "tl", position: "top", align: "center" },
+    tr: { corner: "tr", position: "top", align: "end" },
+    bl: { corner: "bl", position: "bottom", align: "start" },
+    br: { corner: "br", position: "bottom", align: "end" }
+};
 
 const titleEl = document.getElementById("title");
 const setEl = document.getElementById("set");
@@ -11,6 +17,7 @@ const themeButton = document.getElementById("theme");
 const pngButton = document.getElementById("png");
 const csvButton = document.getElementById("csv");
 const canvas = document.getElementById("scatter");
+const legendEl = document.getElementById("legend");
 
 let chart;
 let drawn = [];
@@ -39,6 +46,10 @@ document.getElementById("remove").addEventListener("click", () => {
 
 document.getElementById("meanBand").addEventListener("change", () => { if (drawn.length) draw(drawn); });
 document.getElementById("predictionBand").addEventListener("change", () => { if (drawn.length) draw(drawn); });
+legendEl.addEventListener("change", () => {
+    rememberLegend(legendEl.value);
+    if (drawn.length) draw(drawn);
+});
 
 themeButton.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
@@ -72,6 +83,8 @@ csvButton.addEventListener("click", () => {
     URL.revokeObjectURL(link.href);
 });
 
+legendEl.value = initialLegend();
+
 const params = new URLSearchParams(location.search);
 if (params.get("title")) titleEl.value = params.get("title");
 if (params.get("set") && sets.includes(params.get("set"))) setEl.value = params.get("set");
@@ -94,12 +107,19 @@ function fillSelect(select, selected) {
 
 async function plot() {
     messageEl.textContent = "Loading…";
-    const requests = [loadSeries(titleEl.value.trim(), setEl.value)];
-    const overlay = !extraEl.hidden && title2El.value.trim();
-    if (overlay) requests.push(loadSeries(title2El.value.trim(), set2El.value));
-    const settled = await Promise.allSettled(requests);
-    const series = settled.filter(item => item.status === "fulfilled").map(item => item.value);
-    const errors = settled.filter(item => item.status === "rejected").map(item => item.reason.message);
+    const wanted = [{ title: titleEl.value.trim(), set: setEl.value }];
+    if (!extraEl.hidden && title2El.value.trim())
+        wanted.push({ title: title2El.value.trim(), set: set2El.value });
+    const series = [];
+    const errors = [];
+    // One at a time. AuDust caches the selector, and two calls for the same title overlap on that cache.
+    for (const item of wanted) {
+        try {
+            series.push(await loadSeries(item.title, item.set));
+        } catch (error) {
+            errors.push(error.message);
+        }
+    }
     if (!series.length) {
         messageEl.textContent = errors[0] || "No series.";
         pngButton.disabled = true;
@@ -113,6 +133,7 @@ async function plot() {
         query.set("set2", series[1].set);
     }
     if (levelParam) query.set("level", levelParam);
+    query.set("legend", legendPlace().corner);
     history.replaceState(null, "", "scatter.html?" + query.toString());
     messageEl.textContent = errors.length ? errors.join(" ") : series.map(item => `${item.set}: N=${item.fit.n}`).join(" · ");
 }
@@ -170,6 +191,8 @@ function draw(series) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
+                    position: legendPlace().position,
+                    align: legendPlace().align,
                     labels: {
                         color: theme.text,
                         filter: item => !/ (fit|band|prediction)$/.test(item.text)
@@ -191,7 +214,7 @@ function draw(series) {
                         }
                     }
                 },
-                statsBox: { series }
+                statsBox: { series, corner: legendPlace().corner }
             },
             scales: {
                 x: axis(series[0].xLabel, theme),
@@ -326,8 +349,8 @@ const statsPlugin = {
         ctx.font = "13px Segoe UI, sans-serif";
         const width = Math.max(...lines.map(line => ctx.measureText(line.text).width)) + 20;
         const height = lines.length * 18 + 12;
-        const left = chart.chartArea.left + 8;
-        const top = chart.chartArea.top + 8;
+        const corner = chart.options.plugins.statsBox?.corner || "tl";
+        const { left, top } = statsOrigin(chart.chartArea, width, height, corner);
         ctx.fillStyle = theme.box;
         ctx.strokeStyle = theme.grid;
         ctx.lineWidth = 1;
@@ -342,6 +365,39 @@ const statsPlugin = {
         ctx.restore();
     }
 };
+
+function legendPlace() {
+    return legendPlaces[legendEl.value] || legendPlaces.tl;
+}
+
+function initialLegend() {
+    const fromUrl = new URLSearchParams(location.search).get("legend");
+    if (legendPlaces[fromUrl]) return fromUrl;
+    try {
+        const stored = localStorage.getItem("keto-legend");
+        if (legendPlaces[stored]) return stored;
+    } catch (error) { /* private mode */ }
+    return "tl";
+}
+
+function rememberLegend(value) {
+    if (!legendPlaces[value]) return;
+    try { localStorage.setItem("keto-legend", value); } catch (error) { /* private mode */ }
+    const query = new URLSearchParams(location.search);
+    query.set("legend", value);
+    const search = query.toString();
+    history.replaceState(null, "", search ? "scatter.html?" + search : "scatter.html");
+}
+
+function statsOrigin(area, width, height, corner) {
+    const pad = 8;
+    const right = Math.max(area.left + pad, area.right - width - pad);
+    const bottom = Math.max(area.top + pad, area.bottom - height - pad);
+    if (corner === "tr") return { left: right, top: area.top + pad };
+    if (corner === "bl") return { left: area.left + pad, top: bottom };
+    if (corner === "br") return { left: right, top: bottom };
+    return { left: area.left + pad, top: area.top + pad };
+}
 
 function currentTheme() {
     const styles = getComputedStyle(document.documentElement);
