@@ -148,6 +148,10 @@ The following modules define the prototype platform for dataset ingestion, analy
 
 ---
 
+## Web UI
+
+A local web app for mining and for one scatter plot at a time lives in `Keto-CTA-GoldMine`. How to run it is in [Keto-CTA-GoldMine/README.md](./Keto-CTA-GoldMine/README.md).
+
 ## Usage
 
 To use this project:
