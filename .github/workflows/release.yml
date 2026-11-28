@@ -1,0 +1,70 @@
+# Builds a self-contained GoldMine folder when a v* tag is pushed, or when
+# someone runs the workflow by hand. The GitHub Release is left as a draft.
+# Pushing the tag is a separate step; this file does not create tags on its own
+# except that the release action may attach the draft to the tag that was pushed.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v* tag to attach a draft release to
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test Keto_Cta.sln -c Release --verbosity minimal
+
+      - name: Publish
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for rid in win-x64 linux-x64 osx-arm64; do
+            out="publish/$rid"
+            dotnet publish Keto-CTA-GoldMine/Keto-CTA-GoldMine.csproj \
+              -c Release -r "$rid" --self-contained \
+              -o "$out"
+            if [ "$rid" = "win-x64" ]; then
+              cp Keto-CTA-GoldMine/packaging/start-goldmine.bat "$out/"
+            else
+              cp Keto-CTA-GoldMine/packaging/start-goldmine.sh "$out/"
+              chmod +x "$out/start-goldmine.sh" "$out/Keto-CTA-GoldMine"
+            fi
+            (cd publish && zip -r "../dist/Keto-CTA-GoldMine-$rid.zip" "$rid")
+          done
+          ls -lh dist
+
+      - name: Require the tag to already exist
+        if: github.event_name == 'workflow_dispatch'
+        run: git ls-remote --exit-code --tags origin "refs/tags/${{ inputs.tag }}"
+
+      - name: Draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag }}
+          draft: true
+          fail_on_unmatched_files: true
+          files: dist/*.zip
+          body: |
+            Draft build of the GoldMine web UI. Not published.
+
+            Unzip the folder for your machine and run start-goldmine.bat (Windows) or start-goldmine.sh (Linux, macOS). The server listens on http://127.0.0.1:5176/.
+
+            The zip includes the two CSVs from KetoCtaRegressions/TestData. The software is AGPL-3.0. The dataset is described in the README as public research data from the Citizen Science Foundation; confirm that redistribution in a Release is acceptable before publishing this draft.

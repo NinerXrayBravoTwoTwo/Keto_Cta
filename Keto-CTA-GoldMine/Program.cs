@@ -1,6 +1,12 @@
 using MineReports;
 
-var builder = WebApplication.CreateBuilder(args);
+// Content root follows the executable. A published folder then serves wwwroot and finds
+// Data/ even when the process was started from another directory.
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 var maxTitles = builder.Configuration.GetValue("Mining:MaxTitles", 20000);
 builder.Services.AddSingleton(sp =>
 {
